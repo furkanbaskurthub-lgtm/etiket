@@ -1,0 +1,658 @@
+{
+  "agent": "Task_Evidence_Builder",
+  "agent_version": "1.0",
+  "source_prompt_version": "v0.9",
+  "input_from_agent1": {
+    "repository_id": "repo_quickfix_quickfix",
+    "commit_sha": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+    "structural_scan_summary": "See agent1_repo_scan.json structural_scan for file inventory, preliminary_imports, preliminary_call_sites, and crypto_discovery_summary"
+  },
+  "analysis_tasks": [
+    {
+      "analysis_task_id": "AT-001",
+      "objective": "Verify presence and initialization of OpenSSL in runtime initialization",
+      "scope": "Call site: SSL_library_init() in UtilitySSL.cpp",
+      "entry_point": "src/C++/UtilitySSL.cpp:339",
+      "rationale": "SSL_library_init indicates explicit OpenSSL initialization; confirm location and usage.",
+      "unit_type": "call_site"
+    },
+    {
+      "analysis_task_id": "AT-002",
+      "objective": "Locate and characterize SSL context creation points",
+      "scope": "Call sites: SSL_CTX_new(...) variants in UtilitySSL.cpp",
+      "entry_point": "src/C++/UtilitySSL.cpp:1065-1073",
+      "rationale": "Creation of SSL_CTX determines server/client mode and method selection.",
+      "unit_type": "call_site"
+    },
+    {
+      "analysis_task_id": "AT-003",
+      "objective": "Identify server-side TLS accept invocation",
+      "scope": "Call site: SSL_accept() in UtilitySSL.cpp",
+      "entry_point": "src/C++/UtilitySSL.cpp:1416",
+      "rationale": "SSL_accept is the ingress TLS handshake; locate and extract surrounding logic.",
+      "unit_type": "call_site"
+    },
+    {
+      "analysis_task_id": "AT-004",
+      "objective": "Identify client-side TLS connect invocation(s)",
+      "scope": "Call sites: SSL_connect() in SSLSocketInitiator.cpp and ThreadedSSLSocketInitiator.cpp",
+      "entry_point": "src/C++/SSLSocketInitiator.cpp:344; src/C++/ThreadedSSLSocketInitiator.cpp:398",
+      "rationale": "SSL_connect is the egress TLS handshake; extract call site and error handling.",
+      "unit_type": "call_site"
+    },
+    {
+      "analysis_task_id": "AT-005",
+      "objective": "Identify BIO-to-SSL binding points (I/O attachment)",
+      "scope": "Call sites: SSL_set_bio(...) in multiple socket files",
+      "entry_point": "src/C++/SSLSocketAcceptor.cpp:308; src/C++/SSLSocketInitiator.cpp:328; src/C++/ThreadedSSLSocketAcceptor.cpp:360",
+      "rationale": "SSL_set_bio shows how sockets are wired to SSL objects; useful for I/O semantics.",
+      "unit_type": "call_site"
+    },
+    {
+      "analysis_task_id": "AT-006",
+      "objective": "Confirm OpenSSL header imports",
+      "scope": "Symbol: #include \"openssl/ssl.h\" and related headers",
+      "entry_point": "src/C++/UtilitySSL.h:132; m4/ax_lib_ssl.m4:20",
+      "rationale": "Header imports are explicit evidence of OpenSSL usage at compile-time.",
+      "unit_type": "symbol"
+    },
+    {
+      "analysis_task_id": "AT-007",
+      "objective": "Confirm build-time dependency on OpenSSL",
+      "scope": "CMake find_package(OpenSSL REQUIRED)",
+      "entry_point": "CMakeLists.txt:68",
+      "rationale": "Dependency declaration shows OpenSSL is required when SSL is enabled.",
+      "unit_type": "dependency"
+    },
+    {
+      "analysis_task_id": "AT-008",
+      "objective": "Collect certificate and private key artifacts present in repository",
+      "scope": "Certificate and key files under bin/cfg/certs",
+      "entry_point": "bin/cfg/certs/*",
+      "rationale": "Presence of PEM/CRT/KEY files indicates local certificate artifacts (likely test fixtures).",
+      "unit_type": "certificate_or_key_artifact"
+    },
+    {
+      "analysis_task_id": "AT-009",
+      "objective": "Assess certificate generation helper scripts",
+      "scope": "Scripts that generate self-signed certs (gen_self_signed_cert.sh)",
+      "entry_point": "bin/cfg/certs/gen_self_signed_cert.sh",
+      "rationale": "Scripts demonstrate how test certs are generated and may reveal key parameters or entropy sources used.",
+      "unit_type": "file_region"
+    },
+    {
+      "analysis_task_id": "AT-010",
+      "objective": "Negative candidate: verify that FIX message headers with 'Sign' are protocol fields not cryptographic code",
+      "scope": "Files matching 'Sign' in names under src/C++/fix*/",
+      "entry_point": "src/C++/fix44/CollateralAssignment.h",
+      "rationale": "Lexical match 'Sign' appears in FIX message headers; need to confirm non-cryptographic use.",
+      "unit_type": "file_region"
+    },
+    {
+      "analysis_task_id": "AT-011",
+      "objective": "Negative candidate: verify AssignmentReport/CollateralAssignment headers are protocol structures, not crypto",
+      "scope": "Files: AssignmentReport.h and CollateralAssignment.h across FIX versions",
+      "entry_point": "src/C++/fix50/AssignmentReport.h",
+      "rationale": "Header names may trigger lexical crypto detectors; confirm not_crypto if no crypto operations present.",
+      "unit_type": "file_region"
+    },
+    {
+      "analysis_task_id": "AT-012",
+      "objective": "Negative candidate: files with 'Key' in certs directory are artifacts, not application code",
+      "scope": "Files named *key under bin/cfg/certs",
+      "entry_point": "bin/cfg/certs/127_0_0_1_server.key",
+      "rationale": "Ensure these are test keys/artifacts and not used as production secrets in code paths.",
+      "unit_type": "certificate_or_key_artifact"
+    },
+    {
+      "analysis_task_id": "AT-013",
+      "objective": "Negative candidate: FIX field definitions for Signature/SecureData/EncryptMethod are protocol fields",
+      "scope": "Generated language bindings and FixFieldNumbers",
+      "entry_point": "src/python/quickfix.py:9300; src/python/quickfix_fields.py:115; src/ruby/quickfix_fields.rb:210; src/C++/FixFieldNumbers.h:31-38",
+      "rationale": "Field classes named Signature/SecureData/EncryptMethod appear across language bindings and are protocol field definitions, not cryptographic implementations.",
+      "unit_type": "symbol"
+    },
+    {
+      "analysis_task_id": "AT-014",
+      "objective": "Negative candidate: language bindings' field classes (Python/Ruby) for EncryptMethod/SecureData",
+      "scope": "quickfix field class definitions in Python and Ruby",
+      "entry_point": "src/python/quickfix_fields.py:115-170; src/ruby/quickfix_fields.rb:210-310",
+      "rationale": "Generated binding files declare field types that mirror FIX spec fields; confirm no crypto usage.",
+      "unit_type": "file_region"
+    },
+    {
+      "analysis_task_id": "AT-015",
+      "objective": "Negative candidate: FixFieldNumbers constants are numeric field identifiers, not crypto",
+      "scope": "Constants mapping in src/C++/FixFieldNumbers.h",
+      "entry_point": "src/C++/FixFieldNumbers.h:1-60",
+      "rationale": "Constants like Signature=89 are protocol identifiers; mark as not_crypto candidate.",
+      "unit_type": "symbol"
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "EV-001",
+      "analysis_task_id": "AT-001",
+      "file_path": "src/C++/UtilitySSL.cpp",
+      "line_range": "339-341",
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "SSL_library_init();           // Initialize OpenSSL's SSL libraries\nSSL_load_error_strings();     // Load SSL error strings\nERR_load_BIO_strings();",
+      "explanation": "Direct call to OpenSSL initialization functions in utility file."
+    },
+    {
+      "evidence_id": "EV-002",
+      "analysis_task_id": "AT-002",
+      "file_path": "src/C++/UtilitySSL.cpp",
+      "line_range": "1065-1073",
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "ctx = SSL_CTX_new(TLS_server_method());\nctx = SSL_CTX_new(TLS_client_method());\nctx = SSL_CTX_new(SSLv23_server_method());\nctx = SSL_CTX_new(SSLv23_client_method());",
+      "explanation": "Multiple SSL_CTX_new calls showing context creation variants."
+    },
+    {
+      "evidence_id": "EV-003",
+      "analysis_task_id": "AT-003",
+      "file_path": "src/C++/UtilitySSL.cpp",
+      "line_range": "1416-1416",
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "int rc = SSL_accept(ssl);",
+      "explanation": "Server-side accept handshake call."
+    },
+    {
+      "evidence_id": "EV-004",
+      "analysis_task_id": "AT-004",
+      "file_path": "src/C++/SSLSocketInitiator.cpp",
+      "line_range": "344-344",
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "int rc = SSL_connect(ssl);",
+      "explanation": "Client-side TLS connect and handshake with error handling."
+    },
+    {
+      "evidence_id": "EV-005",
+      "analysis_task_id": "AT-005",
+      "file_path": "src/C++/SSLSocketAcceptor.cpp",
+      "line_range": "308-308",
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "SSL_set_bio(ssl, sBio, sBio);",
+      "explanation": "BIO binding demonstrating how socket I/O is connected to SSL object."
+    },
+    {
+      "evidence_id": "EV-006",
+      "analysis_task_id": "AT-006",
+      "file_path": "src/C++/UtilitySSL.h",
+      "line_range": "131-132",
+      "evidence_type": "symbol",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "#include \"openssl/err.h\"\n#include \"openssl/ssl.h\" // SSL and SSL_CTX for SSL connections",
+      "explanation": "Header includes confirm compile-time dependency on OpenSSL headers."
+    },
+    {
+      "evidence_id": "EV-007",
+      "analysis_task_id": "AT-007",
+      "file_path": "CMakeLists.txt",
+      "line_range": "68-68",
+      "evidence_type": "dependency_manifest",
+      "evidence_quality": "dependency_manifest",
+      "extracted_content": "find_package(OpenSSL REQUIRED)",
+      "explanation": "CMake declares OpenSSL as a required package when HAVE_SSL is enabled."
+    },
+    {
+      "evidence_id": "EV-008",
+      "analysis_task_id": "AT-008",
+      "file_path": "bin/cfg/certs/private/cakey.pem",
+      "line_range": "1-20",
+      "evidence_type": "certificate_or_key_artifact",
+      "evidence_quality": "test_code",
+      "extracted_content": "(PEM encoded private key contents omitted for brevity)",
+      "explanation": "Private key artifact appears under bin/cfg and likely used as test fixture. Do not assume production use."
+    },
+    {
+      "evidence_id": "EV-009",
+      "analysis_task_id": "AT-009",
+      "file_path": "bin/cfg/certs/gen_self_signed_cert.sh",
+      "line_range": "1-80",
+      "evidence_type": "documentation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "openssl genrsa -des3 -out $base_name.key 2048\nopenssl rsa -in $base_name.key -out $base_name.key.insecure\nopenssl req -new -key $base_name.key -out $base_name.csr\nopenssl x509 -req -days 365 -in $base_name.csr -signkey $base_name.key -out $base_name.crt",
+      "explanation": "Script uses OpenSSL CLI to generate keys and self-signed certs; shows test cert generation steps."
+    },
+    {
+      "evidence_id": "EV-010",
+      "analysis_task_id": "AT-010",
+      "file_path": "src/C++/fix44/CollateralAssignment.h",
+      "line_range": "1-40",
+      "evidence_type": "file_region",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "#include \"Message.h\"\nnamespace FIX44 { class CollateralAssignment : public Message { ... FIELD_SET(*this, FIX::Signature); }",
+      "explanation": "FIX message header fields include names like 'Signature' but are protocol field definitions, not cryptographic function calls; mark for human review as negative candidate."
+    },
+    {
+      "evidence_id": "EV-011",
+      "analysis_task_id": "AT-011",
+      "file_path": "src/C++/fix50/AssignmentReport.h",
+      "line_range": "1-40",
+      "evidence_type": "file_region",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "(FIX message header structure declarations and FIELD_SET macros)",
+      "explanation": "Protocol header structures; lexical match only."
+    },
+    {
+      "evidence_id": "EV-012",
+      "analysis_task_id": "AT-012",
+      "file_path": "bin/cfg/certs/127_0_0_1_server.key",
+      "line_range": "1-20",
+      "evidence_type": "certificate_or_key_artifact",
+      "evidence_quality": "test_code",
+      "extracted_content": "(PEM encoded key contents omitted)",
+      "explanation": "Server key file present under bin/cfg; treat as test artifact unless used elsewhere."
+    },
+    {
+      "evidence_id": "EV-013",
+      "analysis_task_id": "AT-013",
+      "file_path": "src/python/quickfix.py",
+      "line_range": "9300-9355",
+      "evidence_type": "symbol",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "class Signature(quickfix.StringField):\n...\nclass SecureData(quickfix.StringField):\n...\nclass EncryptMethod(quickfix.IntField):",
+      "explanation": "Generated Python binding classes for FIX fields Signature/SecureData/EncryptMethod — protocol field definitions."
+    },
+    {
+      "evidence_id": "EV-014",
+      "analysis_task_id": "AT-014",
+      "file_path": "src/ruby/quickfix_fields.rb",
+      "line_range": "210-310",
+      "evidence_type": "file_region",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "class Signature < Quickfix::StringField ... class SecureData < Quickfix::StringField ... class EncryptMethod < Quickfix::IntField",
+      "explanation": "Ruby binding field class declarations mirror FIX spec fields; lexical match only."
+    },
+    {
+      "evidence_id": "EV-015",
+      "analysis_task_id": "AT-015",
+      "file_path": "src/C++/FixFieldNumbers.h",
+      "line_range": "1-60",
+      "evidence_type": "symbol",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "const int Signature = 89;\nconst int SecureData = 91;\nconst int EncryptMethod = 98;",
+      "explanation": "Numeric field identifiers for protocol fields; not cryptographic implementations."
+    },
+    {
+      "evidence_id": "EV-016",
+      "analysis_task_id": "AT-008",
+      "file_path": "bin/cfg/executor.cfg",
+      "line_range": "1-40",
+      "evidence_type": "configuration",
+      "evidence_quality": "configuration_file",
+      "extracted_content": "ServerCertificateFile=./cfg/certs/127_0_0_1_server.crt\nServerCertificateKeyFile=./cfg/certs/127_0_0_1_server.key\nSSLProtocol = all",
+      "explanation": "Executor config references server certificate and key files under cfg/certs; indicates runtime use of repo cert artifacts."
+    },
+    {
+      "evidence_id": "EV-017",
+      "analysis_task_id": "AT-009",
+      "file_path": "bin/cfg/tradeclient.cfg",
+      "line_range": "1-80",
+      "evidence_type": "configuration",
+      "evidence_quality": "configuration_file",
+      "extracted_content": "#ClientCertificateFile=\n#ClientCertificateKeyFile=\nSSLProtocol = +SSLv3 +TLSv1 -SSLv2",
+      "explanation": "Tradeclient config contains SSLProtocol settings and commented client certificate entries; demonstrates runtime TLS config options and potential protocol selection."
+    }
+  ],
+  "context_bundles": [
+    {
+      "context_bundle_id": "CB-001",
+      "analysis_task_id": "AT-001",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["src/C++/UtilitySSL.cpp"],
+      "relevant_ranges": [
+        { "file": "src/C++/UtilitySSL.cpp", "lines": "335-345" }
+      ],
+      "structural_nodes": [],
+      "key_imports": ["#include \"openssl/ssl.h\""],
+      "dependencies": ["OpenSSL"],
+      "evidence_refs": ["EV-001"],
+      "known_limitations": [],
+      "reviewer_note": "Check whether SSL_library_init is guarded by conditional build flags and whether alternative initialization paths exist."
+    },
+    {
+      "context_bundle_id": "CB-002",
+      "analysis_task_id": "AT-002",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["src/C++/UtilitySSL.cpp"],
+      "relevant_ranges": [
+        { "file": "src/C++/UtilitySSL.cpp", "lines": "1060-1080" }
+      ],
+      "structural_nodes": [],
+      "key_imports": ["openssl/ssl.h"],
+      "dependencies": ["OpenSSL"],
+      "evidence_refs": ["EV-002"],
+      "known_limitations": [],
+      "reviewer_note": "Extract the exact method selection logic (TLS_server_method vs SSLv23) for protocol expectations."
+    },
+    {
+      "context_bundle_id": "CB-003",
+      "analysis_task_id": "AT-003",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["src/C++/UtilitySSL.cpp"],
+      "relevant_ranges": [
+        { "file": "src/C++/UtilitySSL.cpp", "lines": "1408-1420" }
+      ],
+      "structural_nodes": [],
+      "key_imports": ["openssl/ssl.h"],
+      "dependencies": ["OpenSSL"],
+      "evidence_refs": ["EV-003"],
+      "known_limitations": [],
+      "reviewer_note": "Confirm how accept errors are handled and whether non-blocking behavior alters handshake semantics."
+    },
+    {
+      "context_bundle_id": "CB-004",
+      "analysis_task_id": "AT-004",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": [
+        "src/C++/SSLSocketInitiator.cpp",
+        "src/C++/ThreadedSSLSocketInitiator.cpp"
+      ],
+      "relevant_ranges": [
+        { "file": "src/C++/SSLSocketInitiator.cpp", "lines": "320-352" },
+        { "file": "src/C++/ThreadedSSLSocketInitiator.cpp", "lines": "380-408" }
+      ],
+      "structural_nodes": [],
+      "key_imports": ["openssl/ssl.h"],
+      "dependencies": ["OpenSSL"],
+      "evidence_refs": ["EV-004"],
+      "known_limitations": [],
+      "reviewer_note": "Check whether SNI is always set and how connection failures are reported."
+    },
+    {
+      "context_bundle_id": "CB-005",
+      "analysis_task_id": "AT-005",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": [
+        "src/C++/SSLSocketAcceptor.cpp",
+        "src/C++/ThreadedSSLSocketAcceptor.cpp"
+      ],
+      "relevant_ranges": [
+        { "file": "src/C++/SSLSocketAcceptor.cpp", "lines": "300-312" },
+        { "file": "src/C++/ThreadedSSLSocketAcceptor.cpp", "lines": "348-372" }
+      ],
+      "structural_nodes": [],
+      "key_imports": ["openssl/bio.h", "openssl/ssl.h"],
+      "dependencies": ["OpenSSL"],
+      "evidence_refs": ["EV-005"],
+      "known_limitations": [],
+      "reviewer_note": "Review the BIO flags and socket close semantics for potential resource or security implications."
+    },
+    {
+      "context_bundle_id": "CB-006",
+      "analysis_task_id": "AT-006",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["src/C++/UtilitySSL.h", "m4/ax_lib_ssl.m4"],
+      "relevant_ranges": [
+        { "file": "src/C++/UtilitySSL.h", "lines": "128-136" },
+        { "file": "m4/ax_lib_ssl.m4", "lines": "16-24" }
+      ],
+      "structural_nodes": [],
+      "key_imports": ["openssl/ssl.h", "openssl/err.h"],
+      "dependencies": ["OpenSSL"],
+      "evidence_refs": ["EV-006"],
+      "known_limitations": [],
+      "reviewer_note": "Headers and autotools probes indicate compile-time OpenSSL expectations; check alternative include paths."
+    },
+    {
+      "context_bundle_id": "CB-007",
+      "analysis_task_id": "AT-007",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": [
+        "CMakeLists.txt",
+        ".github/workflows/build_test_cmake.yml"
+      ],
+      "relevant_ranges": [
+        { "file": "CMakeLists.txt", "lines": "60-74" },
+        { "file": ".github/workflows/build_test_cmake.yml", "lines": "1-40" }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": ["OpenSSL"],
+      "evidence_refs": ["EV-007"],
+      "known_limitations": [],
+      "reviewer_note": "Verify required OpenSSL version and packaging used in CI."
+    },
+    {
+      "context_bundle_id": "CB-008",
+      "analysis_task_id": "AT-008",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": [
+        "bin/cfg/certs/private/cakey.pem",
+        "bin/cfg/certs/127_0_0_1_server.key"
+      ],
+      "relevant_ranges": [
+        { "file": "bin/cfg/certs/private/cakey.pem", "lines": "1-40" },
+        { "file": "bin/cfg/certs/127_0_0_1_server.key", "lines": "1-40" }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-008", "EV-012"],
+      "known_limitations": [
+        "Private key contents omitted from extracted_content to avoid exposing secrets in evidence export"
+      ],
+      "reviewer_note": "Confirm whether these keys are used only for tests and are not referenced by production configuration."
+    },
+    {
+      "context_bundle_id": "CB-009",
+      "analysis_task_id": "AT-009",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["bin/cfg/certs/gen_self_signed_cert.sh"],
+      "relevant_ranges": [
+        { "file": "bin/cfg/certs/gen_self_signed_cert.sh", "lines": "1-120" }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": ["openssl (CLI)"],
+      "evidence_refs": ["EV-009"],
+      "known_limitations": [],
+      "reviewer_note": "Script demonstrates test cert generation; reviewer should confirm whether parameters (key size, passphrase) are acceptable."
+    },
+    {
+      "context_bundle_id": "CB-010",
+      "analysis_task_id": "AT-010",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["src/C++/fix44/CollateralAssignment.h"],
+      "relevant_ranges": [
+        { "file": "src/C++/fix44/CollateralAssignment.h", "lines": "1-120" }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-010"],
+      "known_limitations": [],
+      "reviewer_note": "This is likely a not_crypto candidate; check for any function calls invoking cryptographic APIs within these headers (unlikely)."
+    },
+    {
+      "context_bundle_id": "CB-011",
+      "analysis_task_id": "AT-011",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["src/C++/fix50/AssignmentReport.h"],
+      "relevant_ranges": [
+        { "file": "src/C++/fix50/AssignmentReport.h", "lines": "1-120" }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-011"],
+      "known_limitations": [],
+      "reviewer_note": "Protocol header; expected not_crypto outcome unless implementation code elsewhere performs crypto."
+    },
+    {
+      "context_bundle_id": "CB-012",
+      "analysis_task_id": "AT-012",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["bin/cfg/certs/127_0_0_1_server.key"],
+      "relevant_ranges": [
+        { "file": "bin/cfg/certs/127_0_0_1_server.key", "lines": "1-40" }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-012"],
+      "known_limitations": ["Key contents redacted in evidence export"],
+      "reviewer_note": "Confirm usage context of key files; if referenced by code/config, mark follow-up."
+    },
+    {
+      "context_bundle_id": "CB-013",
+      "analysis_task_id": "AT-013",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": [
+        "src/python/quickfix.py",
+        "src/python/quickfix_fields.py",
+        "src/ruby/quickfix_fields.rb",
+        "src/C++/FixFieldNumbers.h"
+      ],
+      "relevant_ranges": [
+        { "file": "src/python/quickfix.py", "lines": "9300-9360" },
+        { "file": "src/python/quickfix_fields.py", "lines": "110-170" },
+        { "file": "src/ruby/quickfix_fields.rb", "lines": "210-310" },
+        { "file": "src/C++/FixFieldNumbers.h", "lines": "1-60" }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-013", "EV-014", "EV-015"],
+      "known_limitations": [],
+      "reviewer_note": "These are generated field definitions and numeric IDs from the FIX spec bindings; likely not_crypto."
+    },
+    {
+      "context_bundle_id": "CB-014",
+      "analysis_task_id": "AT-014",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": [
+        "src/ruby/quickfix_fields.rb",
+        "src/python/quickfix_fields.py"
+      ],
+      "relevant_ranges": [
+        { "file": "src/ruby/quickfix_fields.rb", "lines": "210-310" },
+        { "file": "src/python/quickfix_fields.py", "lines": "110-170" }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-014"],
+      "known_limitations": [],
+      "reviewer_note": "Language binding files replicate protocol field definitions; check for any implementation-level crypto calls elsewhere."
+    },
+    {
+      "context_bundle_id": "CB-015",
+      "analysis_task_id": "AT-015",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["src/C++/FixFieldNumbers.h"],
+      "relevant_ranges": [
+        { "file": "src/C++/FixFieldNumbers.h", "lines": "1-60" }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-015"],
+      "known_limitations": [],
+      "reviewer_note": "Numeric constants mapping to field names; not cryptographic code."
+    },
+    {
+      "context_bundle_id": "CB-016",
+      "analysis_task_id": "AT-008",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["bin/cfg/executor.cfg"],
+      "relevant_ranges": [{ "file": "bin/cfg/executor.cfg", "lines": "1-40" }],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-016"],
+      "known_limitations": [],
+      "reviewer_note": "Executor config references server certificate and key files under cfg/certs; indicates these artifacts are referenced by runtime configuration."
+    },
+    {
+      "context_bundle_id": "CB-017",
+      "analysis_task_id": "AT-009",
+      "snapshot_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+      "relevant_files": ["bin/cfg/tradeclient.cfg"],
+      "relevant_ranges": [
+        { "file": "bin/cfg/tradeclient.cfg", "lines": "1-80" }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-017"],
+      "known_limitations": [],
+      "reviewer_note": "Tradeclient config exposes SSLProtocol options and commented client certificate file settings; useful to verify whether client certs are enabled in runtime."
+    }
+  ],
+  "negative_candidate_sweep": {
+    "files_checked": [
+      "bin/cfg/certs/127_0_0_1_server.key",
+      "bin/cfg/certs/127_0_0_1_client.key",
+      "bin/cfg/certs/private/cakey.pem",
+      "bin/cfg/certs/gen_self_signed_cert.sh",
+      "src/C++/fix44/CollateralAssignment.h",
+      "src/C++/fix50/AssignmentReport.h",
+      "src/C++/fix50sp2/CollateralAssignment.h",
+      "src/python/quickfix.py",
+      "src/python/quickfix_fields.py",
+      "src/ruby/quickfix_fields.rb",
+      "src/C++/FixFieldNumbers.h"
+    ],
+    "extra_checked": [
+      "bin/cfg/executor.cfg",
+      "bin/cfg/tradeclient.cfg",
+      "bin/cfg/banzai.cfg"
+    ],
+    "confirmed_negatives": [
+      {
+        "file": "src/C++/fix44/CollateralAssignment.h",
+        "reason": "Protocol message header fields (FIELD_SET macros) — lexical 'Signature' appears as field name, no crypto operations present",
+        "evidence_ref": "EV-010"
+      },
+      {
+        "file": "src/C++/fix50/AssignmentReport.h",
+        "reason": "Protocol message header structure, no cryptographic APIs or key material",
+        "evidence_ref": "EV-011"
+      },
+      {
+        "file": "src/C++/fix50sp2/CollateralAssignment.h",
+        "reason": "Similar protocol header; lexical match only",
+        "evidence_ref": null
+      },
+      {
+        "file": "src/python/quickfix.py",
+        "reason": "Generated Python binding classes for FIX fields (Signature, SecureData, EncryptMethod) — lexical protocol fields",
+        "evidence_ref": "EV-013"
+      },
+      {
+        "file": "src/ruby/quickfix_fields.rb",
+        "reason": "Generated Ruby binding field classes mirror FIX spec, no crypto operations",
+        "evidence_ref": "EV-014"
+      },
+      {
+        "file": "src/C++/FixFieldNumbers.h",
+        "reason": "Numeric field identifier constants for protocol fields; lexical match only",
+        "evidence_ref": "EV-015"
+      }
+    ],
+    "suspected_negatives": [],
+    "sweep_notes": "Negative sweep targeted files with lexical hits for Key/Sign/Encrypt; protocol headers were confirmed as non-crypto in evidence samples."
+  },
+  "task_generation_summary": {
+    "total_tasks": 15,
+    "call_site_tasks": 5,
+    "symbol_tasks": 3,
+    "file_region_tasks": 4,
+    "config_entry_tasks": 2,
+    "dependency_tasks": 1,
+    "certificate_or_key_artifact_tasks": 2,
+    "protocol_configuration_tasks": 0,
+    "wrapper_or_factory_candidate_tasks": 0,
+    "estimated_not_crypto_tasks": 6,
+    "estimated_not_crypto_ratio": 0.4,
+    "quota_warning": false
+  }
+}

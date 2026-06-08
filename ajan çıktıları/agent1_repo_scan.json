@@ -1,0 +1,368 @@
+{
+  "agent": "Repository_Scanner",
+  "agent_version": "1.0",
+  "source_prompt_version": "v0.9",
+  "repository_intake_record": {
+    "repository_id": "repo_quickfix_quickfix",
+    "url": "https://github.com/quickfix/quickfix",
+    "hosting_platform": "github",
+    "owner": "quickfix",
+    "name": "quickfix",
+    "selected_ref_type": "commit",
+    "selected_ref": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+    "license": "QuickFIX Software License, Version 1.0",
+    "primary_languages": ["C++", "Python", "Ruby"],
+    "domain_tags": ["financial-messaging", "FIX-protocol", "transport"],
+    "selection_reason": "Financial messaging / FIX protocol — protocol, transport, and certificate scenarios (seed repository)",
+    "status": "accepted",
+    "review_notes": {
+      "sha_source": "local_git",
+      "notes": "Commit SHA obtained via local git rev-parse as allowed by v0.9 fallback."
+    }
+  },
+  "snapshot_record": {
+    "snapshot_id": "SNAP-001",
+    "repository_id": "repo_quickfix_quickfix",
+    "commit_sha": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9",
+    "snapshot_timestamp": "2026-06-07T00:00:00Z",
+    "ref_type": "commit",
+    "ref_value": "386ce46e917ae494ab6e90b1be90fd421cdbe3f9"
+  },
+  "structural_scan": {
+    "file_inventory": {
+      "source_files": [
+        "src/at.cpp",
+        "src/pt.cpp",
+        "src/ut.cpp",
+        "src/at.py",
+        "src/at.rb",
+        "src/at_application.h",
+        "src/at_application.py",
+        "src/at_application.rb",
+        "src/quickfix.i",
+        "src/getopt.c",
+        "src/stdafx.cpp",
+        "src/C++/UtilitySSL.cpp",
+        "src/C++/UtilitySSL.h",
+        "src/C++/SSLSocketInitiator.cpp",
+        "src/C++/SSLSocketAcceptor.cpp",
+        "src/C++/ThreadedSSLSocketInitiator.cpp",
+        "src/C++/ThreadedSSLSocketAcceptor.cpp",
+        "src/C++/SSLSocket.cpp",
+        "src/C++/SSLSocket.h",
+        "src/C++/SSLStubs.h",
+        "src/C++/SessionSettings.h",
+        "src/python/QuickfixPython.cpp",
+        "src/ruby/QuickfixRuby.cpp",
+        "m4/ax_lib_ssl.m4",
+        "README.SSL"
+      ],
+      "test_files": ["test/CMakeLists.txt", "test/atrun/CMakeLists.txt"],
+      "config_files": [
+        "CMakeLists.txt",
+        "README.md",
+        "README.SSL",
+        ".github/workflows/build_test_cmake.yml"
+      ],
+      "dependency_manifests": [
+        "CMakeLists.txt",
+        "test/CMakeLists.txt",
+        "examples/CMakeLists.txt",
+        "examples/tradeclient/CMakeLists.txt",
+        "examples/executor/CMakeLists.txt",
+        "test/atrun/CMakeLists.txt",
+        "examples/executor/C++/CMakeLists.txt",
+        "examples/ordermatch/CMakeLists.txt",
+        "src/python3/CMakeLists.txt",
+        "src/C++/CMakeLists.txt",
+        "src/CMakeLists.txt",
+        "src/C++/test/CMakeLists.txt",
+        "src/python/CMakeLists.txt"
+      ],
+      "lockfiles": [],
+      "certificate_and_keystore_files": [
+        "bin/cfg/certs/private/cakey.pem",
+        "bin/cfg/certs/newcerts/02.pem",
+        "bin/cfg/certs/newcerts/01.pem",
+        "bin/cfg/certs/certs/cacert.pem",
+        "bin/cfg/certs/127_0_0_1_server.crt",
+        "bin/cfg/certs/127_0_0_1_client.crt"
+      ]
+    },
+    "preliminary_imports": [
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 125,
+        "text": "// #include \"openssl/applink.c\" // To prevent crashing (see the OpenSSL FAQ)"
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 127,
+        "text": "#include \"openssl/bio.h\" // BIO objects for I/O"
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 128,
+        "text": "#include \"openssl/bn.h\""
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 129,
+        "text": "#include \"openssl/crypto.h\""
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 130,
+        "text": "#include \"openssl/err.h\" // Error reporting"
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 131,
+        "text": "#include \"openssl/rand.h\""
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 133,
+        "text": "#include \"openssl/dh.h\""
+      },
+      {
+        "file": "src/C++/UtilitySSL.h",
+        "line": 131,
+        "text": "#include \"openssl/err.h\""
+      },
+      {
+        "file": "src/C++/UtilitySSL.h",
+        "line": 132,
+        "text": "#include \"openssl/ssl.h\" // SSL and SSL_CTX for SSL connections"
+      },
+      {
+        "file": "m4/ax_lib_ssl.m4",
+        "line": 20,
+        "text": "#include \"openssl/ssl.h\" (autotools probe)"
+      },
+      {
+        "file": "m4/ax_lib_ssl.m4",
+        "line": 41,
+        "text": "#include \"$with_openssl/include/openssl/ssl.h\" (autotools probe)"
+      }
+    ],
+    "preliminary_call_sites": [
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 339,
+        "text": "SSL_library_init();           // Initialize OpenSSL's SSL libraries"
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 340,
+        "text": "SSL_load_error_strings();     // Load SSL error strings"
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 1065,
+        "text": "ctx = SSL_CTX_new(TLS_server_method());"
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 1067,
+        "text": "ctx = SSL_CTX_new(TLS_client_method());"
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 1071,
+        "text": "ctx = SSL_CTX_new(SSLv23_server_method());"
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 1073,
+        "text": "ctx = SSL_CTX_new(SSLv23_client_method());"
+      },
+      {
+        "file": "src/C++/UtilitySSL.cpp",
+        "line": 1416,
+        "text": "int rc = SSL_accept(ssl);"
+      },
+      {
+        "file": "src/C++/SSLSocketAcceptor.cpp",
+        "line": 308,
+        "text": "SSL_set_bio(ssl, sBio, sBio);"
+      },
+      {
+        "file": "src/C++/SSLSocketInitiator.cpp",
+        "line": 328,
+        "text": "SSL_set_bio(ssl, sbio, sbio);"
+      },
+      {
+        "file": "src/C++/SSLSocketInitiator.cpp",
+        "line": 344,
+        "text": "int rc = SSL_connect(ssl);"
+      },
+      {
+        "file": "src/C++/ThreadedSSLSocketAcceptor.cpp",
+        "line": 360,
+        "text": "SSL_set_bio(ssl, sBio, sBio);"
+      },
+      {
+        "file": "src/C++/ThreadedSSLSocketInitiator.cpp",
+        "line": 330,
+        "text": "SSL_set_bio(ssl, sbio, sbio);"
+      },
+      {
+        "file": "src/C++/ThreadedSSLSocketInitiator.cpp",
+        "line": 398,
+        "text": "int rc = SSL_connect(pConnection->sslObject());"
+      }
+    ],
+    "crypto_grep_hits": [
+      ".github/workflows/build_test_cmake.yml",
+      "README.md",
+      "README.SSL",
+      "m4/ax_lib_ssl.m4",
+      "src/C++/UtilitySSL.cpp",
+      "src/C++/UtilitySSL.h",
+      "src/C++/SSLSocketInitiator.cpp",
+      "src/C++/SSLSocketAcceptor.cpp",
+      "src/C++/ThreadedSSLSocketInitiator.cpp",
+      "src/C++/ThreadedSSLSocketAcceptor.cpp",
+      "src/C++/SSLSocket.cpp",
+      "src/C++/SSLSocket.h",
+      "src/C++/SSLStubs.h",
+      "src/C++/SessionSettings.h",
+      "src/python/QuickfixPython.cpp",
+      "src/ruby/QuickfixRuby.cpp",
+      "bin/cfg/certs/private/cakey.pem",
+      "bin/cfg/certs/newcerts/02.pem",
+      "bin/cfg/certs/newcerts/01.pem",
+      "bin/cfg/certs/certs/cacert.pem",
+      "bin/cfg/certs/127_0_0_1_server.crt",
+      "bin/cfg/certs/127_0_0_1_client.crt"
+    ],
+    "parse_errors": [],
+    "skipped_files": []
+  },
+  "crypto_discovery_summary": {
+    "confirmed_crypto_signals": [
+      {
+        "signal": "OpenSSL referenced in README (SSL/TLS support)",
+        "evidence": ["README.md"],
+        "evidence_quality": "documentation"
+      },
+      {
+        "signal": "OpenSSL install and HAVE_SSL build option in CI workflow",
+        "evidence": [
+          ".github/workflows/build_test_cmake.yml",
+          "CMakeLists.txt"
+        ],
+        "evidence_quality": "configuration_file"
+      },
+      {
+        "signal": "Certificate files present in repository under bin/cfg/certs",
+        "evidence": [
+          "bin/cfg/certs/private/cakey.pem",
+          "bin/cfg/certs/newcerts/02.pem",
+          "bin/cfg/certs/newcerts/01.pem",
+          "bin/cfg/certs/certs/cacert.pem",
+          "bin/cfg/certs/127_0_0_1_server.crt",
+          "bin/cfg/certs/127_0_0_1_client.crt"
+        ],
+        "evidence_quality": "test_code",
+        "notes": "These certificate files appear to be test/example fixtures located under bin/cfg; treat as non-production fixtures unless proven otherwise."
+      }
+    ],
+    "suspected_false_positives": [
+      {
+        "signal": "FIX-protocol tokens that resemble crypto features (EncryptMethod, Signature, SecureData)",
+        "evidence": ["spec/FIX50SP2.xml", "spec/FIX44.xml"],
+        "notes": "Protocol-level fields that are semantic, not cryptographic implementation evidence. Flagged as potential false positives for crypto autodetection."
+      }
+    ],
+    "crypto_boundary_map": {
+      "ingress_boundaries": [
+        {
+          "description": "Server-side TLS acceptor — accepts inbound TLS connections",
+          "evidence": [
+            {
+              "file": "src/C++/UtilitySSL.cpp",
+              "line": 1416,
+              "text": "SSL_accept(ssl)"
+            },
+            {
+              "file": "src/C++/ThreadedSSLSocketAcceptor.cpp",
+              "line": 360,
+              "text": "SSL_set_bio(ssl, sBio, sBio)"
+            }
+          ],
+          "notes": "Inbound TLS handshake occurs via SSL_accept; this is an ingress transport security boundary."
+        }
+      ],
+      "egress_boundaries": [
+        {
+          "description": "Client-side TLS initiator — opens outbound TLS connections",
+          "evidence": [
+            {
+              "file": "src/C++/SSLSocketInitiator.cpp",
+              "line": 344,
+              "text": "SSL_connect(ssl)"
+            },
+            {
+              "file": "src/C++/ThreadedSSLSocketInitiator.cpp",
+              "line": 398,
+              "text": "SSL_connect(pConnection->sslObject())"
+            }
+          ],
+          "notes": "Outbound TLS handshake occurs via SSL_connect; this is an egress transport security boundary."
+        }
+      ],
+      "transport_security_layers": [
+        {
+          "layer": "OpenSSL / SSL/TLS (optional via CMake HAVE_SSL)",
+          "evidence": [
+            "README.md",
+            "CMakeLists.txt",
+            ".github/workflows/build_test_cmake.yml",
+            "src/C++/UtilitySSL.cpp",
+            "src/C++/SSLSocketInitiator.cpp",
+            "src/C++/SSLSocketAcceptor.cpp"
+          ],
+          "notes": "Build-time/integration evidence. Cipher suites and protocol versions referenced in README.SSL and runtime configuration; follow-up required to extract concrete cipher-suite and protocol selections from runtime config or code."
+        }
+      ],
+      "storage_security_layers": [
+        {
+          "layer": "Repository-contained certificate files (test fixtures)",
+          "evidence": ["bin/cfg/certs/*"],
+          "notes": "These appear to be example/test certs; treat as test fixtures. Validate whether any production secrets were accidentally committed."
+        }
+      ],
+      "certificate_trust_boundaries": [
+        {
+          "description": "Local CA and server/client certs used for testing and local verification",
+          "evidence": [
+            "bin/cfg/certs/certs/cacert.pem",
+            "bin/cfg/certs/127_0_0_1_server.crt",
+            "bin/cfg/certs/127_0_0_1_client.crt"
+          ],
+          "notes": "Presence of CA + server + client certs indicates local trust boundary for test harnesses."
+        }
+      ],
+      "dependency_boundaries": [
+        {
+          "description": "Build-time dependency on OpenSSL",
+          "evidence": [
+            {
+              "file": "CMakeLists.txt",
+              "line": 42,
+              "text": "find_package(OpenSSL REQUIRED)"
+            },
+            {
+              "file": ".github/workflows/build_test_cmake.yml",
+              "line": 12,
+              "text": "apt-get install libssl-dev"
+            }
+          ],
+          "notes": "OpenSSL is a required dependency when HAVE_SSL is enabled; follow-up: confirm build flags and runtime OpenSSL version."
+        }
+      ]
+    }
+  }
+}
