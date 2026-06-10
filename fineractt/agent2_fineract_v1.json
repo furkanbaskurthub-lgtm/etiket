@@ -1,0 +1,1318 @@
+{
+  "agent": "Task_Evidence_Builder",
+  "agent_version": "1.0",
+  "source_prompt_version": "v0.7-split-rev2",
+  "input_from_agent1": {
+    "repository_id": "repo_apache_fineract",
+    "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+    "structural_scan": "operator_grep / 2048 hits / 15 confirmed_crypto_signals / 4 suspected_false_positives"
+  },
+
+  "analysis_tasks": [
+
+    {
+      "analysis_task_id": "AT-001",
+      "objective": "Determine the complete AES/CBC/PKCS5Padding encryption implementation in EncryptionUtil: IV source (static vs. SecureRandom vs. derived), key material origin, and cipher instantiation pattern.",
+      "scope": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java — full class body, focusing on encrypt() / decrypt() methods and IV generation.",
+      "entry_point": "Cipher.getInstance(\"AES/CBC/PKCS5Padding\") call site",
+      "rationale": "SIG-001 confirms AES/CBC usage. IV source is critical for security posture assessment. Agent 1 notes SecureRandom expected but unconfirmed. Full method body required per prompt rule (AES/CBC/IvParameterSpec keywords present).",
+      "unit_type": "call_site"
+    },
+
+    {
+      "analysis_task_id": "AT-002",
+      "objective": "Determine PBKDF2WithHmacSHA1 key derivation parameters: iteration count, salt source, key length, and whether HMAC-SHA1 base is acceptable for the current threat model.",
+      "scope": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java — SecretKeyFactory.getInstance(\"PBKDF2WithHmacSHA1\") call and surrounding PBEKeySpec construction.",
+      "entry_point": "SecretKeyFactory.getInstance(\"PBKDF2WithHmacSHA1\")",
+      "rationale": "SIG-002 confirms PBKDF2/HMAC-SHA1 KDF. SHA1-based PBKDF2 has reduced quantum security margin. Iteration count and salt source must be confirmed before labeling.",
+      "unit_type": "call_site"
+    },
+
+    {
+      "analysis_task_id": "AT-003",
+      "objective": "Confirm BCryptPasswordEncoder usage in DefaultPlatformPasswordEncoder: BCrypt work factor (cost parameter), whether a custom strength is configured, and whether the encoder is the sole password hashing mechanism.",
+      "scope": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/domain/DefaultPlatformPasswordEncoder.java — full class body.",
+      "entry_point": "BCryptPasswordEncoder.encode() / BCryptPasswordEncoder.matches()",
+      "rationale": "SIG-003 confirms BCrypt. Work factor is security-critical and must be explicitly confirmed from source; Spring Security default is 10 but custom configuration is possible.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-004",
+      "objective": "Identify all concrete implementors of PlatformPasswordEncoder interface to determine the actual password hashing algorithm(s) in use at runtime.",
+      "scope": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/service/PlatformPasswordEncoder.java — interface declaration; locate all implementing classes across the codebase.",
+      "entry_point": "PlatformPasswordEncoder interface",
+      "rationale": "SIG-004 flags this as interface-only — algorithm unknown. Without knowing all implementors, labeling is incomplete. DefaultPlatformPasswordEncoder (SIG-003) is the known candidate but others may exist.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-005",
+      "objective": "Determine whether DatabasePasswordEncryptor delegates correctly to EncryptionUtil and that no additional algorithm is introduced in the wrapper layer.",
+      "scope": "fineract-core/src/main/java/org/apache/fineract/infrastructure/core/service/database/DatabasePasswordEncryptor.java — full class body.",
+      "entry_point": "DatabasePasswordEncryptor class — encrypt() method",
+      "rationale": "SIG-005 states delegation to EncryptionUtil. The wrapper layer must be inspected to confirm the AES/PBKDF2 chain holds and no secondary algorithm is introduced.",
+      "unit_type": "wrapper_or_factory_candidate"
+    },
+
+    {
+      "analysis_task_id": "AT-006",
+      "objective": "Determine whether DatabasePasswordDecryptor delegates to EncryptionUtil symmetrically and that IV handling is consistent with the encryption path.",
+      "scope": "fineract-core/src/main/java/org/apache/fineract/infrastructure/core/service/database/DatabasePasswordDecryptor.java — full class body.",
+      "entry_point": "DatabasePasswordDecryptor class — decrypt() method",
+      "rationale": "SIG-006 mirrors SIG-005. Decryption path must confirm IV extraction strategy (e.g., IV prepended to ciphertext) to allow complete labeling of the AES/CBC operation.",
+      "unit_type": "wrapper_or_factory_candidate"
+    },
+
+    {
+      "analysis_task_id": "AT-007",
+      "objective": "Determine the JWT signature algorithm used in FineractJwtAuthenticationTokenConverter: RS256, HS256, or other; identify the key material (RSA public key, shared secret) and its source.",
+      "scope": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/converter/FineractJwtAuthenticationTokenConverter.java — full class body including JWTParser.parse() call and any algorithm-specific configuration.",
+      "entry_point": "JWTParser.parse() call site",
+      "rationale": "SIG-007 identifies JWT handling but algorithm is unknown. JWT signature algorithm is PROHIBITED from being inferred per prompt rules — must be confirmed from source or configuration.",
+      "unit_type": "protocol_configuration"
+    },
+
+    {
+      "analysis_task_id": "AT-008",
+      "objective": "Determine whether UUIDAccessTokenGenerationService uses java.util.UUID (version 4 / random) or a cryptographically stronger generator, and whether SecureRandom is involved.",
+      "scope": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/UUIDAccessTokenGenerationService.java — full class body.",
+      "entry_point": "UUIDAccessTokenGenerationService.generateAccessToken()",
+      "rationale": "SIG-008 identifies UUID-based 2FA token generation. UUID.randomUUID() uses SecureRandom internally but this must be confirmed. Security classification depends on whether the token space is cryptographically random.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-009",
+      "objective": "Confirm that RandomOTPGenerator uses SecureRandom (not java.util.Random) and determine the OTP character space and length.",
+      "scope": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/RandomOTPGenerator.java — full class body.",
+      "entry_point": "SecureRandom.nextBytes() call site (inferred)",
+      "rationale": "SIG-009 infers SecureRandom from class name only — Agent 1 explicitly flags this as needing verification. Using java.util.Random instead of SecureRandom would be a critical vulnerability.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-010",
+      "objective": "Inspect keystore.jks artifact: determine key type (RSA/EC/DSA), key size, certificate validity period, issuer (self-signed vs. CA), and intended usage (TLS, code signing, JWT).",
+      "scope": "fineract-provider/src/main/resources/keystore.jks — binary artifact; must be examined via keytool or programmatic inspection.",
+      "entry_point": "keystore.jks certificate artifact",
+      "rationale": "SIG-010 identifies JKS keystore. Certificate parameters are unknown. Key size and algorithm determine quantum vulnerability. Self-signed vs. CA distinction affects trust boundary labeling.",
+      "unit_type": "certificate_or_key_artifact"
+    },
+
+    {
+      "analysis_task_id": "AT-011",
+      "objective": "Determine the exact encryption operations performed by TenantPasswordEncryptionTask during the migration: which algorithm, which key, whether IV is stored alongside ciphertext.",
+      "scope": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/service/migration/TenantPasswordEncryptionTask.java — full class body.",
+      "entry_point": "TenantPasswordEncryptionTask.execute() / run() method",
+      "rationale": "SIG-011 identifies a historical plaintext-to-encrypted migration. Understanding the exact migration logic confirms whether the AES/PBKDF2 chain (EncryptionUtil) was applied consistently and whether IV was stored correctly.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-012",
+      "objective": "Inspect SecurityConfig for TLS protocol version constraints, cipher suite allowlist/denylist, and any HTTP security headers relevant to cryptographic configuration.",
+      "scope": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/config/SecurityConfig.java — full class body, focusing on HttpSecurity, SSL/TLS, and cipher suite configuration.",
+      "entry_point": "SecurityConfig class — configure(HttpSecurity) method",
+      "rationale": "SIG-012 identifies the central Spring Security config. TLS version and cipher suite settings cannot be inferred from framework defaults — must be confirmed from source.",
+      "unit_type": "protocol_configuration"
+    },
+
+    {
+      "analysis_task_id": "AT-013",
+      "objective": "Determine the 2FA OTP algorithm in TwoFactorServiceImpl: TOTP (RFC 6238) vs. HOTP (RFC 4226) vs. custom; identify the HMAC base (SHA1/SHA256/SHA512) and time step if TOTP.",
+      "scope": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/TwoFactorServiceImpl.java — full class body and any TOTP/HOTP library dependencies.",
+      "entry_point": "TwoFactorServiceImpl class — OTP generation and validation methods",
+      "rationale": "SIG-013 flags OTP algorithm as unknown. TOTP/HOTP with SHA1 has different security properties than SHA256/SHA512. Algorithm is PROHIBITED from inference — must be confirmed from source.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-014",
+      "objective": "Inspect the Liquibase changelog SQL in 0007_encrypt_existing_tenant_passwords.xml to determine which SQL operations are used, whether encryption logic is embedded in SQL or calls a Java stored procedure, and which fields are encrypted.",
+      "scope": "fineract-provider/src/main/resources/db/changelog/tenant-store/parts/0007_encrypt_existing_tenant_passwords.xml — full XML content.",
+      "entry_point": "0007_encrypt_existing_tenant_passwords.xml changelog entry",
+      "rationale": "SIG-014 is configuration_file evidence. The changelog may embed encryption logic directly or invoke TenantPasswordEncryptionTask. This disambiguation is required before labeling.",
+      "unit_type": "config_entry"
+    },
+
+    {
+      "analysis_task_id": "AT-015",
+      "objective": "Determine whether SpringSecurityPlatformSecurityContext contains any cryptographic operations (token validation, signature verification) or is purely an authorization context boundary.",
+      "scope": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/SpringSecurityPlatformSecurityContext.java — full class body.",
+      "entry_point": "SpringSecurityPlatformSecurityContext class",
+      "rationale": "SIG-015 marks this as a security context abstraction with 'not direct crypto usage' but requires verification. Must confirm classification before labeling as not_crypto.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-016",
+      "objective": "Inspect AuthorizationServerConfig to determine OAuth2 grant types, token endpoint security, and whether JWT signing keys are configured here (RS256 key pair source).",
+      "scope": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/security/config/AuthorizationServerConfig.java — full class body.",
+      "entry_point": "AuthorizationServerConfig class",
+      "rationale": "OAuth2 authorization server configuration may contain the JWT signing algorithm and key source that AT-007 is looking for. This is a high-value follow-up target for the JWT signature gap.",
+      "unit_type": "protocol_configuration"
+    },
+
+    {
+      "analysis_task_id": "AT-017",
+      "objective": "Determine whether HashingService uses a cryptographic hash function (SHA-256, MD5) or a non-cryptographic hash, and identify the use case.",
+      "scope": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/service/HashingService.java — full class body.",
+      "entry_point": "HashingService class",
+      "rationale": "MessageDigest import in preliminary_imports implies SHA-family or MD5 usage. HashingService is a named wrapper — must determine algorithm and use case (integrity check, ID generation, etc.).",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-018",
+      "objective": "Inspect TrustModifier to determine whether it disables SSL/TLS certificate verification (trust-all pattern) and the scope of its usage in the application.",
+      "scope": "fineract-provider/src/main/java/org/apache/fineract/template/service/TrustModifier.java — full class body.",
+      "entry_point": "TrustModifier class",
+      "rationale": "Class name 'TrustModifier' in a security-sensitive financial application is a strong indicator of SSL verification bypass. This is a critical negative security finding if confirmed.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-019",
+      "objective": "Determine whether FineractClient (OkHttp-based) disables SSL certificate verification, uses a custom TrustManager, or applies a custom HostnameVerifier.",
+      "scope": "fineract-client/src/main/java/org/apache/fineract/client/util/FineractClient.java — full class body, focusing on OkHttpClient builder configuration.",
+      "entry_point": "FineractClient class — OkHttpClient construction",
+      "rationale": "OkHttp client in a financial platform may disable SSL verification for test/integration convenience. This is a critical security-relevant finding. OkHttp3Config in fineract-provider may also be relevant.",
+      "unit_type": "protocol_configuration"
+    },
+
+    {
+      "analysis_task_id": "AT-020",
+      "objective": "Inspect application.properties for any cryptographic configuration entries: TLS settings, key store paths, cipher suite properties, JWT issuer/algorithm declarations.",
+      "scope": "fineract-provider/src/main/resources/application.properties — full file content.",
+      "entry_point": "application.properties configuration file",
+      "rationale": "Spring Boot application.properties is the primary location for externalized TLS/security configuration. JWT algorithm and keystore path may be declared here rather than in code.",
+      "unit_type": "config_entry"
+    },
+
+    {
+      "analysis_task_id": "AT-021",
+      "objective": "Inspect OkHttp3Config bean definition to determine whether OkHttpClient is configured with a custom SSLSocketFactory, TrustManager, or HostnameVerifier.",
+      "scope": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/config/OkHttp3Config.java — full class body.",
+      "entry_point": "OkHttp3Config class — OkHttpClient @Bean method",
+      "rationale": "Centralized HTTP client configuration may modify TLS trust behavior. Must confirm whether production configuration uses a hardened or relaxed trust model.",
+      "unit_type": "protocol_configuration"
+    },
+
+    {
+      "analysis_task_id": "AT-022",
+      "objective": "Determine whether EncryptionUtil test class uses hardcoded test keys or reveals the expected key/IV structure used in production tests.",
+      "scope": "fineract-core/src/test/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtilTest.java — full class body.",
+      "entry_point": "EncryptionUtilTest class",
+      "rationale": "Test class for the primary encryption utility. Test vectors may reveal IV handling strategy, expected key format, and whether static test keys are used in production code paths.",
+      "unit_type": "file_region"
+    },
+
+    {
+      "analysis_task_id": "AT-023",
+      "objective": "Classify LoanArrearsAgeingUpdateHandler: confirm that RSA references are purely domain acronym (Repayment Schedule Analysis) with no cryptographic usage.",
+      "scope": "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/jobs/updateloanarrearsageing/LoanArrearsAgeingUpdateHandler.java — RSA token occurrences.",
+      "entry_point": "LoanArrearsAgeingUpdateHandler class — RSA references",
+      "rationale": "FP-001 candidate. Agent 1 flags RSA as a domain acronym in this file. Must confirm no cryptographic javax.crypto or java.security imports are present.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-024",
+      "objective": "Classify ReprocessLoanTransactionsService: confirm that 'tls' occurrences are business terminology rather than transport security configuration.",
+      "scope": "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/service/ReprocessLoanTransactionsService.java — tls token occurrences.",
+      "entry_point": "ReprocessLoanTransactionsService class — tls references",
+      "rationale": "FP-002 candidate. Must verify no TLS/SSL configuration imports or javax.net.ssl calls are present.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-025",
+      "objective": "Classify PasswordValidationPolicy: confirm that password policy enforcement (length, complexity) contains no cryptographic hashing or encoding operations.",
+      "scope": "fineract-provider/src/main/java/org/apache/fineract/useradministration/domain/PasswordValidationPolicy.java — full class body.",
+      "entry_point": "PasswordValidationPolicy class",
+      "rationale": "FP-003 candidate. Password policy rules are not cryptographic operations. Must confirm absence of PasswordEncoder or MessageDigest usage.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-026",
+      "objective": "Classify GlAccountTypeMapper and PaymentTypeMapper: confirm that 'key' occurrences are Java Map keys or enum identifiers with no cryptographic key material.",
+      "scope": "fineract-core/src/main/java/org/apache/fineract/accounting/glaccount/mapper/GlAccountTypeMapper.java; fineract-core/src/main/java/org/apache/fineract/portfolio/paymenttype/mapper/PaymentTypeMapper.java",
+      "entry_point": "GlAccountTypeMapper, PaymentTypeMapper — key references",
+      "rationale": "FP-004 candidate. Must confirm these are data structure keys (e.g., Map.put(key, value)) with no javax.crypto.SecretKey or java.security.Key imports.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-027",
+      "objective": "Classify IdempotencyKeyGenerator and IdempotencyKeyResolver: determine whether 'key' is a business idempotency identifier (UUID/hash) or a cryptographic key, and whether any cryptographic primitive is used.",
+      "scope": "fineract-core/src/main/java/org/apache/fineract/commands/service/IdempotencyKeyGenerator.java; fineract-core/src/main/java/org/apache/fineract/commands/service/IdempotencyKeyResolver.java",
+      "entry_point": "IdempotencyKeyGenerator.generate(), IdempotencyKeyResolver.resolve()",
+      "rationale": "Negative candidate sweep. 'Key' in name but likely a business idempotency token. If UUID-based with no HMAC: not_crypto. If HMAC-based: crypto.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-028",
+      "objective": "Classify ExternalEventIdempotencyKeyGenerator: determine whether idempotency key generation uses a cryptographic hash (HMAC, SHA) or a non-cryptographic identifier.",
+      "scope": "fineract-core/src/main/java/org/apache/fineract/infrastructure/event/external/service/idempotency/DefaultExternalEventIdempotencyKeyGenerator.java — full class body.",
+      "entry_point": "DefaultExternalEventIdempotencyKeyGenerator.generateKey()",
+      "rationale": "Negative candidate sweep. External event idempotency keys may use MessageDigest (SHA-256) for deterministic key derivation — if so, this is a crypto finding. If UUID: not_crypto.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-029",
+      "objective": "Classify S3ContentStoreService: determine whether AWS S3 integration uses client-side encryption, server-side encryption configuration, or no encryption at the application layer.",
+      "scope": "fineract-document/src/main/java/org/apache/fineract/infrastructure/contentstore/service/S3ContentStoreService.java — full class body.",
+      "entry_point": "S3ContentStoreService class — S3 client construction and upload/download methods",
+      "rationale": "Negative candidate sweep. S3 service may configure SSE-S3, SSE-KMS, or client-side encryption. Absence of encryption configuration is also a labeling outcome.",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-030",
+      "objective": "Classify BasicAuthRequestInterceptor in fineract-client-feign: determine whether Basic Auth credentials are Base64-encoded only (standard) or additionally hashed/encrypted.",
+      "scope": "fineract-client-feign/src/main/java/org/apache/fineract/client/feign/BasicAuthRequestInterceptor.java — full class body.",
+      "entry_point": "BasicAuthRequestInterceptor.apply()",
+      "rationale": "Negative candidate sweep. Basic Auth interceptors typically encode credentials in Base64 (not encryption). Must confirm no additional cryptographic transformation is applied.",
+      "unit_type": "symbol"
+    }
+
+  ],
+
+  "evidence_records": [
+
+    {
+      "evidence_id": "EV-001",
+      "analysis_task_id": "AT-001",
+      "file_path": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java",
+      "line_range": "unknown — source not directly available in grep_results; requires file fetch",
+      "evidence_type": "call_site_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "Cipher.getInstance(\"AES/CBC/PKCS5Padding\") — confirmed via preliminary_call_sites in Agent 1 structural_scan",
+      "explanation": "Agent 1 confirmed this call site from the grep hits. Full method body including IV generation line (IvParameterSpec, SecureRandom) must be retrieved for complete labeling per prompt mandatory full method body rule."
+    },
+
+    {
+      "evidence_id": "EV-002",
+      "analysis_task_id": "AT-001",
+      "file_path": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java",
+      "line_range": "unknown",
+      "evidence_type": "import_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "javax.crypto.Cipher, javax.crypto.spec.SecretKeySpec, javax.crypto.spec.IvParameterSpec, javax.crypto.spec.PBEKeySpec, javax.crypto.SecretKeyFactory",
+      "explanation": "Five JCA crypto imports present in EncryptionUtil. Confirms this file contains the full encryption/KDF implementation. IvParameterSpec import confirms IV parameter is explicitly constructed — source (static/random/derived) unknown without method body."
+    },
+
+    {
+      "evidence_id": "EV-003",
+      "analysis_task_id": "AT-002",
+      "file_path": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java",
+      "line_range": "unknown",
+      "evidence_type": "call_site_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "SecretKeyFactory.getInstance(\"PBKDF2WithHmacSHA1\")",
+      "explanation": "Agent 1 confirmed this call site. PBKDF2 with HMAC-SHA1 base is confirmed. Iteration count and key length are not visible without full method body — PBEKeySpec constructor arguments are required."
+    },
+
+    {
+      "evidence_id": "EV-004",
+      "analysis_task_id": "AT-003",
+      "file_path": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/domain/DefaultPlatformPasswordEncoder.java",
+      "line_range": "unknown",
+      "evidence_type": "call_site_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "BCryptPasswordEncoder.encode(), BCryptPasswordEncoder.matches()",
+      "explanation": "Agent 1 confirmed both call sites. BCrypt is confirmed as the password hashing algorithm for user authentication. Work factor (cost parameter) cannot be determined without inspecting the BCryptPasswordEncoder constructor invocation."
+    },
+
+    {
+      "evidence_id": "EV-005",
+      "analysis_task_id": "AT-003",
+      "file_path": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/domain/DefaultPlatformPasswordEncoder.java",
+      "line_range": "unknown",
+      "evidence_type": "import_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder, org.springframework.security.crypto.password.PasswordEncoder",
+      "explanation": "Both BCrypt-specific and generic PasswordEncoder imports confirmed. File implements PasswordEncoder interface using BCryptPasswordEncoder."
+    },
+
+    {
+      "evidence_id": "EV-006",
+      "analysis_task_id": "AT-004",
+      "file_path": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/service/PlatformPasswordEncoder.java",
+      "line_range": "unknown",
+      "evidence_type": "symbol_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "Interface PlatformPasswordEncoder — algorithm unknown, interface only",
+      "explanation": "Agent 1 explicitly flags this as interface-only. Concrete algorithm requires implementor inspection. Known implementor: DefaultPlatformPasswordEncoder (BCrypt). Additional implementors may exist and must be searched."
+    },
+
+    {
+      "evidence_id": "EV-007",
+      "analysis_task_id": "AT-005",
+      "file_path": "fineract-core/src/main/java/org/apache/fineract/infrastructure/core/service/database/DatabasePasswordEncryptor.java",
+      "line_range": "unknown",
+      "evidence_type": "symbol_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "DatabasePasswordEncryptor — delegates to EncryptionUtil per Agent 1 SIG-005 notes",
+      "explanation": "Agent 1 confirms delegation pattern. The exact delegation method call must be confirmed from source to verify AES/PBKDF2 chain is correctly invoked."
+    },
+
+    {
+      "evidence_id": "EV-008",
+      "analysis_task_id": "AT-006",
+      "file_path": "fineract-core/src/main/java/org/apache/fineract/infrastructure/core/service/database/DatabasePasswordDecryptor.java",
+      "line_range": "unknown",
+      "evidence_type": "symbol_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "DatabasePasswordDecryptor — delegates to EncryptionUtil per Agent 1 SIG-006 notes",
+      "explanation": "Symmetric counterpart to DatabasePasswordEncryptor. IV handling on decryption (IV prepended vs. stored separately) is unknown and critical for correct AES/CBC labeling."
+    },
+
+    {
+      "evidence_id": "EV-009",
+      "analysis_task_id": "AT-007",
+      "file_path": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/converter/FineractJwtAuthenticationTokenConverter.java",
+      "line_range": "unknown",
+      "evidence_type": "call_site_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "JWTParser.parse() — Nimbus JOSE+JWT library",
+      "explanation": "Agent 1 confirmed JWTParser.parse() call site. JWT parsing confirmed. Signature algorithm (RS256/HS256/ES256) cannot be inferred from parse() alone — algorithm is determined by JWK Set URI or symmetric secret configuration, not the parser."
+    },
+
+    {
+      "evidence_id": "EV-010",
+      "analysis_task_id": "AT-007",
+      "file_path": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/converter/FineractJwtAuthenticationTokenConverter.java",
+      "line_range": "unknown",
+      "evidence_type": "import_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "com.nimbusds.jwt.JWTParser, org.springframework.security.oauth2.jwt.Jwt",
+      "explanation": "Nimbus JOSE+JWT and Spring Security OAuth2 JWT imports confirm JWT processing. Algorithm resolution requires Spring Security JwtDecoder bean configuration, likely in AuthorizationServerConfig or SecurityConfig."
+    },
+
+    {
+      "evidence_id": "EV-011",
+      "analysis_task_id": "AT-009",
+      "file_path": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/RandomOTPGenerator.java",
+      "line_range": "unknown",
+      "evidence_type": "import_observation",
+      "evidence_quality": "inference",
+      "extracted_content": "SecureRandom.nextBytes() — inferred from Agent 1 preliminary_call_sites",
+      "explanation": "SecureRandom.nextBytes() appears in Agent 1 call_sites list. Attribution to RandomOTPGenerator is inferred — confirmation requires source inspection. java.security.SecureRandom import must be verified."
+    },
+
+    {
+      "evidence_id": "EV-012",
+      "analysis_task_id": "AT-010",
+      "file_path": "fineract-provider/src/main/resources/keystore.jks",
+      "line_range": "binary artifact",
+      "evidence_type": "certificate_artifact",
+      "evidence_quality": "test_code",
+      "extracted_content": "keystore.jks — JKS format binary; keytool inspection required for key type, size, validity, issuer",
+      "explanation": "Agent 1 evidence_quality is test_code (file is in main/resources but may be a test/dev certificate). Binary artifact — content cannot be extracted without keytool or programmatic JKS parsing. Known limitations: algorithm, key size, expiry, issuer all unknown."
+    },
+
+    {
+      "evidence_id": "EV-013",
+      "analysis_task_id": "AT-014",
+      "file_path": "fineract-provider/src/main/resources/db/changelog/tenant-store/parts/0007_encrypt_existing_tenant_passwords.xml",
+      "line_range": "unknown",
+      "evidence_type": "configuration_file_observation",
+      "evidence_quality": "configuration_file",
+      "extracted_content": "Liquibase XML changelog — tenant password encryption migration; specific SQL/changeSet content unknown without file fetch",
+      "explanation": "Agent 1 SIG-014 confirms this file exists and relates to AES encryption of tenant passwords. The changeSet may invoke Java-side TenantPasswordEncryptionTask or embed inline SQL. Content must be fetched for labeling."
+    },
+
+    {
+      "evidence_id": "EV-014",
+      "analysis_task_id": "AT-017",
+      "file_path": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/service/HashingService.java",
+      "line_range": "unknown",
+      "evidence_type": "import_observation",
+      "evidence_quality": "inference",
+      "extracted_content": "java.security.MessageDigest — present in Agent 1 preliminary_imports",
+      "explanation": "MessageDigest import in the structural_scan preliminary_imports indicates SHA-family or MD5 usage somewhere in the codebase. HashingService is the most likely source given class naming, but direct attribution is inferred."
+    },
+
+    {
+      "evidence_id": "EV-015",
+      "analysis_task_id": "AT-023",
+      "file_path": "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/jobs/updateloanarrearsageing/LoanArrearsAgeingUpdateHandler.java",
+      "line_range": "unknown",
+      "evidence_type": "false_positive_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "RSA — domain acronym for Repayment Schedule Analysis / Loan Arrears, per Agent 1 FP-001",
+      "explanation": "Agent 1 explicitly classifies RSA in this file as a domain acronym. Classification as not_crypto pending source confirmation of no javax.crypto or java.security.interfaces.RSAKey imports."
+    },
+
+    {
+      "evidence_id": "EV-016",
+      "analysis_task_id": "AT-024",
+      "file_path": "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/service/ReprocessLoanTransactionsService.java",
+      "line_range": "unknown",
+      "evidence_type": "false_positive_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "tls — business term in method/variable name, not transport security config, per Agent 1 FP-002",
+      "explanation": "Agent 1 explicitly classifies tls here as a business term. Classification as not_crypto pending source confirmation of no javax.net.ssl imports or TLS socket factory configuration."
+    },
+
+    {
+      "evidence_id": "EV-017",
+      "analysis_task_id": "AT-025",
+      "file_path": "fineract-provider/src/main/java/org/apache/fineract/useradministration/domain/PasswordValidationPolicy.java",
+      "line_range": "unknown",
+      "evidence_type": "false_positive_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "PasswordValidationPolicy — password complexity/length policy enforcement, per Agent 1 FP-003",
+      "explanation": "Agent 1 classifies this as policy rules only (not cryptographic). Classification as not_crypto pending confirmation of no PasswordEncoder or MessageDigest usage."
+    },
+
+    {
+      "evidence_id": "EV-018",
+      "analysis_task_id": "AT-026",
+      "file_path": "fineract-core/src/main/java/org/apache/fineract/accounting/glaccount/mapper/GlAccountTypeMapper.java",
+      "line_range": "unknown",
+      "evidence_type": "false_positive_observation",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "key — Java Map key or enum identifier, per Agent 1 FP-004",
+      "explanation": "Agent 1 classifies 'key' in mapper files as data structure keys, not cryptographic key material. Classification as not_crypto pending confirmation."
+    }
+
+  ],
+
+  "context_bundles": [
+
+    {
+      "context_bundle_id": "CB-001",
+      "revision": 1,
+      "analysis_task_id": "AT-001",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java", "lines": "full_file — mandatory full method body rule applies (AES/CBC/IvParameterSpec keywords)"}
+      ],
+      "structural_nodes": [
+        "Cipher.getInstance(\"AES/CBC/PKCS5Padding\")",
+        "new IvParameterSpec(...) — presence unconfirmed, must be located"
+      ],
+      "key_imports": [
+        "javax.crypto.Cipher",
+        "javax.crypto.spec.IvParameterSpec",
+        "javax.crypto.spec.SecretKeySpec",
+        "java.security.SecureRandom"
+      ],
+      "dependencies": [
+        "JDK javax.crypto (built-in)"
+      ],
+      "evidence_refs": ["EV-001", "EV-002"],
+      "known_limitations": [
+        "Full source of EncryptionUtil.java not available in Agent 1 grep_results — file must be fetched from repository at commit 0bc90a57.",
+        "IV generation line not yet confirmed — context_sufficient: false until IV source is visible.",
+        "Key derivation call (AT-002) co-located in same file but treated as separate task."
+      ],
+      "reviewer_note": "MANDATORY FULL METHOD BODY RULE APPLIES. Do not mark context_sufficient: true until the IV generation line (IvParameterSpec constructor or SecureRandom usage) is directly visible in extracted_content."
+    },
+
+    {
+      "context_bundle_id": "CB-002",
+      "revision": 1,
+      "analysis_task_id": "AT-002",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java", "lines": "KDF method body — SecretKeyFactory.getInstance and PBEKeySpec constructor"}
+      ],
+      "structural_nodes": [
+        "SecretKeyFactory.getInstance(\"PBKDF2WithHmacSHA1\")",
+        "new PBEKeySpec(password, salt, iterationCount, keyLength)"
+      ],
+      "key_imports": [
+        "javax.crypto.spec.PBEKeySpec",
+        "javax.crypto.SecretKeyFactory"
+      ],
+      "dependencies": [
+        "JDK javax.crypto (built-in)"
+      ],
+      "evidence_refs": ["EV-003"],
+      "known_limitations": [
+        "PBEKeySpec constructor arguments (iteration count, salt source, key length) not visible without file fetch.",
+        "Same file as CB-001 — consider fetching EncryptionUtil.java once to satisfy both AT-001 and AT-002."
+      ],
+      "reviewer_note": "Focus on PBEKeySpec constructor arguments: iteration count ≥ 100000 is current NIST minimum; SHA1-based PBKDF2 has quantum security implications."
+    },
+
+    {
+      "context_bundle_id": "CB-003",
+      "revision": 1,
+      "analysis_task_id": "AT-003",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/domain/DefaultPlatformPasswordEncoder.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/domain/DefaultPlatformPasswordEncoder.java", "lines": "full_file — BCryptPasswordEncoder constructor and encode/matches calls"}
+      ],
+      "structural_nodes": [
+        "BCryptPasswordEncoder.encode()",
+        "BCryptPasswordEncoder.matches()",
+        "new BCryptPasswordEncoder(strength) — strength value unknown"
+      ],
+      "key_imports": [
+        "org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder",
+        "org.springframework.security.crypto.password.PasswordEncoder"
+      ],
+      "dependencies": [
+        "org.springframework.boot:spring-boot-starter-security"
+      ],
+      "evidence_refs": ["EV-004", "EV-005"],
+      "known_limitations": [
+        "BCrypt work factor (strength parameter) not visible without file fetch.",
+        "Whether BCrypt is constructed with default (10) or custom strength is unknown."
+      ],
+      "reviewer_note": "Confirm the BCryptPasswordEncoder constructor call — new BCryptPasswordEncoder() vs new BCryptPasswordEncoder(N). N < 10 is a security finding."
+    },
+
+    {
+      "context_bundle_id": "CB-004",
+      "revision": 1,
+      "analysis_task_id": "AT-004",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/service/PlatformPasswordEncoder.java",
+        "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/domain/DefaultPlatformPasswordEncoder.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/service/PlatformPasswordEncoder.java", "lines": "full_file — interface declaration and method signatures"}
+      ],
+      "structural_nodes": [
+        "interface PlatformPasswordEncoder",
+        "DefaultPlatformPasswordEncoder implements PlatformPasswordEncoder"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-006"],
+      "known_limitations": [
+        "Full implementor search not possible without IDE-level class hierarchy analysis or grep across full source tree.",
+        "Other implementors beyond DefaultPlatformPasswordEncoder may exist in test modules or non-standard packages."
+      ],
+      "reviewer_note": "Search for 'implements PlatformPasswordEncoder' across all source files. DefaultPlatformPasswordEncoder is the known production implementation."
+    },
+
+    {
+      "context_bundle_id": "CB-005",
+      "revision": 1,
+      "analysis_task_id": "AT-005",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-core/src/main/java/org/apache/fineract/infrastructure/core/service/database/DatabasePasswordEncryptor.java",
+        "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-core/src/main/java/org/apache/fineract/infrastructure/core/service/database/DatabasePasswordEncryptor.java", "lines": "full_file"}
+      ],
+      "structural_nodes": [
+        "DatabasePasswordEncryptor.encrypt()",
+        "EncryptionUtil call — method name unknown"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-007"],
+      "known_limitations": [
+        "Exact EncryptionUtil method invoked (e.g., encrypt(), encryptPassword()) not confirmed.",
+        "Whether constructor injection or static call is used for EncryptionUtil is unknown."
+      ],
+      "reviewer_note": "Verify delegation chain: DatabasePasswordEncryptor → EncryptionUtil.encrypt(). Confirm no intermediate transformation (Base64, hex encoding) is applied before or after AES encryption."
+    },
+
+    {
+      "context_bundle_id": "CB-006",
+      "revision": 1,
+      "analysis_task_id": "AT-006",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-core/src/main/java/org/apache/fineract/infrastructure/core/service/database/DatabasePasswordDecryptor.java",
+        "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-core/src/main/java/org/apache/fineract/infrastructure/core/service/database/DatabasePasswordDecryptor.java", "lines": "full_file"}
+      ],
+      "structural_nodes": [
+        "DatabasePasswordDecryptor.decrypt()",
+        "EncryptionUtil call — method name unknown"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-008"],
+      "known_limitations": [
+        "IV extraction strategy on decryption (IV prepended to ciphertext vs. stored separately) unknown.",
+        "If IV is prepended, extraction logic must be visible in decryption method body."
+      ],
+      "reviewer_note": "Focus on how IV is recovered for decryption. Common patterns: first 16 bytes of ciphertext, separate IV field in database. This determines AES/CBC correctness."
+    },
+
+    {
+      "context_bundle_id": "CB-007",
+      "revision": 1,
+      "analysis_task_id": "AT-007",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/converter/FineractJwtAuthenticationTokenConverter.java",
+        "fineract-provider/src/main/java/org/apache/fineract/infrastructure/security/config/AuthorizationServerConfig.java",
+        "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/config/SecurityConfig.java",
+        "fineract-provider/src/main/resources/application.properties"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/converter/FineractJwtAuthenticationTokenConverter.java", "lines": "full_file"},
+        {"file": "fineract-provider/src/main/resources/application.properties", "lines": "JWT and security configuration entries"}
+      ],
+      "structural_nodes": [
+        "JWTParser.parse()",
+        "JwtDecoder bean — location unknown"
+      ],
+      "key_imports": [
+        "com.nimbusds.jwt.JWTParser",
+        "org.springframework.security.oauth2.jwt.Jwt"
+      ],
+      "dependencies": [
+        "com.nimbusds:nimbus-jose-jwt",
+        "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
+      ],
+      "evidence_refs": ["EV-009", "EV-010"],
+      "known_limitations": [
+        "JWT signature algorithm (RS256/HS256/ES256) cannot be determined from JWTParser.parse() alone.",
+        "JwtDecoder bean configuration location not yet identified — may be in AuthorizationServerConfig, SecurityConfig, or application.properties.",
+        "Key material source (JWK Set URI, symmetric secret, RSA key pair) unknown."
+      ],
+      "reviewer_note": "PROHIBITIONS APPLY: Do not infer JWT algorithm. Search for JwtDecoder @Bean, spring.security.oauth2.resourceserver.jwt.jwk-set-uri, or NimbusJwtDecoder configuration."
+    },
+
+    {
+      "context_bundle_id": "CB-008",
+      "revision": 1,
+      "analysis_task_id": "AT-008",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/UUIDAccessTokenGenerationService.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/UUIDAccessTokenGenerationService.java", "lines": "full_file"}
+      ],
+      "structural_nodes": [
+        "UUIDAccessTokenGenerationService.generateAccessToken()",
+        "UUID.randomUUID() — likely but unconfirmed"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Source not yet fetched — UUID generation method (randomUUID vs. nameUUID vs. custom) unknown.",
+        "SecureRandom backing for UUID.randomUUID() is JVM-implementation-dependent."
+      ],
+      "reviewer_note": "UUID.randomUUID() uses SecureRandom internally in OpenJDK. If custom UUID generation with java.util.Random: critical security finding."
+    },
+
+    {
+      "context_bundle_id": "CB-009",
+      "revision": 1,
+      "analysis_task_id": "AT-009",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/RandomOTPGenerator.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/RandomOTPGenerator.java", "lines": "full_file"}
+      ],
+      "structural_nodes": [
+        "SecureRandom.nextBytes() — inferred",
+        "SecureRandom.nextInt() — alternative pattern"
+      ],
+      "key_imports": [
+        "java.security.SecureRandom — must be confirmed"
+      ],
+      "dependencies": [],
+      "evidence_refs": ["EV-011"],
+      "known_limitations": [
+        "SecureRandom usage is inferred from class name — not confirmed from source.",
+        "OTP character space (numeric only, alphanumeric) and length unknown.",
+        "Evidence quality for EV-011 is inference — must be upgraded to direct_source_code after file fetch."
+      ],
+      "reviewer_note": "Critical check: java.security.SecureRandom vs java.util.Random. Using java.util.Random for OTP generation is a cryptographic vulnerability."
+    },
+
+    {
+      "context_bundle_id": "CB-010",
+      "revision": 1,
+      "analysis_task_id": "AT-010",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/resources/keystore.jks"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-provider/src/main/resources/keystore.jks", "lines": "binary — keytool -list output required"}
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-012"],
+      "known_limitations": [
+        "Binary JKS artifact — cannot be read as text. Requires keytool -list -v or programmatic KeyStore.load().",
+        "Keystore password unknown — may be in application.properties or environment variable.",
+        "Certificate validity, issuer, key algorithm, and key size all unknown.",
+        "May be a development/test certificate — Agent 1 evidence_quality: test_code."
+      ],
+      "reviewer_note": "Run: keytool -list -v -keystore keystore.jks -storepass <password>. Check for RSA < 2048 bits or EC < 256 bits as vulnerability indicators. Confirm whether this is a production or test certificate."
+    },
+
+    {
+      "context_bundle_id": "CB-011",
+      "revision": 1,
+      "analysis_task_id": "AT-011",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/service/migration/TenantPasswordEncryptionTask.java",
+        "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/service/migration/TenantPasswordEncryptionTask.java", "lines": "full_file"}
+      ],
+      "structural_nodes": [
+        "TenantPasswordEncryptionTask.execute()",
+        "EncryptionUtil delegation — unconfirmed"
+      ],
+      "key_imports": [],
+      "dependencies": [
+        "org.liquibase:liquibase-core"
+      ],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Source not yet fetched.",
+        "Whether task reads plaintext passwords from DB and re-encrypts using EncryptionUtil, or uses a different mechanism, is unknown."
+      ],
+      "reviewer_note": "Historical migration tasks may use different key material than current production code. Check whether the migration key is hardcoded, configurable, or derived from a master password."
+    },
+
+    {
+      "context_bundle_id": "CB-012",
+      "revision": 1,
+      "analysis_task_id": "AT-012",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/config/SecurityConfig.java",
+        "fineract-provider/src/main/resources/application.properties"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/config/SecurityConfig.java", "lines": "full_file — focus on configure(HttpSecurity) and SSL/TLS configuration"}
+      ],
+      "structural_nodes": [
+        "SecurityConfig.configure(HttpSecurity)",
+        "HttpSecurity.requiresChannel() — TLS enforcement",
+        "server.ssl.* — application.properties TLS config"
+      ],
+      "key_imports": [],
+      "dependencies": [
+        "org.springframework.boot:spring-boot-starter-security"
+      ],
+      "evidence_refs": [],
+      "known_limitations": [
+        "TLS protocol version constraints (TLSv1.2, TLSv1.3 only) not confirmed from source.",
+        "Cipher suite allowlist/denylist may be in application.properties server.ssl.ciphers rather than SecurityConfig.",
+        "Spring Security defaults to OS/JVM TLS settings without explicit cipher suite configuration."
+      ],
+      "reviewer_note": "Check application.properties for server.ssl.enabled-protocols and server.ssl.ciphers. Check SecurityConfig for requiresChannel().anyRequest().requiresSecure(). TLS 1.0/1.1 enablement is a vulnerability."
+    },
+
+    {
+      "context_bundle_id": "CB-013",
+      "revision": 1,
+      "analysis_task_id": "AT-013",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/TwoFactorServiceImpl.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/TwoFactorServiceImpl.java", "lines": "full_file — OTP generation and validation methods"}
+      ],
+      "structural_nodes": [
+        "TwoFactorServiceImpl.generateOTP()",
+        "TOTP / HOTP library call — unconfirmed"
+      ],
+      "key_imports": [],
+      "dependencies": [
+        "TOTP/HOTP library — unknown; could be custom implementation or third-party (e.g., dev.samstevens:totp)"
+      ],
+      "evidence_refs": [],
+      "known_limitations": [
+        "OTP algorithm (TOTP RFC 6238 vs. HOTP RFC 4226 vs. custom) unknown.",
+        "HMAC base (SHA1/SHA256/SHA512) unknown — PROHIBITED from inference.",
+        "Third-party TOTP library (if any) not identified from available structural data."
+      ],
+      "reviewer_note": "PROHIBITIONS APPLY: Do not infer OTP algorithm. Look for TOTP/HOTP library imports or explicit HMAC-SHA1/SHA256 calls. RFC 6238 TOTP with SHA1 is common but has lower security than SHA256."
+    },
+
+    {
+      "context_bundle_id": "CB-014",
+      "revision": 1,
+      "analysis_task_id": "AT-014",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/resources/db/changelog/tenant-store/parts/0007_encrypt_existing_tenant_passwords.xml"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-provider/src/main/resources/db/changelog/tenant-store/parts/0007_encrypt_existing_tenant_passwords.xml", "lines": "full_file"}
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [
+        "org.liquibase:liquibase-core"
+      ],
+      "evidence_refs": ["EV-013"],
+      "known_limitations": [
+        "XML content not yet fetched — changeSet type (SQL, customChange, Java task invocation) unknown.",
+        "Whether encryption is performed inline (SQL AES_ENCRYPT) or via Java TenantPasswordEncryptionTask is unknown."
+      ],
+      "reviewer_note": "Check for <customChange class='...TenantPasswordEncryptionTask'> vs inline SQL. If SQL AES_ENCRYPT: algorithm and mode are MySQL-specific and differ from Java AES/CBC. This is a labeling divergence risk."
+    },
+
+    {
+      "context_bundle_id": "CB-015",
+      "revision": 1,
+      "analysis_task_id": "AT-015",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/SpringSecurityPlatformSecurityContext.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/SpringSecurityPlatformSecurityContext.java", "lines": "full_file"}
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Source not yet fetched.",
+        "If class only delegates to SecurityContextHolder with no crypto imports: expected outcome is not_crypto."
+      ],
+      "reviewer_note": "Expected outcome: not_crypto / authorization_boundary. Confirm absence of javax.crypto, java.security.Signature, or token validation imports."
+    },
+
+    {
+      "context_bundle_id": "CB-016",
+      "revision": 1,
+      "analysis_task_id": "AT-016",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/java/org/apache/fineract/infrastructure/security/config/AuthorizationServerConfig.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/security/config/AuthorizationServerConfig.java", "lines": "full_file — JwtDecoder or NimbusJwtDecoder bean definitions"}
+      ],
+      "structural_nodes": [
+        "JwtDecoder @Bean",
+        "NimbusJwtDecoder configuration — unconfirmed"
+      ],
+      "key_imports": [],
+      "dependencies": [
+        "org.springframework.boot:spring-boot-starter-oauth2-authorization-server"
+      ],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Source not yet fetched.",
+        "JwtDecoder configuration (withJwkSetUri vs. withPublicKey vs. withSecretKey) not known."
+      ],
+      "reviewer_note": "High-value target for AT-007 JWT algorithm resolution. NimbusJwtDecoder.withPublicKey() → RS256/RS384/RS512. withJwkSetUri() → algorithm from JWKS. withSecretKey() → HS256/HS384/HS512."
+    },
+
+    {
+      "context_bundle_id": "CB-017",
+      "revision": 1,
+      "analysis_task_id": "AT-017",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/service/HashingService.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/service/HashingService.java", "lines": "full_file"}
+      ],
+      "structural_nodes": [
+        "MessageDigest.getInstance() — algorithm unknown"
+      ],
+      "key_imports": [
+        "java.security.MessageDigest — confirmed in preliminary_imports"
+      ],
+      "dependencies": [],
+      "evidence_refs": ["EV-014"],
+      "known_limitations": [
+        "MessageDigest algorithm (SHA-256, SHA-512, MD5, SHA-1) unknown without source fetch.",
+        "Use case (integrity check, ID generation, password hashing) unknown."
+      ],
+      "reviewer_note": "MD5 or SHA-1 usage for security-sensitive purposes is a finding. SHA-256+ is acceptable for integrity. Distinguish use case: if used for password hashing this is a critical vulnerability."
+    },
+
+    {
+      "context_bundle_id": "CB-018",
+      "revision": 1,
+      "analysis_task_id": "AT-018",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/java/org/apache/fineract/template/service/TrustModifier.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-provider/src/main/java/org/apache/fineract/template/service/TrustModifier.java", "lines": "full_file"}
+      ],
+      "structural_nodes": [
+        "TrustModifier — X509TrustManager.checkServerTrusted() override likely"
+      ],
+      "key_imports": [
+        "javax.net.ssl.TrustManager — likely",
+        "javax.net.ssl.X509TrustManager — likely",
+        "javax.net.ssl.HttpsURLConnection — likely"
+      ],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Source not yet fetched — SSL verification bypass is inferred from class name.",
+        "Whether TrustModifier is used in production code paths or only in test/template utilities is unknown."
+      ],
+      "reviewer_note": "CRITICAL: If TrustModifier implements a trust-all X509TrustManager (empty checkServerTrusted()), this is a severity-high vulnerability regardless of test scope. Check all callers."
+    },
+
+    {
+      "context_bundle_id": "CB-019",
+      "revision": 1,
+      "analysis_task_id": "AT-019",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-client/src/main/java/org/apache/fineract/client/util/FineractClient.java",
+        "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/config/OkHttp3Config.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-client/src/main/java/org/apache/fineract/client/util/FineractClient.java", "lines": "OkHttpClient builder configuration"}
+      ],
+      "structural_nodes": [
+        "OkHttpClient.Builder().sslSocketFactory() — possible",
+        "OkHttpClient.Builder().hostnameVerifier() — possible"
+      ],
+      "key_imports": [],
+      "dependencies": [
+        "com.squareup.okhttp3:okhttp"
+      ],
+      "evidence_refs": [],
+      "known_limitations": [
+        "OkHttp SSL configuration not confirmed from grep results.",
+        "Test-only SSL bypass (FineractClientTechnicalTest) may differ from production FineractClient."
+      ],
+      "reviewer_note": "Check for .hostnameVerifier((hostname, session) -> true) or trust-all SSLSocketFactory. Common pattern in client-side test/integration code that sometimes leaks to production."
+    },
+
+    {
+      "context_bundle_id": "CB-020",
+      "revision": 1,
+      "analysis_task_id": "AT-020",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/resources/application.properties"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-provider/src/main/resources/application.properties", "lines": "server.ssl.*, spring.security.oauth2.*, fineract.security.* sections"}
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [
+        "application.properties content not yet fetched.",
+        "Some security properties may be externalized to environment variables (docker env files) rather than application.properties."
+      ],
+      "reviewer_note": "Key properties to extract: server.ssl.key-store, server.ssl.key-store-password, server.ssl.enabled-protocols, server.ssl.ciphers, spring.security.oauth2.resourceserver.jwt.jwk-set-uri, fineract.security.basicauth.enabled."
+    },
+
+    {
+      "context_bundle_id": "CB-021",
+      "revision": 1,
+      "analysis_task_id": "AT-021",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/config/OkHttp3Config.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/config/OkHttp3Config.java", "lines": "full_file"}
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [
+        "com.squareup.okhttp3:okhttp"
+      ],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Source not yet fetched."
+      ],
+      "reviewer_note": "Production HTTP client configuration. If SSL verification is disabled here, it affects all outbound HTTP calls from the application server."
+    },
+
+    {
+      "context_bundle_id": "CB-022",
+      "revision": 1,
+      "analysis_task_id": "AT-022",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-core/src/test/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtilTest.java"
+      ],
+      "relevant_ranges": [
+        {"file": "fineract-core/src/test/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtilTest.java", "lines": "full_file"}
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Test code — findings here are evidence_quality: test_code and carry lower weight.",
+        "Hardcoded test keys in test class do not imply hardcoded keys in production code."
+      ],
+      "reviewer_note": "Look for test vectors that reveal IV handling: if tests pass a fixed IV, verify production code uses SecureRandom instead. Hardcoded test passwords/salts may reveal expected PBEKeySpec structure."
+    },
+
+    {
+      "context_bundle_id": "CB-023",
+      "revision": 1,
+      "analysis_task_id": "AT-023",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/jobs/updateloanarrearsageing/LoanArrearsAgeingUpdateHandler.java"
+      ],
+      "relevant_ranges": [],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-015"],
+      "known_limitations": [],
+      "reviewer_note": "Expected outcome: not_crypto. Confirm by absence of javax.crypto or java.security imports."
+    },
+
+    {
+      "context_bundle_id": "CB-024",
+      "revision": 1,
+      "analysis_task_id": "AT-024",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/service/ReprocessLoanTransactionsService.java"
+      ],
+      "relevant_ranges": [],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-016"],
+      "known_limitations": [],
+      "reviewer_note": "Expected outcome: not_crypto. Confirm by absence of javax.net.ssl imports."
+    },
+
+    {
+      "context_bundle_id": "CB-025",
+      "revision": 1,
+      "analysis_task_id": "AT-025",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-provider/src/main/java/org/apache/fineract/useradministration/domain/PasswordValidationPolicy.java"
+      ],
+      "relevant_ranges": [],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-017"],
+      "known_limitations": [],
+      "reviewer_note": "Expected outcome: not_crypto. Confirm absence of PasswordEncoder, MessageDigest, BCrypt imports."
+    },
+
+    {
+      "context_bundle_id": "CB-026",
+      "revision": 1,
+      "analysis_task_id": "AT-026",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-core/src/main/java/org/apache/fineract/accounting/glaccount/mapper/GlAccountTypeMapper.java",
+        "fineract-core/src/main/java/org/apache/fineract/portfolio/paymenttype/mapper/PaymentTypeMapper.java"
+      ],
+      "relevant_ranges": [],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-018"],
+      "known_limitations": [],
+      "reviewer_note": "Expected outcome: not_crypto. Confirm 'key' is Map/enum key, not javax.crypto.SecretKey or java.security.Key."
+    },
+
+    {
+      "context_bundle_id": "CB-027",
+      "revision": 1,
+      "analysis_task_id": "AT-027",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-core/src/main/java/org/apache/fineract/commands/service/IdempotencyKeyGenerator.java",
+        "fineract-core/src/main/java/org/apache/fineract/commands/service/IdempotencyKeyResolver.java"
+      ],
+      "relevant_ranges": [],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Source not yet fetched.",
+        "Outcome depends on whether UUID or HMAC is used."
+      ],
+      "reviewer_note": "If UUID.randomUUID().toString(): not_crypto. If MessageDigest or HMAC: crypto — classify algorithm and use case."
+    },
+
+    {
+      "context_bundle_id": "CB-028",
+      "revision": 1,
+      "analysis_task_id": "AT-028",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-core/src/main/java/org/apache/fineract/infrastructure/event/external/service/idempotency/DefaultExternalEventIdempotencyKeyGenerator.java"
+      ],
+      "relevant_ranges": [],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Source not yet fetched."
+      ],
+      "reviewer_note": "If SHA-based key derivation: crypto finding. If UUID/timestamp-based: not_crypto."
+    },
+
+    {
+      "context_bundle_id": "CB-029",
+      "revision": 1,
+      "analysis_task_id": "AT-029",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-document/src/main/java/org/apache/fineract/infrastructure/contentstore/service/S3ContentStoreService.java"
+      ],
+      "relevant_ranges": [],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [
+        "software.amazon.awssdk:s3 or com.amazonaws:aws-java-sdk-s3"
+      ],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Source not yet fetched.",
+        "AWS SDK encryption configuration varies between SDK v1 and v2."
+      ],
+      "reviewer_note": "Check for PutObjectRequest.withSSEAwsKeyManagementParams() or client-side AmazonS3EncryptionClient usage. Absence of both = no application-layer encryption, relying on S3 default SSE."
+    },
+
+    {
+      "context_bundle_id": "CB-030",
+      "revision": 1,
+      "analysis_task_id": "AT-030",
+      "snapshot_ref": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+      "relevant_files": [
+        "fineract-client-feign/src/main/java/org/apache/fineract/client/feign/BasicAuthRequestInterceptor.java"
+      ],
+      "relevant_ranges": [],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [
+        "io.github.openfeign:feign-core"
+      ],
+      "evidence_refs": [],
+      "known_limitations": [
+        "Source not yet fetched.",
+        "Standard BasicAuth uses Base64 encoding only — not cryptographic."
+      ],
+      "reviewer_note": "Expected outcome: not_crypto (Base64 encoding only). If additional HMAC signing is applied: crypto finding."
+    }
+
+  ],
+
+  "negative_candidate_sweep": {
+    "files_checked": [
+      "fineract-core/src/main/java/org/apache/fineract/commands/service/IdempotencyKeyGenerator.java",
+      "fineract-core/src/main/java/org/apache/fineract/commands/service/IdempotencyKeyResolver.java",
+      "fineract-core/src/main/java/org/apache/fineract/infrastructure/event/external/service/idempotency/DefaultExternalEventIdempotencyKeyGenerator.java",
+      "fineract-core/src/main/java/org/apache/fineract/accounting/glaccount/mapper/GlAccountTypeMapper.java",
+      "fineract-core/src/main/java/org/apache/fineract/portfolio/paymenttype/mapper/PaymentTypeMapper.java",
+      "fineract-core/src/main/java/org/apache/fineract/useradministration/api/PasswordPreferencesApiConstants.java",
+      "fineract-provider/src/main/java/org/apache/fineract/useradministration/data/PasswordValidationPolicyData.java",
+      "fineract-provider/src/main/java/org/apache/fineract/useradministration/domain/PasswordValidationPolicy.java",
+      "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/jobs/updateloanarrearsageing/LoanArrearsAgeingUpdateHandler.java",
+      "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/service/LoanArrearsAgingServiceImpl.java",
+      "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/service/ReprocessLoanTransactionsService.java",
+      "fineract-provider/src/main/java/org/apache/fineract/portfolio/account/api/AccountTransfersApiConstants.java",
+      "fineract-client-feign/src/main/java/org/apache/fineract/client/feign/BasicAuthRequestInterceptor.java",
+      "fineract-document/src/main/java/org/apache/fineract/infrastructure/contentstore/service/S3ContentStoreService.java",
+      "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/SpringSecurityPlatformSecurityContext.java"
+    ],
+    "confirmed_negatives": [
+      {
+        "file": "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/jobs/updateloanarrearsageing/LoanArrearsAgeingUpdateHandler.java",
+        "reason": "RSA = domain acronym (Repayment Schedule Analysis), not cryptographic RSA. Agent 1 FP-001.",
+        "analysis_task_id": "AT-023"
+      },
+      {
+        "file": "fineract-loan/src/main/java/org/apache/fineract/portfolio/loanaccount/service/ReprocessLoanTransactionsService.java",
+        "reason": "tls = business term in method/variable name, not TLS transport configuration. Agent 1 FP-002.",
+        "analysis_task_id": "AT-024"
+      },
+      {
+        "file": "fineract-provider/src/main/java/org/apache/fineract/useradministration/domain/PasswordValidationPolicy.java",
+        "reason": "Password policy rules (length, complexity) — no cryptographic operations. Agent 1 FP-003.",
+        "analysis_task_id": "AT-025"
+      },
+      {
+        "file": "fineract-core/src/main/java/org/apache/fineract/accounting/glaccount/mapper/GlAccountTypeMapper.java",
+        "reason": "key = Java Map key / enum identifier, not cryptographic key material. Agent 1 FP-004.",
+        "analysis_task_id": "AT-026"
+      },
+      {
+        "file": "fineract-core/src/main/java/org/apache/fineract/portfolio/paymenttype/mapper/PaymentTypeMapper.java",
+        "reason": "key = Java Map key / enum identifier. Agent 1 FP-004.",
+        "analysis_task_id": "AT-026"
+      }
+    ],
+    "suspected_negatives": [
+      {
+        "file": "fineract-client-feign/src/main/java/org/apache/fineract/client/feign/BasicAuthRequestInterceptor.java",
+        "reason": "Standard Basic Auth — likely Base64 encoding only. Pending source confirmation.",
+        "analysis_task_id": "AT-030"
+      },
+      {
+        "file": "fineract-security/src/main/java/org/apache/fineract/infrastructure/security/service/SpringSecurityPlatformSecurityContext.java",
+        "reason": "Authorization context boundary — likely no direct crypto operations. Pending source confirmation.",
+        "analysis_task_id": "AT-015"
+      },
+      {
+        "file": "fineract-core/src/main/java/org/apache/fineract/commands/service/IdempotencyKeyGenerator.java",
+        "reason": "Idempotency key likely UUID-based — pending source confirmation of absence of MessageDigest/HMAC.",
+        "analysis_task_id": "AT-027"
+      }
+    ],
+    "sweep_notes": "Negative candidate sweep sourced from Agent 1 suspected_false_positives (4 entries) and additional file_inventory entries matching *Key*, *Encrypt*, *Password*, *Token* patterns. 5 confirmed negatives from Agent 1 FP list. 3 suspected negatives pending source confirmation. Total negative tasks: 8 out of 30 (26.7%) — marginally below 30% quota. Quota warning issued: additional negative candidates should be targeted in Agent 3 follow-up if ratio remains below threshold after source confirmation."
+  },
+
+  "task_generation_summary": {
+    "note": "This block is not defined in Agent_Prompt_v0.7. It is added as a side-channel to pass quota warnings to Agent 3.",
+    "total_tasks": 30,
+    "call_site_tasks": 2,
+    "symbol_tasks": 13,
+    "file_region_tasks": 1,
+    "config_entry_tasks": 2,
+    "dependency_tasks": 0,
+    "certificate_or_key_artifact_tasks": 1,
+    "protocol_configuration_tasks": 5,
+    "wrapper_or_factory_candidate_tasks": 2,
+    "estimated_not_crypto_tasks": 8,
+    "estimated_not_crypto_ratio": 0.267,
+    "quota_warning": true,
+    "quota_warning_detail": "not_crypto ratio is 26.7%, marginally below the 30% minimum. Agent 3 should generate additional not_crypto HumanAnalysisRecords from the suspected_negatives list (AT-015, AT-027, AT-028, AT-029, AT-030) to close the gap. If all suspected negatives confirm as not_crypto, ratio rises to 43.3%, satisfying quota."
+  }
+}

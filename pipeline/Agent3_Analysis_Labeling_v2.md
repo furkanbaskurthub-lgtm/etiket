@@ -381,8 +381,13 @@ Field rules:
 
 ## PHASE 7b — ADJUDICATION RECORDS (MD §8 Stage 7)
 
-For every HumanAnalysisRecord that is a golden dataset candidate or high-value finding,
-produce an AdjudicationRecord placeholder.
+**Every HumanAnalysisRecord MUST have a corresponding AdjudicationRecord placeholder —
+no exceptions.** Agent 3.5 (LLM Adjudicator) expects one AdjudicationRecord per HAR.
+A missing placeholder blocks the adjudication pipeline.
+
+The `adjudication_id` MUST match the pattern `ADJ-{N}` where N corresponds to the HAR
+number (e.g. HAR-001 → ADJ-001). The `human_analysis_record_ref` field MUST reference
+the exact `analysis_record_id` of the corresponding HAR.
 
 ```json
 {
@@ -411,16 +416,22 @@ by a human reviewer after agent output.
 | `needs_revision` | Label requires significant rework. Returned to reviewer. |
 | `rejected` | Label is incorrect or out of scope. Excluded from dataset. |
 
-### When to produce an AdjudicationRecord (MD §13.2)
+### When to produce an AdjudicationRecord
 
-Produce an AdjudicationRecord when ANY of the following conditions are true:
+**Always — for every HumanAnalysisRecord without exception.**
 
-* The item is nominated as a `golden_dataset_candidate`
-* `outcome` is `not_crypto` with high lexical crypto signal
-* `labels.directness` is `wrapper_usage`, `factory_or_provider_selection`, or `configuration_driven`
-* `labels.evidence_category` includes `certificate` or `key_material`
-* `labels.quantum_relevance` is `quantum_vulnerable_public_key` or `post_quantum_candidate`
-* The item is used or intended for model evaluation
+`adjudication_outcome`, `adjudicator_id`, and `adjudication_date` are set to `null`
+by this agent. Agent 3.5 will populate these fields.
+
+The following conditions previously limited AdjudicationRecord production to a subset
+of records. This restriction is **removed**. All records require a placeholder:
+
+* golden_dataset_candidate → always produces ADJ (unchanged)
+* `outcome: not_crypto` with high lexical signal → always produces ADJ (unchanged)
+* `directness: wrapper_usage / factory_or_provider_selection / configuration_driven` → always produces ADJ (unchanged)
+* `evidence_category: certificate / key_material` → always produces ADJ (unchanged)
+* `quantum_relevance: quantum_vulnerable_public_key / post_quantum_candidate` → always produces ADJ (unchanged)
+* **All other records → also produce ADJ (new rule)**
 
 ### disagreement_category — allowed values (MD §13.3)
 

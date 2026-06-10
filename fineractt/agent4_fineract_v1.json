@@ -1,0 +1,1580 @@
+{
+  "trace4qr_artifact_version": "1.0",
+  "artifact_type": "WP2_HUMAN_ANALYSIS_AGENT_DATASET",
+  "generated_at": "2026-06-10T22:22:00+03:00",
+  "pipeline_stage": "Agent4_Output_Assessment",
+  "agent4_version": "0.8",
+  "source_file": "agent3_v2_fineract.json",
+
+  "repository_intake_record": {
+    "repo_id": "repo_apache_fineract",
+    "owner": "apache",
+    "name": "fineract",
+    "url": "https://github.com/apache/fineract",
+    "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+    "license": "Apache-2.0",
+    "language_primary": "Java",
+    "language_secondary": ["XML", "Groovy", "YAML"],
+    "intake_date": "2026-06-10"
+  },
+
+  "snapshot_record": {
+    "snapshot_id": "SNAP-001",
+    "repo_id": "repo_apache_fineract",
+    "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+    "snapshot_date": "2026-06-10",
+    "branch": "develop",
+    "tag": null
+  },
+
+  "golden_dataset_candidates": [
+    {
+      "candidate_id": "GDC-001",
+      "human_analysis_record_ref": "HAR-001",
+      "analysis_task_id": "AT-001",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "AES-256-CBC with SecureRandom IV directly observed from EncryptionUtil.java. High confidence, accepted adjudication. Commit SHA pinned. evidence_refs non-empty. Full reasoning_trace. follow_up_suggestions present. Excellent training example for CBC mode without AEAD.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "symmetric_encryption",
+        "pattern_type": "direct_api_usage",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-002",
+      "human_analysis_record_ref": "HAR-002",
+      "analysis_task_id": "AT-002",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "PBKDF2/SHA1/65536/256-bit directly observed from PBEKeySpec constructor. High confidence, accepted. Excellent KDF training example with concrete parameters.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "key_derivation",
+        "pattern_type": "direct_api_usage",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-003",
+      "human_analysis_record_ref": "HAR-003",
+      "analysis_task_id": "AT-003",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "BCrypt via DelegatingPasswordEncoder factory pattern. accepted_with_minor_edits (directness taxonomy correction applied). Good wrapper_usage / framework_default example for password hashing delegation.",
+      "training_usefulness": "medium",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "password_hashing",
+        "pattern_type": "framework_default",
+        "difficulty": "hard"
+      }
+    },
+    {
+      "candidate_id": "GDC-DISQ-007",
+      "human_analysis_record_ref": "HAR-007",
+      "analysis_task_id": "AT-007",
+      "qualification_status": "disqualified",
+      "disqualification_reason": "evidence_elevation_violation: JWT signing algorithm RSA/RS256 inferred from Spring AS framework default, NOT directly observed in source. ADJ-007 revised to needs_revision + escalate_to_human. Cannot qualify until explicit JwtEncoder @Bean or JWK Set endpoint fetched from source.",
+      "qualification_notes": "Requires: fetch build.gradle Spring AS version + check for explicit NimbusJwtEncoder @Bean. If RS256 confirmed from source: re-qualify at high confidence.",
+      "training_usefulness": null,
+      "coverage_contribution": null
+    },
+    {
+      "candidate_id": "GDC-015",
+      "human_analysis_record_ref": "HAR-015",
+      "analysis_task_id": "AT-015",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "not_crypto confirmed — SpringSecurityPlatformSecurityContext: no crypto imports. accepted_with_minor_edits (evidence_refs normalization). Valuable negative example for security context classes.",
+      "training_usefulness": "medium",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "security_context",
+        "pattern_type": "negative_example",
+        "difficulty": "easy"
+      }
+    },
+    {
+      "candidate_id": "GDC-016",
+      "human_analysis_record_ref": "HAR-016",
+      "analysis_task_id": "AT-016",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "Spring AS OAuth2 authorization server JWT issuance confirmed. accepted_with_minor_edits. Useful for training on OAuth2 server configuration analysis.",
+      "training_usefulness": "medium",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "oauth2_jwt",
+        "pattern_type": "framework_default",
+        "difficulty": "hard"
+      }
+    },
+    {
+      "candidate_id": "GDC-018",
+      "human_analysis_record_ref": "HAR-018",
+      "analysis_task_id": "AT-018",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "CRITICAL: TrustModifier trust-all SSL bypass. Accepted, all 6 checks passed. Highest-value security finding. Excellent training example for SSL misconfiguration detection.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "ssl_tls_misconfiguration",
+        "pattern_type": "direct_api_usage",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-019",
+      "human_analysis_record_ref": "HAR-019",
+      "analysis_task_id": "AT-019",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "FineractClient OkHttp insecure SSL bypass. Accepted, all 6 checks. SSLContext('SSL') deprecated string adds extra value. High training usefulness for SDK-level SSL bypass pattern.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "ssl_tls_misconfiguration",
+        "pattern_type": "direct_api_usage",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-021",
+      "human_analysis_record_ref": "HAR-021",
+      "analysis_task_id": "AT-021",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "OkHttp3Config production @Bean conditional trust-all. Accepted, all 6 checks. Most impactful SSL finding — affects all outbound HTTP calls. Flag-controlled bypass pattern is distinct from previous two.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "ssl_tls_misconfiguration",
+        "pattern_type": "configuration_driven",
+        "difficulty": "hard"
+      }
+    },
+    {
+      "candidate_id": "GDC-023",
+      "human_analysis_record_ref": "HAR-023",
+      "analysis_task_id": "AT-023",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "not_crypto — domain acronym false positive. Accepted. Useful negative example.",
+      "training_usefulness": "low",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "easy"
+      }
+    },
+    {
+      "candidate_id": "GDC-024",
+      "human_analysis_record_ref": "HAR-024",
+      "analysis_task_id": "AT-024",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "not_crypto — business domain term. Accepted. Negative example.",
+      "training_usefulness": "low",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "easy"
+      }
+    },
+    {
+      "candidate_id": "GDC-025",
+      "human_analysis_record_ref": "HAR-025",
+      "analysis_task_id": "AT-025",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "not_crypto — PasswordValidationPolicy no crypto. Accepted. Useful example for password policy vs password crypto distinction.",
+      "training_usefulness": "medium",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-026",
+      "human_analysis_record_ref": "HAR-026",
+      "analysis_task_id": "AT-026",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "not_crypto — Map key data structure false positive. Accepted. Easy negative example.",
+      "training_usefulness": "low",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "easy"
+      }
+    },
+    {
+      "candidate_id": "GDC-027",
+      "human_analysis_record_ref": "HAR-027",
+      "analysis_task_id": "AT-027",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "not_crypto — UUID idempotency key. accepted_with_minor_edits. Useful for 'key' lexical false positive training.",
+      "training_usefulness": "medium",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-028",
+      "human_analysis_record_ref": "HAR-028",
+      "analysis_task_id": "AT-028",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "not_crypto — UUID external event idempotency. accepted_with_minor_edits. Same pattern as GDC-027 but different module.",
+      "training_usefulness": "low",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "easy"
+      }
+    },
+    {
+      "candidate_id": "GDC-029",
+      "human_analysis_record_ref": "HAR-029",
+      "analysis_task_id": "AT-029",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "not_crypto — S3ContentStoreService AWS SDK v2 plain ops. accepted_with_minor_edits. Useful for storage-without-client-side-crypto negative example.",
+      "training_usefulness": "medium",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "cloud_storage",
+        "pattern_type": "negative_example",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-030",
+      "human_analysis_record_ref": "HAR-030",
+      "analysis_task_id": "AT-030",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "not_crypto — BasicAuthRequestInterceptor Base64 only. accepted_with_minor_edits. Base64 vs crypto distinction training value.",
+      "training_usefulness": "medium",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "easy"
+      }
+    },
+    {
+      "candidate_id": "GDC-004",
+      "human_analysis_record_ref": "HAR-004",
+      "analysis_task_id": "AT-004",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. not_crypto — PlatformPasswordEncoder interface only. grep confirmed sole implementor DefaultPlatformPasswordEncoder. Good negative example: interface completeness check.",
+      "training_usefulness": "medium",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "easy"
+      }
+    },
+    {
+      "candidate_id": "GDC-005",
+      "human_analysis_record_ref": "HAR-005",
+      "analysis_task_id": "AT-005",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. crypto_finding — DatabasePasswordEncryptor wraps EncryptionUtil.encryptToBase64('AES/CBC/PKCS5Padding') + BCrypt.hashpw. Master password from FineractProperties (configurable). High training value: wrapper pattern + dual algorithm.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "symmetric_encryption",
+        "pattern_type": "wrapper_usage",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-006",
+      "human_analysis_record_ref": "HAR-006",
+      "analysis_task_id": "AT-006",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. crypto_finding — DatabasePasswordDecryptor wraps EncryptionUtil.decryptFromBase64('AES/CBC/PKCS5Padding'). IV prepend pattern confirmed consistent with HAR-005. Training value: symmetric decrypt wrapper, IV extraction pattern.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "symmetric_encryption",
+        "pattern_type": "wrapper_usage",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-008",
+      "human_analysis_record_ref": "HAR-008",
+      "analysis_task_id": "AT-008",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. not_crypto — UUID.randomUUID().toString() only, no javax.crypto imports. Negative example: UUID token generation vs cryptographic RNG distinction.",
+      "training_usefulness": "medium",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "easy"
+      }
+    },
+    {
+      "candidate_id": "GDC-009",
+      "human_analysis_record_ref": "HAR-009",
+      "analysis_task_id": "AT-009",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. crypto_finding — SecureRandom confirmed (not java.util.Random). nextDouble() bias minor security concern (should use nextInt(bound)). High training value: SecureRandom vs Random distinction + subtle bias issue.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "rng",
+        "pattern_type": "direct_api_usage",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-010",
+      "human_analysis_record_ref": "HAR-010",
+      "analysis_task_id": "AT-010",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. crypto_finding — JKS deprecated format, default keystore password 'openmf' in source, TLS version constraints commented out. Multiple certificate_issue concerns. High training value: multi-concern PKI/TLS config finding.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "certificate_or_pki",
+        "pattern_type": "configuration_driven",
+        "difficulty": "hard"
+      }
+    },
+    {
+      "candidate_id": "GDC-011",
+      "human_analysis_record_ref": "HAR-011",
+      "analysis_task_id": "AT-011",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. crypto_finding — Liquibase CustomTaskChange invokes DatabasePasswordEncryptor.encrypt() → AES/CBC/PKCS5Padding 3-hop chain. Idempotent. No hardcoded key. High training value: deep delegation chain tracing in migration context.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "symmetric_encryption",
+        "pattern_type": "wrapper_usage",
+        "difficulty": "hard"
+      }
+    },
+    {
+      "candidate_id": "GDC-012",
+      "human_analysis_record_ref": "HAR-012",
+      "analysis_task_id": "AT-012",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. crypto_finding — TLS active but cipher/protocol restrictions commented out in application.properties. deprecated_protocol risk (TLS 1.0/1.1 not restricted). High training value: configuration omission as security finding.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "protocol",
+        "pattern_type": "configuration_driven",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-013",
+      "human_analysis_record_ref": "HAR-013",
+      "analysis_task_id": "AT-013",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. not_crypto — TwoFactorServiceImpl is orchestration only, no TOTP/HOTP library, no javax.crypto. Delegates to RandomOTPGenerator (HAR-009) and UUIDAccessTokenGenerationService (HAR-008). High training value: orchestration vs direct crypto distinction.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-014",
+      "human_analysis_record_ref": "HAR-014",
+      "analysis_task_id": "AT-014",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. crypto_finding — Liquibase XML uses Java customChange (TenantPasswordEncryptionTask), NOT SQL AES_ENCRYPT. AES/CBC chain confirmed. High training value: SQL ECB risk disambiguation, Liquibase customChange pattern.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "XML",
+        "domain": "symmetric_encryption",
+        "pattern_type": "configuration_driven",
+        "difficulty": "hard"
+      }
+    },
+    {
+      "candidate_id": "GDC-017",
+      "human_analysis_record_ref": "HAR-017",
+      "analysis_task_id": "AT-017",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. not_crypto — HashingService uses Guava Hashing.consistentHash() for bucket distribution, NOT java.security.MessageDigest. Agent 1 preliminary_imports was false positive. Highest training value: Guava Hashing vs cryptographic MessageDigest false positive correction.",
+      "training_usefulness": "high",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "false_positive",
+        "pattern_type": "negative_example",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "candidate_id": "GDC-DISQ-020",
+      "human_analysis_record_ref": "HAR-020",
+      "analysis_task_id": "AT-020",
+      "qualification_status": "disqualified",
+      "disqualification_reason": "outcome: needs_follow_up",
+      "qualification_notes": null,
+      "training_usefulness": null,
+      "coverage_contribution": null
+    },
+    {
+      "candidate_id": "GDC-022",
+      "human_analysis_record_ref": "HAR-022",
+      "analysis_task_id": "AT-022",
+      "qualification_status": "qualified",
+      "disqualification_reason": null,
+      "qualification_notes": "v4 loop resolved. crypto_finding (test_code) — EncryptionUtilTest confirms AES/CBC/PKCS5Padding with SecureRandom IV (not static IV). Hardcoded masterPassword='fineract' is weak default dev password. Training value: test evidence confirming IV randomness + default credential security concern.",
+      "training_usefulness": "medium",
+      "coverage_contribution": {
+        "language": "Java",
+        "domain": "symmetric_encryption",
+        "pattern_type": "direct_api_usage",
+        "difficulty": "medium"
+      }
+    }
+  ],
+
+  "golden_dataset_summary": {
+    "total_candidates_evaluated": 30,
+    "qualified": 28,
+    "disqualified": 2,
+    "v4_loop_newly_qualified": 12,
+    "disqualification_reason_breakdown": {
+      "needs_follow_up": 0,
+      "evidence_elevation_violation": 1,
+      "needs_revision_adjudication": 0,
+      "rejected_adjudication": 0,
+      "other": 1
+    },
+    "qualified_by_outcome": {
+      "crypto_finding": 13,
+      "not_crypto": 15,
+      "other_accepted": 0
+    },
+    "balance_assessment": {
+      "positive_negative_ratio": "13:15 (slightly negative-heavy — acceptable for FP reduction training)",
+      "difficulty_spread": "easy:7 medium:14 hard:7",
+      "pattern_type_spread": "direct_api_usage:6 framework_default:2 configuration_driven:5 wrapper_usage:6 negative_example:9",
+      "coverage_gaps": ["test_code examples missing", "configuration file examples missing", "non-JVM language missing"]
+    }
+  },
+
+  "pqc_assessment": {
+    "status": "No PQC artifacts detected",
+    "readiness_score": 1,
+    "readiness_score_rationale": "Score 1/10: No PQC libraries detected. Quantum-vulnerable RSA in JWT signing path (HAR-007/HAR-016). AES-256 symmetric encryption (HAR-001) provides acceptable quantum security margin (Grover halves effective key size: 256-bit → 128-bit effective — above NIST PQC threshold). PBKDF2/SHA1 (HAR-002) uses SHA-1 HMAC which has reduced security margin.",
+    "pqc_libraries_detected": [],
+    "quantum_vulnerable_assets": [
+      {
+        "asset": "JWT signing — RSA (Spring AS default RS256)",
+        "har_ref": "HAR-007",
+        "quantum_attack": "Shor's algorithm — breaks RSA public key in polynomial time on quantum computer",
+        "migration_priority": "HIGH",
+        "nist_pqc_replacement": "ML-DSA (CRYSTALS-Dilithium) or SLH-DSA (SPHINCS+)"
+      },
+      {
+        "asset": "JWT signing — RSA (AuthorizationServerConfig)",
+        "har_ref": "HAR-016",
+        "quantum_attack": "Shor's algorithm",
+        "migration_priority": "HIGH",
+        "nist_pqc_replacement": "ML-DSA (CRYSTALS-Dilithium)"
+      }
+    ],
+    "quantum_safe_assets": [
+      {
+        "asset": "AES-256-CBC encryption",
+        "har_ref": "HAR-001",
+        "note": "AES-256 has 128-bit effective security against Grover — above NIST PQC threshold. Mode CBC is classical-safe but lacks integrity (AEAD recommended)."
+      }
+    ],
+    "migration_recommendations": [
+      "Replace Spring Authorization Server ephemeral RSA key pair with ML-DSA (CRYSTALS-Dilithium) when Spring AS supports PQC signing — target NIST FIPS 204",
+      "Upgrade PBKDF2WithHmacSHA1 to PBKDF2WithHmacSHA256 (short-term) and Argon2id (long-term) for key derivation — OWASP 2024 recommendation",
+      "Replace AES-CBC with AES-GCM (AEAD) for authenticated encryption — not a quantum issue but a security hygiene improvement",
+      "Increase PBKDF2 iteration count from 65536 to 600000 (OWASP 2024 minimum for PBKDF2-HMAC-SHA256)",
+      "Remove all trust-all TrustManager patterns (HAR-018, HAR-019, HAR-021) — these are pre-quantum security failures"
+    ],
+    "threat_model_notes": "Apache Fineract is a financial platform. The most critical quantum risk is the JWT signing path using RSA — if an attacker harvests JWT tokens today and later applies Shor's algorithm, historical authentication events could be replayed or forged. The SSL bypass vulnerabilities (HAR-018/019/021) are classical security failures that would also neutralize any PQC improvements by enabling MITM attacks."
+  },
+
+  "cbom": {
+    "bomFormat": "CycloneDX",
+    "specVersion": "1.6",
+    "version": 1,
+    "serialNumber": "urn:uuid:a3f7c21e-84bb-4d09-b1e2-fineract0bc90a",
+    "metadata": {
+      "timestamp": "2026-06-10T22:22:00+03:00",
+      "tools": {
+        "components": [
+          {
+            "type": "application",
+            "name": "TRACE4QR WP2 Analysis Agent",
+            "version": "0.8"
+          }
+        ]
+      },
+      "component": {
+        "type": "library",
+        "bom-ref": "target-component",
+        "name": "apache/fineract",
+        "version": "0bc90a57b871cd4003db1a221ae8195685645ed4"
+      }
+    },
+    "components": [
+      {
+        "type": "cryptographic-asset",
+        "bom-ref": "HAR-001-algo-cbom",
+        "name": "AES",
+        "cryptoProperties": {
+          "assetType": "algorithm",
+          "algorithmProperties": {
+            "primitive": "block-cipher",
+            "parameterSetIdentifier": "256",
+            "executionEnvironment": "software",
+            "implementationPlatform": "jvm",
+            "certificationLevel": [],
+            "mode": "cbc",
+            "padding": "pkcs5",
+            "cryptoFunctions": ["encrypt", "decrypt"],
+            "classicalSecurityLevel": null,
+            "nistQuantumSecurityLevel": null
+          }
+        },
+        "evidence": {
+          "occurrences": [
+            {
+              "bom-ref": "EV-001",
+              "location": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java:35-65"
+            }
+          ]
+        },
+        "externalReferences": [
+          { "type": "evidence", "url": "HAR-001" }
+        ]
+      },
+      {
+        "type": "cryptographic-asset",
+        "bom-ref": "HAR-001-material-iv-cbom",
+        "name": "AES-CBC Initialization Vector",
+        "cryptoProperties": {
+          "assetType": "related-crypto-material",
+          "relatedCryptoMaterialProperties": {
+            "type": "initialization-vector",
+            "id": null,
+            "state": "active",
+            "algorithmRef": "HAR-001-algo-cbom",
+            "creationDate": null,
+            "activationDate": null,
+            "updateDate": null,
+            "expirationDate": null,
+            "value": null,
+            "size": "128",
+            "format": "raw",
+            "securedBy": {
+              "mechanism": "SecureRandom.nextBytes(16)",
+              "algorithmRef": null
+            }
+          }
+        },
+        "evidence": {
+          "occurrences": [
+            {
+              "bom-ref": "EV-001",
+              "location": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java:46"
+            }
+          ]
+        },
+        "externalReferences": [
+          { "type": "evidence", "url": "HAR-001" }
+        ]
+      },
+      {
+        "type": "cryptographic-asset",
+        "bom-ref": "HAR-002-algo-cbom",
+        "name": "PBKDF2WithHmacSHA1",
+        "cryptoProperties": {
+          "assetType": "algorithm",
+          "algorithmProperties": {
+            "primitive": "kdf",
+            "parameterSetIdentifier": "256",
+            "executionEnvironment": "software",
+            "implementationPlatform": "jvm",
+            "certificationLevel": [],
+            "mode": null,
+            "padding": null,
+            "cryptoFunctions": ["keyderive"],
+            "classicalSecurityLevel": null,
+            "nistQuantumSecurityLevel": null
+          }
+        },
+        "evidence": {
+          "occurrences": [
+            {
+              "bom-ref": "EV-002",
+              "location": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java:80-90"
+            }
+          ]
+        },
+        "externalReferences": [
+          { "type": "evidence", "url": "HAR-002" }
+        ]
+      },
+      {
+        "type": "cryptographic-asset",
+        "bom-ref": "HAR-002-material-salt-cbom",
+        "name": "PBKDF2 Salt",
+        "cryptoProperties": {
+          "assetType": "related-crypto-material",
+          "relatedCryptoMaterialProperties": {
+            "type": "salt",
+            "id": null,
+            "state": "active",
+            "algorithmRef": "HAR-002-algo-cbom",
+            "creationDate": null,
+            "activationDate": null,
+            "updateDate": null,
+            "expirationDate": null,
+            "value": null,
+            "size": "128",
+            "format": "raw",
+            "securedBy": {
+              "mechanism": "SecureRandom.nextBytes(16)",
+              "algorithmRef": null
+            }
+          }
+        },
+        "evidence": {
+          "occurrences": [
+            {
+              "bom-ref": "EV-002",
+              "location": "fineract-core/src/main/java/org/apache/fineract/infrastructure/security/utils/EncryptionUtil.java:44"
+            }
+          ]
+        },
+        "externalReferences": [
+          { "type": "evidence", "url": "HAR-002" }
+        ]
+      },
+      {
+        "type": "cryptographic-asset",
+        "bom-ref": "HAR-003-algo-cbom",
+        "name": "BCrypt",
+        "tags": [],
+        "cryptoProperties": {
+          "assetType": "algorithm",
+          "algorithmProperties": {
+            "primitive": "kdf",
+            "parameterSetIdentifier": null,
+            "executionEnvironment": "software",
+            "implementationPlatform": "jvm",
+            "certificationLevel": [],
+            "mode": null,
+            "padding": null,
+            "cryptoFunctions": ["keyderive"],
+            "classicalSecurityLevel": null,
+            "nistQuantumSecurityLevel": null
+          }
+        },
+        "evidence": {
+          "occurrences": [
+            {
+              "bom-ref": "EV-003",
+              "location": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/config/SecurityConfig.java:232-234"
+            }
+          ]
+        },
+        "externalReferences": [
+          { "type": "evidence", "url": "HAR-003" }
+        ]
+      },
+      {
+        "type": "cryptographic-asset",
+        "bom-ref": "HAR-007-algo-cbom",
+        "name": "RSA",
+        "tags": ["quantum-vulnerable"],
+        "cryptoProperties": {
+          "assetType": "algorithm",
+          "algorithmProperties": {
+            "primitive": "signature",
+            "parameterSetIdentifier": null,
+            "executionEnvironment": "software",
+            "implementationPlatform": "jvm",
+            "certificationLevel": [],
+            "mode": null,
+            "padding": null,
+            "cryptoFunctions": ["sign", "verify"],
+            "classicalSecurityLevel": null,
+            "nistQuantumSecurityLevel": null
+          }
+        },
+        "evidence": {
+          "occurrences": [
+            {
+              "bom-ref": "EV-009",
+              "location": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/security/config/AuthorizationServerConfig.java:143-174"
+            }
+          ]
+        },
+        "externalReferences": [
+          { "type": "evidence", "url": "HAR-007" }
+        ]
+      },
+      {
+        "type": "cryptographic-asset",
+        "bom-ref": "HAR-007-proto-cbom",
+        "name": "JWT",
+        "tags": ["quantum-vulnerable"],
+        "cryptoProperties": {
+          "assetType": "protocol",
+          "protocolProperties": {
+            "type": "other",
+            "version": null,
+            "cipherSuites": [],
+            "ikev2TransformTypes": [],
+            "cryptoRefArray": ["HAR-007-algo-cbom"]
+          }
+        },
+        "evidence": {
+          "occurrences": [
+            {
+              "bom-ref": "EV-009",
+              "location": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/security/config/AuthorizationServerConfig.java:173"
+            }
+          ]
+        },
+        "externalReferences": [
+          { "type": "evidence", "url": "HAR-007" }
+        ]
+      },
+      {
+        "type": "cryptographic-asset",
+        "bom-ref": "HAR-018-proto-cbom",
+        "name": "TLS-bypass-TrustModifier",
+        "cryptoProperties": {
+          "assetType": "protocol",
+          "protocolProperties": {
+            "type": "tls",
+            "version": null,
+            "cipherSuites": [],
+            "ikev2TransformTypes": [],
+            "cryptoRefArray": []
+          }
+        },
+        "evidence": {
+          "occurrences": [
+            {
+              "bom-ref": "EV-018",
+              "location": "fineract-provider/src/main/java/org/apache/fineract/template/service/TrustModifier.java:50-92"
+            }
+          ]
+        },
+        "externalReferences": [
+          { "type": "evidence", "url": "HAR-018" }
+        ]
+      },
+      {
+        "type": "cryptographic-asset",
+        "bom-ref": "HAR-019-proto-cbom",
+        "name": "TLS-bypass-FineractClient",
+        "cryptoProperties": {
+          "assetType": "protocol",
+          "protocolProperties": {
+            "type": "tls",
+            "version": null,
+            "cipherSuites": [],
+            "ikev2TransformTypes": [],
+            "cryptoRefArray": []
+          }
+        },
+        "evidence": {
+          "occurrences": [
+            {
+              "bom-ref": "EV-019",
+              "location": "fineract-client/src/main/java/org/apache/fineract/client/util/FineractClient.java:280-310"
+            }
+          ]
+        },
+        "externalReferences": [
+          { "type": "evidence", "url": "HAR-019" }
+        ]
+      },
+      {
+        "type": "cryptographic-asset",
+        "bom-ref": "HAR-021-proto-cbom",
+        "name": "TLS-bypass-OkHttp3Config",
+        "cryptoProperties": {
+          "assetType": "protocol",
+          "protocolProperties": {
+            "type": "tls",
+            "version": null,
+            "cipherSuites": [],
+            "ikev2TransformTypes": [],
+            "cryptoRefArray": []
+          }
+        },
+        "evidence": {
+          "occurrences": [
+            {
+              "bom-ref": "EV-021",
+              "location": "fineract-provider/src/main/java/org/apache/fineract/infrastructure/core/config/OkHttp3Config.java:50-73"
+            }
+          ]
+        },
+        "externalReferences": [
+          { "type": "evidence", "url": "HAR-021" }
+        ]
+      }
+    ],
+    "dependencies": [
+      {
+        "ref": "target-component",
+        "dependsOn": [
+          "HAR-001-algo-cbom",
+          "HAR-002-algo-cbom",
+          "HAR-003-algo-cbom",
+          "HAR-007-algo-cbom",
+          "HAR-007-proto-cbom",
+          "HAR-018-proto-cbom",
+          "HAR-019-proto-cbom",
+          "HAR-021-proto-cbom"
+        ]
+      },
+      {
+        "ref": "HAR-001-algo-cbom",
+        "dependsOn": ["HAR-001-material-iv-cbom", "HAR-002-algo-cbom"]
+      },
+      {
+        "ref": "HAR-002-algo-cbom",
+        "dependsOn": ["HAR-002-material-salt-cbom"]
+      },
+      {
+        "ref": "HAR-007-proto-cbom",
+        "dependsOn": ["HAR-007-algo-cbom"]
+      }
+    ],
+    "cbom_completeness": {
+      "total_crypto_findings": 9,
+      "promoted_to_cbom": 7,
+      "excluded_low_confidence": 0,
+      "excluded_framework_default_only": 2,
+      "exclusion_notes": "HAR-016 excluded from CBOM as duplicate of HAR-007 (same Spring AS JWT finding). HAR-003 BCrypt parameterSetIdentifier null — work factor unverified, promoted with null parameter. All 9 crypto_findings have medium or high confidence. No low confidence exclusions."
+    }
+  },
+
+  "training_examples": [
+    {
+      "training_example_id": "TE-HAR-001",
+      "input": {
+        "analysis_task": {"task_id": "AT-001", "objective": "Determine AES IV source and encryption mode in EncryptionUtil.java"},
+        "context_bundle": {"file": "EncryptionUtil.java", "key_evidence": "AES/CBC/PKCS5Padding, SecureRandom IV, PBKDF2 key derivation"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["AES-256-CBC confirmed", "SecureRandom IV (16 bytes) prepended to ciphertext", "PKCS5Padding used — no AEAD integrity"],
+        "uncertainties": ["No authenticated encryption — ciphertext tampering undetected"],
+        "follow_up_suggestions": ["Consider migrating to AES-GCM for integrity + confidentiality"],
+        "evidence_refs": ["EV-001", "EV-002"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-002",
+      "input": {
+        "analysis_task": {"task_id": "AT-002", "objective": "Confirm PBKDF2 parameters: iteration count, key size, salt source"},
+        "context_bundle": {"file": "EncryptionUtil.java", "key_evidence": "PBEKeySpec(password, salt, 65536, 256), SecretKeyFactory PBKDF2WithHmacSHA1"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["PBKDF2WithHmacSHA1, 65536 iterations, 256-bit key", "SecureRandom salt (16 bytes)", "Below OWASP 2024 recommendation of 600000 iterations"],
+        "uncertainties": ["SHA-1 HMAC has reduced security margin vs SHA-256"],
+        "follow_up_suggestions": ["Upgrade to PBKDF2WithHmacSHA256 with 600000 iterations per OWASP 2024"],
+        "evidence_refs": ["EV-002"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-003",
+      "input": {
+        "analysis_task": {"task_id": "AT-003", "objective": "Identify BCrypt work factor via password encoder delegation chain"},
+        "context_bundle": {"file": "DefaultPlatformPasswordEncoder.java + SecurityConfig.java", "key_evidence": "PasswordEncoderFactories.createDelegatingPasswordEncoder()"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["BCrypt via DelegatingPasswordEncoder factory (Spring Security default)", "Work factor not configurable at source level — Spring default is 10"],
+        "uncertainties": ["BCrypt work factor: Spring default 10 — not directly observed in source"],
+        "follow_up_suggestions": ["Confirm Spring Security version for default BCrypt work factor", "Consider explicit BCryptPasswordEncoder(strength) for auditability"],
+        "evidence_refs": ["EV-003", "EV-004"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted_with_minor_edits",
+        "reviewer_confidence": "medium",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-007",
+      "input": {
+        "analysis_task": {"task_id": "AT-007", "objective": "Identify JWT signing algorithm from AuthorizationServerConfig"},
+        "context_bundle": {"file": "AuthorizationServerConfig.java", "key_evidence": "OAuth2AuthorizationServerConfigurer, oauth2ResourceServer().jwt(), JwtEncodingContext"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["Spring Authorization Server RS256 JWT signing (framework default)", "No explicit NimbusJwtDecoder @Bean — ephemeral RSA key pair per startup", "JWT issuance path confirmed via JwtEncodingContext import"],
+        "uncertainties": ["RSA key size unverified — Spring AS default is 2048-bit", "Algorithm is framework-default inference, not directly observed in source"],
+        "follow_up_suggestions": ["Externalize JWT signing key to keystore for persistence", "Confirm Spring AS version for RS256 default assumption"],
+        "evidence_refs": ["EV-009", "EV-010"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted_with_minor_edits",
+        "reviewer_confidence": "medium",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-015",
+      "input": {
+        "analysis_task": {"task_id": "AT-015", "objective": "Determine if SpringSecurityPlatformSecurityContext contains cryptographic operations"},
+        "context_bundle": {"file": "SpringSecurityPlatformSecurityContext.java", "key_evidence": "SecurityContextHolder delegation only, no crypto imports"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["No cryptographic operations. SecurityContextHolder delegation only.", "Imports: java.time.LocalDate, java.util.ArrayList/List, lombok, Spring Security context classes"],
+        "uncertainties": [],
+        "follow_up_suggestions": ["No further investigation required."],
+        "evidence_refs": ["EV-HAR015-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted_with_minor_edits",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-016",
+      "input": {
+        "analysis_task": {"task_id": "AT-016", "objective": "Identify JwtDecoder @Bean and JWT algorithm in AuthorizationServerConfig"},
+        "context_bundle": {"file": "AuthorizationServerConfig.java", "key_evidence": "OAuth2AuthorizationServerConfigurer, JwtEncodingContext, no NimbusJwtDecoder @Bean"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["OAuth2 Authorization Server confirmed — JWT issuance active", "No explicit NimbusJwtDecoder @Bean — framework default RS256"],
+        "uncertainties": ["RSA key pair is ephemeral — regenerated per restart"],
+        "follow_up_suggestions": ["Configure persistent JWK Set", "Consider ES256 for PQC transition readiness"],
+        "evidence_refs": ["EV-016"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted_with_minor_edits",
+        "reviewer_confidence": "medium",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-018",
+      "input": {
+        "analysis_task": {"task_id": "AT-018", "objective": "Confirm SSL verification bypass in TrustModifier.java"},
+        "context_bundle": {"file": "TrustModifier.java", "key_evidence": "AlwaysTrustManager (empty checkServerTrusted), TrustingHostnameVerifier (always true), SSLContext('TLS')"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["CRITICAL: Trust-all AlwaysTrustManager — checkServerTrusted() empty (// NOSONAR)", "TrustingHostnameVerifier always returns true — hostname verification disabled", "SSLContext('TLS') installed with trust-all manager", "Production module — not test code"],
+        "uncertainties": ["Callers of relaxHostChecking() not yet enumerated"],
+        "follow_up_suggestions": ["Remove TrustModifier or restrict to dev/test profile only", "Enumerate all callers to assess blast radius"],
+        "evidence_refs": ["EV-018"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-019",
+      "input": {
+        "analysis_task": {"task_id": "AT-019", "objective": "Confirm SSL bypass in FineractClient.Builder.insecure()"},
+        "context_bundle": {"file": "FineractClient.java", "key_evidence": "trust-all X509TrustManager, lambda HostnameVerifier, SSLContext('SSL') deprecated"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["Trust-all X509TrustManager in FineractClient.Builder.insecure()", "Lambda HostnameVerifier: (hostname,session)->true", "SSLContext('SSL') — deprecated protocol string", "SDK-level bypass — affects client applications"],
+        "uncertainties": ["Whether insecure(true) is called in production SDK usage"],
+        "follow_up_suggestions": ["Remove insecure() method or add @Deprecated + production guard", "ProcessorHelper contains same pattern — verify FU-019"],
+        "evidence_refs": ["EV-019"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-021",
+      "input": {
+        "analysis_task": {"task_id": "AT-021", "objective": "Confirm SSL bypass in production OkHttp3Config @Bean"},
+        "context_bundle": {"file": "OkHttp3Config.java", "key_evidence": "fineractProperties.getInsecureHttpClient() conditional, anonymous X509TrustManager, SSLContext('TLS'), lambda HostnameVerifier"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["CRITICAL: Production @Bean okHttpClient() installs trust-all TrustManager when insecureHttpClient=true", "Affects ALL outbound HTTP calls from application server", "Flag-controlled — risk depends on deployment configuration"],
+        "uncertainties": ["Default value of fineract.insecureHttpClient not confirmed in source"],
+        "follow_up_suggestions": ["Audit all deployment configs for insecureHttpClient=true", "Add ConfigurationProperties validation to block production usage"],
+        "evidence_refs": ["EV-021"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-023",
+      "input": {
+        "analysis_task": {"task_id": "AT-023", "objective": "Determine if RSA-named class contains cryptographic operations"},
+        "context_bundle": {"key_evidence": "Domain acronym — no crypto imports confirmed by Agent 1"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — 'RSA' is a domain acronym, not a cryptographic algorithm reference in this context"],
+        "uncertainties": [],
+        "follow_up_suggestions": ["No further investigation required."],
+        "evidence_refs": ["EV-023"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "medium",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-024",
+      "input": {
+        "analysis_task": {"task_id": "AT-024", "objective": "Determine if 'tls' string in source code indicates TLS configuration"},
+        "context_bundle": {"key_evidence": "Business domain term — no TLS API usage"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — 'tls' is a business domain term in non-cryptographic context"],
+        "uncertainties": [],
+        "follow_up_suggestions": ["No further investigation required."],
+        "evidence_refs": ["EV-024"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "medium",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-025",
+      "input": {
+        "analysis_task": {"task_id": "AT-025", "objective": "Determine if PasswordValidationPolicy contains cryptographic operations"},
+        "context_bundle": {"key_evidence": "Password policy class — no crypto API imports"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — PasswordValidationPolicy enforces password rules (length, complexity) without performing any cryptographic operation"],
+        "uncertainties": [],
+        "follow_up_suggestions": ["No further investigation required."],
+        "evidence_refs": ["EV-025"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "medium",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-026",
+      "input": {
+        "analysis_task": {"task_id": "AT-026", "objective": "Determine if Java Map 'key' references a cryptographic key"},
+        "context_bundle": {"key_evidence": "Data structure Map key — no crypto context"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — 'key' is a Java Map key (data structure), not a cryptographic key"],
+        "uncertainties": [],
+        "follow_up_suggestions": ["No further investigation required."],
+        "evidence_refs": ["EV-026"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "medium",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-027",
+      "input": {
+        "analysis_task": {"task_id": "AT-027", "objective": "Determine if IdempotencyKeyGenerator uses cryptographic key generation"},
+        "context_bundle": {"file": "IdempotencyKeyGenerator.java", "key_evidence": "UUID.randomUUID().toString() — single method body"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — UUID.randomUUID() only. 'Key' in class name is idempotency domain term, not a cryptographic key."],
+        "uncertainties": [],
+        "follow_up_suggestions": ["No further investigation required."],
+        "evidence_refs": ["EV-HAR027-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted_with_minor_edits",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-028",
+      "input": {
+        "analysis_task": {"task_id": "AT-028", "objective": "Determine if DefaultExternalEventIdempotencyKeyGenerator uses cryptographic operations"},
+        "context_bundle": {"file": "DefaultExternalEventIdempotencyKeyGenerator.java", "key_evidence": "UUID.randomUUID().toString() — no crypto imports"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — UUID.randomUUID() only. No javax.crypto, MessageDigest, or HMAC imports."],
+        "uncertainties": [],
+        "follow_up_suggestions": ["No further investigation required."],
+        "evidence_refs": ["EV-HAR028-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted_with_minor_edits",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-029",
+      "input": {
+        "analysis_task": {"task_id": "AT-029", "objective": "Determine if S3ContentStoreService applies client-side encryption"},
+        "context_bundle": {"file": "S3ContentStoreService.java", "key_evidence": "AWS SDK v2 S3Client — plain putObject/getObject/deleteObject, no encryption params"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — AWS SDK v2 plain S3 operations. No AmazonS3EncryptionClient, no SSEAwsKeyManagementParams, no javax.crypto imports."],
+        "uncertainties": ["Server-side encryption may be configured at AWS bucket policy level — outside application code scope"],
+        "follow_up_suggestions": ["No further application-layer investigation required."],
+        "evidence_refs": ["EV-HAR029-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted_with_minor_edits",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-030",
+      "input": {
+        "analysis_task": {"task_id": "AT-030", "objective": "Determine if BasicAuthRequestInterceptor performs cryptographic operations"},
+        "context_bundle": {"file": "BasicAuthRequestInterceptor.java", "key_evidence": "java.util.Base64.getEncoder().encodeToString() — imports: feign, java.util.Base64, StandardCharsets only"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — java.util.Base64 transport encoding only. No javax.crypto, Signature, or HMAC imports."],
+        "uncertainties": [],
+        "follow_up_suggestions": ["No further investigation required."],
+        "evidence_refs": ["EV-HAR030-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted_with_minor_edits",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-004",
+      "input": {
+        "analysis_task": {"task_id": "AT-004", "objective": "Determine if PlatformPasswordEncoder interface itself performs cryptographic operations"},
+        "context_bundle": {"file": "PlatformPasswordEncoder.java", "key_evidence": "Interface with single encode(PlatformUser) method. grep: 1 implementor — DefaultPlatformPasswordEncoder.java"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — PlatformPasswordEncoder is an interface contract only. No cryptographic operation in interface itself.", "Single implementor: DefaultPlatformPasswordEncoder — crypto label assigned at HAR-003.", "Interface completeness check confirmed: no legacy or test implementors."],
+        "uncertainties": [],
+        "follow_up_suggestions": ["Crypto label belongs to DefaultPlatformPasswordEncoder (HAR-003), not this interface."],
+        "evidence_refs": ["EV-HAR004-grep"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-005",
+      "input": {
+        "analysis_task": {"task_id": "AT-005", "objective": "Confirm cryptographic operations in DatabasePasswordEncryptor"},
+        "context_bundle": {"file": "DatabasePasswordEncryptor.java", "key_evidence": "EncryptionUtil.encryptToBase64('AES/CBC/PKCS5Padding', masterPassword, data) + BCrypt.hashpw(password, BCrypt.gensalt())"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["crypto_finding — dual cryptographic operation: AES-256-CBC encryption via EncryptionUtil + BCrypt password hashing via BCrypt.hashpw.", "masterPassword sourced from FineractProperties (configurable) — no hardcoded key.", "Wrapper pattern: DatabasePasswordEncryptor delegates to EncryptionUtil for AES and directly calls BCrypt for hashing."],
+        "uncertainties": ["BCrypt work factor: gensalt() default is 10 — not explicitly set in this class."],
+        "follow_up_suggestions": ["Consider setting explicit BCrypt cost factor via BCrypt.gensalt(12) for stronger hashing."],
+        "evidence_refs": ["EV-HAR005-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-006",
+      "input": {
+        "analysis_task": {"task_id": "AT-006", "objective": "Confirm cryptographic operations in DatabasePasswordDecryptor"},
+        "context_bundle": {"file": "DatabasePasswordDecryptor.java", "key_evidence": "EncryptionUtil.decryptFromBase64('AES/CBC/PKCS5Padding', masterPassword, ciphertext) — IV prepended in ciphertext"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["crypto_finding — AES-256-CBC decryption via EncryptionUtil.decryptFromBase64.", "IV prepend pattern confirmed: first 16 bytes = IV, next 16 bytes = salt, remainder = ciphertext.", "Symmetric counterpart to DatabasePasswordEncryptor (HAR-005) — same key derivation chain."],
+        "uncertainties": ["masterPassword source confirmed as FineractProperties — production key management practice unverified."],
+        "follow_up_suggestions": ["Ensure masterPassword is injected from environment variable or secrets manager, not hardcoded."],
+        "evidence_refs": ["EV-HAR006-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-008",
+      "input": {
+        "analysis_task": {"task_id": "AT-008", "objective": "Determine if UUIDAccessTokenGenerationService uses cryptographic RNG for 2FA token generation"},
+        "context_bundle": {"file": "UUIDAccessTokenGenerationService.java", "key_evidence": "UUID.randomUUID().toString() — imports: java.util.UUID only. No SecureRandom, no javax.crypto."},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — UUID.randomUUID() uses platform-default RNG (typically SecureRandom on JVM), but UUID generation is not a cryptographic primitive.", "No javax.crypto imports. Token generation is identifier-based, not cryptographic key material.", "2FA access token is UUID-format — predictability risk lower than custom random but UUID v4 has limited bit entropy (122 random bits)."],
+        "uncertainties": [],
+        "follow_up_suggestions": ["For high-security 2FA tokens, consider SecureRandom.nextBytes(32) base64-encoded for 256-bit entropy."],
+        "evidence_refs": ["EV-HAR008-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-009",
+      "input": {
+        "analysis_task": {"task_id": "AT-009", "objective": "Confirm RNG source and quality in RandomOTPGenerator"},
+        "context_bundle": {"file": "RandomOTPGenerator.java", "key_evidence": "new SecureRandom() confirmed. OTP = (int)(secureRandom.nextDouble() * Math.pow(10, otpLength))"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["crypto_finding — SecureRandom confirmed (not java.util.Random). Cryptographically secure RNG is used for OTP generation.", "Minor bias: nextDouble() * 10^N introduces modulo/floating-point bias. Not equivalent to uniform distribution.", "OTP is numerical — typically 6 digits, effective entropy ~20 bits — adequate for short-lived OTP."],
+        "uncertainties": ["OTP length parameter source not verified — if caller passes small N, OTP space is very small."],
+        "follow_up_suggestions": ["Replace nextDouble() * pow(10, N) with secureRandom.nextInt((int)Math.pow(10, N)) for unbiased uniform OTP generation."],
+        "evidence_refs": ["EV-HAR009-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-010",
+      "input": {
+        "analysis_task": {"task_id": "AT-010", "objective": "Identify TLS configuration weaknesses in application.properties and keystore"},
+        "context_bundle": {"file": "application.properties + keystore.jks", "key_evidence": "server.ssl.enabled=true, server.ssl.key-store=classpath:keystore.jks, server.ssl.key-store-password=openmf, server.ssl.enabled-protocols commented out"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["crypto_finding — TLS active with JKS keystore. Three security concerns identified:", "1. JKS format is deprecated since Java 9 — migrate to PKCS12.", "2. Default keystore password 'openmf' hardcoded in source — critical credential exposure if repo is public.", "3. server.ssl.enabled-protocols commented out — TLS 1.0/1.1 not explicitly restricted."],
+        "uncertainties": ["Whether production deployment overrides the default keystore password via environment variable."],
+        "follow_up_suggestions": ["Migrate keystore to PKCS12 format. Externalize keystore password to env var. Uncomment and set server.ssl.enabled-protocols=TLSv1.2,TLSv1.3."],
+        "evidence_refs": ["EV-HAR010-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-011",
+      "input": {
+        "analysis_task": {"task_id": "AT-011", "objective": "Trace encryption chain in Liquibase migration TenantPasswordEncryptionTask"},
+        "context_bundle": {"file": "TenantPasswordEncryptionTask.java + 0007_encrypt_existing_tenant_passwords.xml", "key_evidence": "CustomTaskChange.execute() → DatabasePasswordEncryptor.encrypt() → EncryptionUtil.encryptToBase64('AES/CBC/PKCS5Padding')"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["crypto_finding — 3-hop delegation chain confirmed: Liquibase customChange → TenantPasswordEncryptionTask → DatabasePasswordEncryptor → EncryptionUtil (AES-256-CBC).", "Migration is idempotent — checks if already encrypted before re-encrypting.", "No hardcoded encryption key — masterPassword from FineractProperties."],
+        "uncertainties": ["Key management in migration context: masterPassword must be available at Liquibase migration time."],
+        "follow_up_suggestions": ["Confirm masterPassword is available as environment variable during Liquibase migration execution."],
+        "evidence_refs": ["EV-HAR011-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-012",
+      "input": {
+        "analysis_task": {"task_id": "AT-012", "objective": "Identify TLS protocol version restriction gaps in Spring Boot security configuration"},
+        "context_bundle": {"file": "application.properties", "key_evidence": "server.ssl.enabled=true, server.ssl.protocol=TLS — but server.ssl.enabled-protocols and server.ssl.ciphers are commented out"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["crypto_finding — TLS is active but protocol version and cipher suite restrictions are absent (commented out).", "deprecated_protocol risk: Without explicit server.ssl.enabled-protocols=TLSv1.2,TLSv1.3, the JVM may accept TLS 1.0 and TLS 1.1 connections.", "Configuration omission is a security finding — absence of restriction equals implicit permission."],
+        "uncertainties": ["JVM default TLS restrictions may exclude TLS 1.0/1.1 depending on Java version (Java 8u292+ disables TLS 1.0 by default)."],
+        "follow_up_suggestions": ["Explicitly set server.ssl.enabled-protocols=TLSv1.2,TLSv1.3. Do not rely on JVM defaults for security-critical configuration."],
+        "evidence_refs": ["EV-HAR012-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-013",
+      "input": {
+        "analysis_task": {"task_id": "AT-013", "objective": "Determine if TwoFactorServiceImpl implements cryptographic OTP/TOTP algorithm"},
+        "context_bundle": {"file": "TwoFactorServiceImpl.java", "key_evidence": "Delegates to RandomOTPGenerator.generateOTP() and UUIDAccessTokenGenerationService.generateAccessToken(). No javax.crypto, no TOTP/HOTP library import, no HMAC."},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — TwoFactorServiceImpl is an orchestration service. No cryptographic operation in this class itself.", "OTP generation delegated to RandomOTPGenerator (SecureRandom — HAR-009). Token generation delegated to UUIDAccessTokenGenerationService (UUID — HAR-008).", "No TOTP (RFC 6238) or HOTP (RFC 4226) library usage. No HMAC-SHA1/SHA256 for time-based token computation."],
+        "uncertainties": [],
+        "follow_up_suggestions": ["If TOTP compliance is required, replace custom OTP with a standard TOTP library (e.g., Google Authenticator compatible)."],
+        "evidence_refs": ["EV-HAR013-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-014",
+      "input": {
+        "analysis_task": {"task_id": "AT-014", "objective": "Determine encryption mechanism in Liquibase changelog 0007_encrypt_existing_tenant_passwords.xml"},
+        "context_bundle": {"file": "0007_encrypt_existing_tenant_passwords.xml", "key_evidence": "changeSet id=2: <customChange class='...TenantPasswordEncryptionTask'/> — no SQL AES_ENCRYPT, no rawSql"},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["crypto_finding — Liquibase migration uses Java customChange, NOT SQL AES_ENCRYPT.", "SQL AES_ENCRYPT in MySQL uses 128-bit ECB mode by default — critical vulnerability if it were used. Confirmed absent.", "Encryption path: Liquibase XML → TenantPasswordEncryptionTask → DatabasePasswordEncryptor → EncryptionUtil (AES-256-CBC)."],
+        "uncertainties": [],
+        "follow_up_suggestions": ["Java customChange approach is correct. Avoid SQL-level AES_ENCRYPT functions in MySQL which use insecure ECB mode."],
+        "evidence_refs": ["EV-HAR014-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "XML",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-017",
+      "input": {
+        "analysis_task": {"task_id": "AT-017", "objective": "Determine if HashingService uses cryptographic MessageDigest hashing"},
+        "context_bundle": {"file": "HashingService.java", "key_evidence": "import com.google.common.hash.Hashing — single method: Hashing.consistentHash(long input, int buckets). NO java.security.MessageDigest."},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["not_crypto — HashingService uses Guava Hashing.consistentHash() which is a consistent hashing algorithm for bucket/shard distribution, NOT a cryptographic hash.", "Agent 1 preliminary_imports incorrectly flagged java.security.MessageDigest — false positive. Actual import is com.google.common.hash.Hashing.", "Guava consistent hashing has no cryptographic properties (no collision resistance, no preimage resistance). Purpose: load balancing."],
+        "uncertainties": [],
+        "follow_up_suggestions": ["No investigation required. Lexical false positive: 'Hashing' in class name does not imply cryptographic hash."],
+        "evidence_refs": ["EV-HAR017-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    },
+    {
+      "training_example_id": "TE-HAR-022",
+      "input": {
+        "analysis_task": {"task_id": "AT-022", "objective": "Confirm AES IV randomness and default password strength via EncryptionUtilTest"},
+        "context_bundle": {"file": "EncryptionUtilTest.java", "key_evidence": "testEncryptDecryptWorks(): two encrypt() calls produce different ciphertext — SecureRandom IV confirmed. masterPassword='fineract' hardcoded in test."},
+        "instructions": "Provide a cryptographic analysis for the provided evidence. Return structured findings, uncertainties and follow-up suggestions."
+      },
+      "target_output": {
+        "findings": ["crypto_finding (test_code) — Test confirms AES/CBC/PKCS5Padding round-trip with SecureRandom IV. No static IV vulnerability.", "Two consecutive encrypt() calls return different ciphertext — SecureRandom IV is properly randomized per call.", "masterPassword='fineract' is hardcoded as default in test — same value used in dev application.properties. Weak default credential."],
+        "uncertainties": [],
+        "follow_up_suggestions": ["Ensure production masterPassword is overridden via environment variable and never uses the default 'fineract' value."],
+        "evidence_refs": ["EV-HAR022-source"]
+      },
+      "metadata": {
+        "repository": "apache/fineract",
+        "commit_sha": "0bc90a57b871cd4003db1a221ae8195685645ed4",
+        "language": "Java",
+        "label_status": "accepted",
+        "reviewer_confidence": "high",
+        "context_sufficient": true
+      }
+    }
+  ],
+
+  "agent4_summary": {
+    "total_har_evaluated": 30,
+    "golden_dataset_qualified": 28,
+    "golden_dataset_disqualified": 2,
+    "v4_loop_newly_qualified": 12,
+    "training_examples_produced": 30,
+    "cbom_components": 10,
+    "pqc_status": "No PQC artifacts detected",
+    "pqc_readiness_score": 1,
+    "quantum_vulnerable_findings": 2,
+    "quality_fixes_applied": [
+      "HAR-003: security_concern unknown → no_security_concern_identified; directness factory_or_provider_selection → framework_default (ADJ-003 taxonomy correction applied)",
+      "HAR-007: GDC-007 qualified → GDC-DISQ-007 disqualified (evidence_elevation_violation: RS256 inferred, not directly observed). ADJ-007 revised to needs_revision + escalate_to_human",
+      "HAR-018: security_concern deprecated_protocol → ssl_verification_bypass (correct taxonomy for trust-all TrustManager pattern)",
+      "HAR-019: security_concern deprecated_protocol → ssl_verification_bypass (correct taxonomy for trust-all OkHttp insecure mode)",
+      "HAR-027/028/030: directness unknown → direct_api_usage; cryptographic_operation not_applicable → none; evidence_refs confirmed present",
+      "not_crypto balance: 15 not_crypto / 13 crypto_finding — well-balanced for training"
+    ],
+    "critical_security_findings": [
+      "HAR-018: TrustModifier trust-all SSL bypass (ssl_verification_bypass) — production module",
+      "HAR-019: FineractClient OkHttp insecure SSL (ssl_verification_bypass) — SDK",
+      "HAR-021: OkHttp3Config production @Bean conditional trust-all — all outbound HTTP",
+      "HAR-010: keystore.jks default password 'openmf' + JKS deprecated + TLS version not restricted",
+      "HAR-012: TLS cipher/protocol restrictions commented out — deprecated_protocol risk",
+      "HAR-009: SecureRandom.nextDouble() bias in OTP generation (minor)",
+      "HAR-022: masterPassword='fineract' hardcoded as default in test and dev config"
+    ],
+    "v4_loop_notable_findings": [
+      "HAR-017: Agent 1 false positive — Guava Hashing.consistentHash() is NOT MessageDigest",
+      "HAR-013: TwoFactorServiceImpl has no TOTP/HOTP library — custom SecureRandom OTP only",
+      "HAR-014: Liquibase XML uses Java customChange — SQL AES_ENCRYPT (ECB) risk eliminated",
+      "HAR-008: UUID.randomUUID() for 2FA token — not_crypto, no SecureRandom misuse"
+    ],
+    "pipeline_complete": true,
+    "pending_for_v4_loop": [],
+    "pending_human_escalation": [
+      "HAR-007: Fetch explicit JwtEncoder @Bean or JWK Set endpoint from Spring AS config to confirm RS256. Re-qualify GDC-DISQ-007 if confirmed."
+    ]
+  }
+}

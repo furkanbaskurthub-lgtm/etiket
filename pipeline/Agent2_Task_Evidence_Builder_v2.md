@@ -269,7 +269,7 @@ Produce the following JSON structure and pass it to Agent 3:
   "input_from_agent1": {
     "repository_id": "...",
     "commit_sha": "...",
-    "structural_scan_summary": "..."
+    "structural_scan": "..."
   },
   "analysis_tasks": [
     {

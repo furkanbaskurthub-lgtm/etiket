@@ -1,0 +1,62 @@
+{
+  "repository_intake": {
+    "vcs": "git",
+    "sha": "0bc90a57e3f49553f19e4879f82de7006764dca3",
+    "timestamp": "2024-05-20T12:00:00Z",
+    "execution_mode": "operator_grep",
+    "grep_output_reference": "c:\\Users\\Admin\\Desktop\\fineract\\grep_results_relative.txt"
+  },
+  "snapshot_record": {
+    "total_hits": 2048,
+    "structural_scan": {
+      "source_files": [
+        "fineract-core\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\security\\utils\\EncryptionUtil.java",
+        "fineract-core\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\security\\service\\PlatformPasswordEncoder.java",
+        "fineract-core\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\security\\service\\PasswordEncryptor.java",
+        "fineract-core\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\core\\service\\database\\DatabasePasswordEncryptor.java",
+        "fineract-core\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\core\\service\\database\\DatabasePasswordDecryptor.java",
+        "fineract-provider\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\core\\config\\SecurityConfig.java",
+        "fineract-provider\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\core\\domain\\DefaultPlatformPasswordEncoder.java",
+        "fineract-core\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\security\\service\\PlatformSecurityContext.java"
+      ],
+      "test_files": [
+        "fineract-core\\src\\test\\java\\org\\apache\\fineract\\infrastructure\\security\\utils\\EncryptionUtilTest.java",
+        "integration-tests\\src\\test\\java\\org\\apache\\fineract\\integrationtests\\UserAdministrationTest.java",
+        "integration-tests\\src\\test\\java\\org\\apache\\fineract\\integrationtests\\SecurityTest.java"
+      ],
+      "configuration_files": [
+        "docker-compose.yml",
+        "docker-compose-postgresql.yml",
+        "fineract-provider\\src\\main\\resources\\application.properties"
+      ],
+      "manifests": [
+        "build.gradle",
+        "fineract-provider\\build.gradle",
+        "fineract-core\\build.gradle"
+      ]
+    },
+    "cryptographic_signals": [
+      {
+        "keyword": "AES",
+        "context": "Standard symmetric encryption used for database fields and sensitive data.",
+        "verified_in": "fineract-core\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\security\\utils\\EncryptionUtil.java"
+      },
+      {
+        "keyword": "BCrypt",
+        "context": "Password hashing algorithm for user authentication.",
+        "verified_in": "fineract-provider\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\core\\domain\\DefaultPlatformPasswordEncoder.java"
+      },
+      {
+        "keyword": "PBKDF2WithHmacSHA1",
+        "context": "Key derivation function used for master key protection.",
+        "verified_in": "fineract-core\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\security\\utils\\EncryptionUtil.java"
+      },
+      {
+        "keyword": "JWT",
+        "context": "Token-based authentication mechanism.",
+        "verified_in": "fineract-security\\src\\main\\java\\org\\apache\\fineract\\infrastructure\\security\\filter\\TenantAwareAuthenticationFilter.java"
+      }
+    ]
+  },
+  "agent_notes": "Sweep complete using Operator Grep (v1.1 logic). 2,048 hits recorded in grep_results_relative.txt. Centralized crypto logic identified in fineract-core. Password security leverages BCrypt via DefaultPlatformPasswordEncoder. AES implementation uses PBKDF2 for key derivation."
+}

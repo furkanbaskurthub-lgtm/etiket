@@ -78,6 +78,17 @@ All required fields must be present and non-null where required:
 * `uncertainties` — present (empty array only if explained in `notes_for_planner`)
 * `follow_up_suggestions` — present and non-empty for every `crypto_finding` outcome
 
+**AdjudicationRecord coverage check:** Every HAR in `human_analysis_records[]` MUST
+have a corresponding AdjudicationRecord in `adjudication_records[]` with a matching
+`human_analysis_record_ref`. If any HAR is missing its AdjudicationRecord placeholder,
+create one with all fields set to `null` and flag it as `needs_revision` with
+`disagreement_category: "schema_violation"` and note: "AdjudicationRecord placeholder
+was missing — created by Agent 3.5."
+
+**ContextBundle revision check:** If the HAR's corresponding ContextBundle has
+`revision > 1`, verify that a `follow_up_request_ref` is present in the bundle.
+A revised bundle without a follow-up reference is a schema violation.
+
 → Failure: `needs_revision` with `disagreement_category: "schema_violation"`
 
 ### Check 2 — Evidence elevation check
@@ -167,6 +178,20 @@ For each HumanAnalysisRecord, populate its corresponding AdjudicationRecord:
 
 Pass the full Agent 3 output to Agent 4 with all AdjudicationRecords populated.
 **Do NOT modify HumanAnalysisRecords** — corrections go in `label_corrections` only.
+
+---
+
+## NEEDS_REVISION LOOP
+
+When `adjudication_outcome: "needs_revision"` is produced and `escalate_to_human: false`,
+the record is returned to Agent 3 for correction. Agent 3 revises the HumanAnalysisRecord
+and resubmits it to Agent 3.5 for re-adjudication.
+
+When `escalate_to_human: true`, the record is routed to the human coordinator and does
+NOT re-enter the Agent 3 → Agent 3.5 loop automatically.
+
+**Two consecutive Agent 3.5 calls on the same record producing different outcomes MUST
+trigger `escalate_to_human: true` immediately** — do not attempt a third adjudication.
 
 ---
 
