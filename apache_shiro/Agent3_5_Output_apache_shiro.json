@@ -1,0 +1,564 @@
+{
+  "agent": "LLM_Adjudicator",
+  "agent_version": "3.5",
+  "source_prompt_version": "v0.8",
+  "input_from_agent3": "Agent3_Output_apache_shiro.json",
+  "adjudication_date": "2026-06-11",
+
+  "adjudication_records": [
+
+    {
+      "adjudication_id": "ADJ-001",
+      "human_analysis_record_ref": "HAR-001",
+      "analysis_task_id": "AT-001",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-002",
+      "human_analysis_record_ref": "HAR-002",
+      "analysis_task_id": "AT-002",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "CB-002.context_sufficient=false correctly forces needs_follow_up. FU-001 is properly scoped. Imports confirm IV-based cipher; full method body correctly identified as missing. No evidence elevation.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-003",
+      "human_analysis_record_ref": "HAR-003",
+      "analysis_task_id": "AT-003",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "OpenBSDBCrypt.generate() call site directly observed (EV-003). DEFAULT_COST=10 confirmed from source constant. BouncyCastle 1.84 dependency confirmed (EV-015). All parameters grounded in direct evidence. No elevation.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-004",
+      "human_analysis_record_ref": "HAR-004",
+      "analysis_task_id": "AT-004",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "CB-004.context_sufficient=false correctly forces needs_follow_up. argon2id variant and ARGON2_VERSION_13 are directly observed. Default memory/iterations/parallelism correctly flagged as unconfirmed. FU-002 properly scoped.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-005",
+      "human_analysis_record_ref": "HAR-005",
+      "analysis_task_id": "AT-005",
+      "adjudication_outcome": "accepted_with_minor_edits",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "DEFAULT_HASH_ALGORITHM='argon2id' confirmed from direct source constant. factory_or_provider_selection directness and L3 review level correctly assigned. Minor: evidence_category should include 'api_call' as primary since constructor wiring is an API call pattern — already present. Minor taxonomy note: cryptographic_operation 'kdf' is correct but algorithm_family 'kdf' is redundant with algorithm_name 'Argon2'. Accept with note.",
+      "label_corrections": {
+        "note": "No field corrections required. Redundancy between algorithm_family:kdf and algorithm_name:Argon2 is acceptable per schema — both serve different indexing purposes."
+      },
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-006",
+      "human_analysis_record_ref": "HAR-006",
+      "analysis_task_id": "AT-006",
+      "adjudication_outcome": "accepted_with_minor_edits",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "AesCipherService.encrypt/decrypt call sites confirmed in AbstractRememberMeManager (EV-006). wrapper_usage and L3 correctly assigned. Minor edit: parameters.key_size=128 and mode=GCM are inherited from AesCipherService (AT-001, direct evidence). Acceptable inference from confirmed parent class — not an elevation violation since parent is confirmed crypto_finding with high confidence and direct source evidence.",
+      "label_corrections": {
+        "note": "key_size:128 and mode:GCM inherited from AesCipherService (HAR-001, EV-001) — cross-reference acceptable. No field correction required."
+      },
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-007",
+      "human_analysis_record_ref": "HAR-007",
+      "analysis_task_id": "AT-007",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "SecureRandom.nextBytes() call site directly confirmed (EV-007). byteLength=16 field confirmed. algorithm_name:unknown correctly used since JDK default SecureRandom algorithm not specified in source.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-008",
+      "human_analysis_record_ref": "HAR-008",
+      "analysis_task_id": "AT-008",
+      "adjudication_outcome": "needs_revision",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "MANDATORY HUMAN ESCALATION TRIGGERED: security_concern=hardcoded_key_or_secret AND confidence=high. Per Agent 3.5 mandatory escalation rules, this record cannot be auto-accepted and must be reviewed by the human coordinator. Finding itself is correct and well-grounded (hardcoded hex AES key in integration-test CipherKeyGenerator confirmed from EV-008). Escalation is procedural, not a quality failure.",
+      "label_corrections": {},
+      "escalate_to_human": true,
+      "escalation_reason": "Mandatory escalation: security_concern=hardcoded_key_or_secret AND confidence=high. Human coordinator must verify whether integration-test CipherKeyGenerator key has any production usage path before golden dataset promotion.",
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-009",
+      "human_analysis_record_ref": "HAR-009",
+      "analysis_task_id": "AT-009",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "HttpServletRequest.isSecure() call in isAccessAllowed() confirmed (EV-009). HSTS properties confirmed from Javadoc. SSL integration test (EV-026) corroborates. TLS protocol version correctly flagged as delegated to container — no escalation needed. configuration_driven and L3 correctly assigned.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-010",
+      "human_analysis_record_ref": "HAR-010",
+      "analysis_task_id": "AT-010",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "MessageDigest.getInstance(algorithmName) call confirmed (EV-027). Sha256Hash ALGORITHM_NAME='SHA-256' confirmed (EV-010). Sha384Hash/Sha512Hash inferred from pattern — Agent 3 correctly noted this as uncertainty rather than confirmed evidence. No elevation violation.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-011",
+      "human_analysis_record_ref": "HAR-011",
+      "analysis_task_id": "AT-011",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "BouncyCastle 1.84 dependency confirmed from pom.xml (EV-011). dependency_only directness correctly used. algorithm_name:unknown is correct since the dependency declaration itself does not specify a single algorithm.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-012",
+      "human_analysis_record_ref": "HAR-012",
+      "analysis_task_id": "AT-012",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "Sha256Hash ALGORITHM_NAME='SHA-256' confirmed (EV-012). wrapper_usage and L3 correctly assigned. Sha384Hash/Sha512Hash noted as inferred in uncertainties — not elevated. Correct.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-013",
+      "human_analysis_record_ref": "HAR-013",
+      "analysis_task_id": "AT-013",
+      "adjudication_outcome": "accepted_with_minor_edits",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "CB-018.context_sufficient=false correctly forces needs_follow_up. Blowfish class existence confirmed (EV-028). security_concern:weak_algorithm is correctly set as a risk flag even before active usage is confirmed — this is a prospective risk flag, not an escalation issue, since outcome is needs_follow_up (not crypto_finding). Minor: confidence:medium is appropriate. Check 3 passes: needs_follow_up outcome has FU-003. Accept with minor note on security_concern in needs_follow_up context.",
+      "label_corrections": {
+        "note": "security_concern:weak_algorithm on a needs_follow_up record is technically a forward risk flag, not a confirmed finding. Acceptable for training signal purposes. No field change required."
+      },
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-014",
+      "human_analysis_record_ref": "HAR-014",
+      "analysis_task_id": "AT-014",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "authenticationMechanism property confirmed as JNDI configuration (EV-014). DIGEST-MD5 correctly treated as Javadoc example only — not elevated to confirmed algorithm. algorithm_name:unknown is correct. confidence:medium appropriate for configuration-driven evidence without confirmed runtime value.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-015",
+      "human_analysis_record_ref": "HAR-015",
+      "analysis_task_id": "AT-015",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "bcprov-jdk18on dependency confirmed in bcrypt module pom.xml (EV-015). dependency_only directness and algorithm_name:bcrypt correctly assigned. Complements AT-011.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-016",
+      "human_analysis_record_ref": "HAR-016",
+      "analysis_task_id": "AT-016",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "CipherKeySupplier as CDI functional interface confirmed (EV-029). factory_or_provider_selection and L3 correctly assigned. key_material evidence_category triggers L3 per rules. Uncertainty about production implementations correctly documented.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-017",
+      "human_analysis_record_ref": "HAR-017",
+      "analysis_task_id": "AT-017",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "DefaultBlockCipherService extends JcaCipherService confirmed (EV-030). Algorithm name injection via constructor confirmed with cross-reference to EV-001 (AesCipherService). wrapper_usage and L3 correctly assigned.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-018",
+      "human_analysis_record_ref": "HAR-018",
+      "analysis_task_id": "AT-018",
+      "adjudication_outcome": "accepted_with_minor_edits",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "OperationMode enum values confirmed (EV-031). ECB presence correctly flagged. security_concern:insecure_mode is appropriate as a risk flag for the available API surface — ECB in an enum is an operative risk even if no current caller uses it, since the API is public. outcome:crypto_finding is defensible: the enum itself is a cryptographic artifact. Minor: reasoning_trace has only 3 steps (minimum met). Check 4 passes.",
+      "label_corrections": {
+        "note": "security_concern:insecure_mode on an available API surface (ECB in public enum) is appropriate even without confirmed active caller. Acceptable."
+      },
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-019",
+      "human_analysis_record_ref": "HAR-019",
+      "analysis_task_id": "AT-019",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "CB-024.context_sufficient=false correctly forces needs_follow_up. evidence_refs is empty — acceptable for needs_follow_up when no evidence was captured in context bundle. FU-004 properly scoped to PaddingScheme enum body. confidence:low is appropriate.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-020",
+      "human_analysis_record_ref": "HAR-020",
+      "analysis_task_id": "AT-020",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "CB-025.context_sufficient=false correctly forces needs_follow_up. FU-005 scoped to JdbcRealm.doGetAuthenticationInfo() — high priority correctly assigned given plaintext password risk. confidence:low appropriate.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-021",
+      "human_analysis_record_ref": "HAR-021",
+      "analysis_task_id": "AT-021",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "CookieRememberMeManager extends AbstractRememberMeManager confirmed (EV-017). AES-GCM inheritance chain from AbstractRememberMeManager → AesCipherService (EV-006, EV-001) is fully documented. Cross-reference accepted — parent class is confirmed crypto_finding. wrapper_usage and L3 correctly assigned.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-022",
+      "human_analysis_record_ref": "HAR-022",
+      "analysis_task_id": "AT-022",
+      "adjudication_outcome": "accepted_with_minor_edits",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "Hasher CLI wrapper confirmed (EV-018). Minor: usage_context is set to 'build_or_ci_configuration' but Hasher is an admin CLI utility, not a build/CI tool. More accurate would be 'production_code' (admin tooling) or 'sample_or_example_code' if it ships as a sample. Accept with minor edit suggestion.",
+      "label_corrections": {
+        "labels.usage_context": "production_code",
+        "reason": "Hasher is a password hashing CLI utility shipped in the main distribution — not a build/CI configuration artifact. 'production_code' more accurately describes admin tooling."
+      },
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance"],
+      "checks_failed": ["plausibility"]
+    },
+
+    {
+      "adjudication_id": "ADJ-023",
+      "human_analysis_record_ref": "HAR-023",
+      "analysis_task_id": "AT-023",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "CodeQL workflow 'crypto' hit correctly assessed as lexical false positive (EV-019). not_crypto confirmed. L3 assigned per not_crypto + high lexical signal rule. confidence:medium appropriate since exact line not pinpointed.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-024",
+      "human_analysis_record_ref": "HAR-024",
+      "analysis_task_id": "AT-024",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "CB-029.context_sufficient=false correctly forces needs_follow_up. escalation_check step correctly prevents reporting class name implication as confirmed evidence. FU-006 low priority correctly reflects sample code context.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-025",
+      "human_analysis_record_ref": "HAR-025",
+      "analysis_task_id": "AT-025",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "AbstractCryptHash fields confirmed (EV-032). Base class structure for BCrypt and Argon2 confirmed. wrapper_usage and L3 correctly assigned. algorithm_name:unknown is correct — base class is algorithm-agnostic.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-026",
+      "human_analysis_record_ref": "HAR-026",
+      "analysis_task_id": "AT-026",
+      "adjudication_outcome": "accepted_with_minor_edits",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "DefaultHashService confirmed (EV-033). factory_or_provider_selection and L3 correctly assigned. Minor: algorithm_name:Argon2 is set but DefaultHashService is algorithm-agnostic (hashAlgorithmName is a configurable string); Argon2 is the value injected by DefaultPasswordService. This creates a slight elevation risk. However, EV-005 (DefaultPasswordService) directly confirms the injection, making the cross-reference defensible. Accept with minor note.",
+      "label_corrections": {
+        "note": "algorithm_name:Argon2 is defensible via cross-reference to EV-005 (DefaultPasswordService wiring confirmed). If read in isolation, algorithm_name should be 'unknown'. For training data clarity, annotators may want to note this cross-dependency."
+      },
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-027",
+      "human_analysis_record_ref": "HAR-027",
+      "analysis_task_id": "AT-027",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "MapCache generic K-typed map key correctly assessed as lexical false positive (EV-020). L3 and not_crypto correctly assigned. High confidence appropriate — generic type parameter is unambiguous.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-028",
+      "human_analysis_record_ref": "HAR-028",
+      "analysis_task_id": "AT-028",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "WildcardPermission 'sign' as authorization vocabulary correctly assessed (EV-021). not_crypto confirmed. L3 and high confidence appropriate.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-029",
+      "human_analysis_record_ref": "HAR-029",
+      "analysis_task_id": "AT-029",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "EventBus 'key' as subscriber map key correctly assessed (EV-022). not_crypto confirmed. L3 and high confidence appropriate.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-030",
+      "human_analysis_record_ref": "HAR-030",
+      "analysis_task_id": "AT-030",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "DefaultSessionKey Serializable sessionId correctly assessed as session lookup identifier (EV-023). not_crypto confirmed. L3 for 'Key' in class name + high lexical signal rule correctly applied.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-031",
+      "human_analysis_record_ref": "HAR-031",
+      "analysis_task_id": "AT-031",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "BearerToken as AuthenticationToken holder correctly assessed (EV-024). not_crypto confirmed. L3 for 'Token' in class name correctly applied.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-032",
+      "human_analysis_record_ref": "HAR-032",
+      "analysis_task_id": "AT-032",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "PermissionUtils 'sign' in permission string context correctly assessed (EV-025). not_crypto confirmed. L3 correctly applied.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-033",
+      "human_analysis_record_ref": "HAR-033",
+      "analysis_task_id": "AT-033",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "ShiroSSLFilterIT integration test confirmed (EV-026). test_fixture evidence type correctly used. Supports HAR-009 SslFilter finding. protocol_configuration and TLS correctly labeled.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    }
+
+  ],
+
+  "adjudication_summary": {
+    "total_evaluated": 33,
+    "accepted": 22,
+    "accepted_with_minor_edits": 5,
+    "needs_revision": 1,
+    "rejected": 0,
+    "escalated_to_human": 1,
+    "most_common_failure": null,
+    "pipeline_ready": false,
+    "pipeline_ready_note": "pipeline_ready=false: HAR-008 has escalate_to_human=true (mandatory escalation: hardcoded_key_or_secret + confidence:high). Human coordinator must review and close HAR-008 before pipeline_ready can be set to true. All other 32 records are accepted or accepted_with_minor_edits. No rejected records. Quota note: not_crypto_ratio=0.212 is below 0.30 threshold — 3 additional negative candidates recommended (see Agent 3 batch_statistics.quota_note)."
+  }
+}

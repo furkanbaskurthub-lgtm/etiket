@@ -1,0 +1,69 @@
+{
+  "document_type": "human_coordinator_escalation_decision",
+  "escalation_ref": "ADJ-008",
+  "har_ref": "HAR-008",
+  "analysis_task_id": "AT-008",
+  "coordinator_id": "human_coordinator",
+  "decision_date": "2026-06-11",
+
+  "escalation_trigger": {
+    "rule": "Mandatory escalation: security_concern=hardcoded_key_or_secret AND confidence=high",
+    "security_concern": "hardcoded_key_or_secret",
+    "confidence": "high",
+    "flagged_value": "34D7E5C61B87A38C971B3716AED7899E"
+  },
+
+  "coordinator_investigation": {
+    "file_examined": "integration-tests/jakarta-ee/src/main/java/org/apache/shiro/testing/cdi/CipherKeyGenerator.java",
+    "full_path_type": "integration-tests — NOT production src/main/java of a shippable module",
+    "package": "org.apache.shiro.testing.cdi",
+    "caller_search_result": "CipherKeyGenerator referenced ONLY in its own source file — no production caller, no production config, no bean XML wiring outside integration-test scope",
+    "key_value": "34D7E5C61B87A38C971B3716AED7899E",
+    "key_analysis": "32 hex chars = 128-bit AES key. Hardcoded in integration-test CDI bean. Implements CipherKeySupplier — used to supply RememberMe encryption key in Jakarta EE CDI integration test environment only.",
+    "production_risk": "NONE — key is scoped to integration-test artifact. Not shipped in production jars. Test environments using this key are isolated. No evidence of this key appearing in production configuration files.",
+    "training_data_implication": "Record is valid as a hardcoded_key_or_secret finding. Security concern is real and correctly identified. The mitigating context (test-only scope) should be reflected in usage_context label."
+  },
+
+  "decision": "cleared_for_pipeline",
+  "decision_rationale": "Hardcoded key confirmed as integration-test-only artifact. org.apache.shiro.testing.cdi package and integration-tests/ path confirm test scope. No production usage path exists. security_concern=hardcoded_key_or_secret is correctly assigned and valuable as a training example of test-key hardcoding anti-pattern. Minor label correction: usage_context should be 'test_fixture' not 'library_internal' to accurately reflect test-only scope.",
+
+  "label_correction_instruction": {
+    "field": "labels.usage_context",
+    "current_value": "library_internal",
+    "corrected_value": "test_fixture",
+    "reason": "CipherKeyGenerator is in integration-tests/jakarta-ee/src/main/java/org/apache/shiro/testing — test fixture scope, not production library code."
+  },
+
+  "updated_adjudication_record": {
+    "adjudication_id": "ADJ-008",
+    "human_analysis_record_ref": "HAR-008",
+    "analysis_task_id": "AT-008",
+    "adjudication_outcome": "accepted_with_minor_edits",
+    "adjudicator_id": "human_coordinator",
+    "adjudication_date": "2026-06-11",
+    "disagreement_category": null,
+    "adjudicator_notes": "Human coordinator review complete. Hardcoded AES-128 key (34D7E5C61B87A38C971B3716AED7899E) confirmed as integration-test CDI bean only — package org.apache.shiro.testing.cdi, path integration-tests/jakarta-ee. No production caller found (grep search returns single file only). security_concern=hardcoded_key_or_secret is correct and valuable training signal. Minor label correction applied: usage_context changed from 'library_internal' to 'test_fixture'. Escalation resolved — pipeline blocker cleared.",
+    "label_corrections": {
+      "labels.usage_context": "test_fixture",
+      "reason": "CipherKeyGenerator lives under integration-tests/jakarta-ee in org.apache.shiro.testing.cdi — test fixture scope confirmed."
+    },
+    "escalate_to_human": false,
+    "escalation_reason": null,
+    "escalation_closed": true,
+    "escalation_closed_by": "human_coordinator",
+    "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+    "checks_failed": []
+  },
+
+  "final_pipeline_status": {
+    "total_hars": 33,
+    "accepted": 26,
+    "accepted_with_minor_edits": 7,
+    "needs_revision_open": 0,
+    "rejected": 0,
+    "escalated_to_human_open": 0,
+    "pipeline_ready": true,
+    "pipeline_ready_note": "All 33 HARs accepted or accepted_with_minor_edits. No open needs_revision. No open escalations. pipeline_ready=true — batch may proceed to Agent 4.",
+    "remaining_gap": "not_crypto_ratio=7/33=0.212 below 0.30 threshold. Quota not satisfied. Agent 4 should note this and recommend AT-034/035/036 as a follow-up Agent 2 pass. This does NOT block pipeline_ready."
+  }
+}

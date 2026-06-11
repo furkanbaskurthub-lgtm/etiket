@@ -1,0 +1,421 @@
+{
+  "agent": "Analysis_Labeling",
+  "agent_version": "1.0",
+  "source_prompt_version": "v0.7-split-rev2",
+  "pass_type": "follow_up_revision",
+  "input_revised_bundles": "Agent2_FollowUp_Output_apache_shiro.json",
+  "note": "Only HAR-002, HAR-004, HAR-013, HAR-019, HAR-020, HAR-024 are revised. All other HARs from Agent3_Output_apache_shiro.json remain unchanged.",
+
+  "revised_human_analysis_records": [
+
+    {
+      "analysis_record_id": "HAR-002",
+      "analysis_task_id": "AT-002",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "JcaCipherService IV generation fully confirmed from revised CB-002 (rev2). generateInitializationVector() calls SecureRandom.nextBytes() on a 128-bit byte array. IV is prepended to ciphertext output (IV || ciphertext). generateInitializationVectors=true by default. SHA1PRNG SecureRandom algorithm with platform fallback. initializationVectorSize defaults to 128 bits matching keySize.",
+      "evidence_refs": ["EV-002", "EV-034", "EV-035", "EV-036"],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": ["api_call", "import_or_package"],
+        "cryptographic_operation": "encrypt",
+        "algorithm_family": "symmetric_encryption",
+        "algorithm_name": "AES",
+        "raw_algorithm_text": "JcaCipherService / SecureRandom.nextBytes() / IvParameterSpec / SHA1PRNG",
+        "normalized_algorithm": "AES",
+        "mode": "GCM",
+        "padding": null,
+        "usage_context": "library_internal",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "symmetric_security_margin_relevant",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": 128,
+        "curve": null,
+        "protocol_version": null,
+        "mode": "GCM",
+        "padding": null
+      },
+      "raw_observations": [
+        "generateInitializationVector(): ivBytes = new byte[128/8]; SecureRandom.nextBytes(ivBytes)",
+        "generateInitializationVectors=true default in constructor",
+        "initializationVectorSize=128 bits default (same as keySize)",
+        "encrypt() prepend path: output = IV(16 bytes) || encrypted bytes",
+        "SHA1PRNG as default SecureRandom algorithm with platform fallback",
+        "IvParameterSpec created from IV bytes in initNewCipher()"
+      ],
+      "uncertainties": [
+        "SHA1PRNG is the named default but JDK may substitute platform PRNG on some environments — not a security risk but worth noting for reproducibility"
+      ],
+      "follow_up_suggestions": [
+        "No critical follow-up. IV mechanism fully confirmed. SHA1PRNG is acceptable for IV generation — not used for key derivation."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "FU-001 resolved. IV generation confirmed: cryptographically random (SecureRandom), 128-bit, prepended to ciphertext. No static or derived IV — strong implementation.",
+      "reasoning_trace": [
+        { "step": 1, "action": "observed_api_call", "target": "generateInitializationVector()", "finding": "SecureRandom.nextBytes(ivBytes) fills 128-bit IV array", "interpretation": "IV is cryptographically random — not static or derived" },
+        { "step": 2, "action": "observed_algorithm_parameter", "target": "initializationVectorSize", "finding": "Defaults to DEFAULT_KEY_SIZE=128 bits in JcaCipherService constructor", "interpretation": "128-bit IV — appropriate for AES-GCM" },
+        { "step": 3, "action": "observed_api_call", "target": "encrypt() prepend logic", "finding": "output = System.arraycopy(iv) + System.arraycopy(encrypted) — IV prepended to ciphertext", "interpretation": "IV prepend-to-ciphertext confirmed from method body — not from Javadoc only" },
+        { "step": 4, "action": "observed_algorithm_parameter", "target": "RANDOM_NUM_GENERATOR_ALGORITHM_NAME", "finding": "SHA1PRNG with fallback to new SecureRandom()", "interpretation": "SecureRandom algorithm identified — SHA1PRNG acceptable for IV generation" },
+        { "step": 5, "action": "escalation_check", "target": "key_size / mode", "finding": "key_size=128, mode=GCM inherited from AesCipherService (AT-001, HAR-001 confirmed) — cross-ref to confirmed crypto_finding", "interpretation": "No escalation violation — parent class parameters are directly confirmed" },
+        { "step": 6, "action": "quantum_relevance_assessed", "target": "AES-128-GCM", "finding": "Grover reduces to ~64-bit effective security — symmetric_security_margin_relevant", "interpretation": "AES-256 recommended for PQC long-term" },
+        { "step": 7, "action": "concluded_outcome", "target": "HAR-002", "finding": "All mandatory full method body elements confirmed from revised CB-002 (rev2)", "interpretation": "outcome: crypto_finding, confidence: high" }
+      ]
+    },
+
+    {
+      "analysis_record_id": "HAR-004",
+      "analysis_task_id": "AT-004",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "Argon2Hash default parameters fully confirmed from revised CB-004 (rev2): DEFAULT_ITERATIONS=1, DEFAULT_MEMORY_KIB=65536 (64 MiB), DEFAULT_PARALLELISM=4, DEFAULT_OUTPUT_LENGTH_BITS=256, SALT_LENGTH_BITS=128. Full generate() call chain confirmed. Parameters sourced from draft-irtf-cfrg-argon2-13 section 4.2. OWASP 2023 minimum for argon2id: m=19456, t=2, p=1 — Shiro's t=1 is below OWASP iteration recommendation but memory=64 MiB significantly exceeds minimum.",
+      "evidence_refs": ["EV-004", "EV-037", "EV-038"],
+      "evidence_type_observed": "field_or_constant",
+      "labels": {
+        "evidence_category": ["api_call", "import_or_package"],
+        "cryptographic_operation": "kdf",
+        "algorithm_family": "kdf",
+        "algorithm_name": "Argon2",
+        "raw_algorithm_text": "argon2id / DEFAULT_ITERATIONS=1 / DEFAULT_MEMORY_KIB=65536 / DEFAULT_PARALLELISM=4",
+        "normalized_algorithm": "Argon2",
+        "mode": null,
+        "padding": null,
+        "usage_context": "library_internal",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "hash_security_margin_relevant",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": 256,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "DEFAULT_ITERATIONS=1 (RFC draft-13, section 4.2, memory-constrained env)",
+        "DEFAULT_MEMORY_KIB=64*1024=65536 KiB (64 MiB)",
+        "DEFAULT_PARALLELISM=4",
+        "DEFAULT_OUTPUT_LENGTH_BITS=256",
+        "SALT_LENGTH_BITS=128 (16 bytes)",
+        "DEFAULT_ALGORITHM_VERSION=ARGON2_VERSION_13",
+        "Argon2BytesGenerator.generateBytes() confirmed call site"
+      ],
+      "uncertainties": [
+        "DEFAULT_ITERATIONS=1 is at OWASP 2023 minimum boundary (t=2 recommended) — memory=64 MiB partially compensates but strict OWASP compliance requires t>=2"
+      ],
+      "follow_up_suggestions": [
+        "Flag DEFAULT_ITERATIONS=1 for PQC/security assessment: OWASP 2023 recommends t=2 for argon2id. Consider whether Shiro should bump default to t=2 in a future release."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "FU-002 resolved. All Argon2 default parameters confirmed. security_concern kept as no_security_concern_identified: RFC-compliant defaults. OWASP t=1 boundary noted in uncertainties for human reviewer attention.",
+      "reasoning_trace": [
+        { "step": 1, "action": "observed_algorithm_parameter", "target": "DEFAULT_ITERATIONS", "finding": "DEFAULT_ITERATIONS=1 confirmed from source constant", "interpretation": "t=1 is RFC draft-13 section 4.2 value for memory-constrained env — at OWASP minimum boundary" },
+        { "step": 2, "action": "observed_algorithm_parameter", "target": "DEFAULT_MEMORY_KIB", "finding": "DEFAULT_MEMORY_KIB=64*1024=65536 confirmed", "interpretation": "64 MiB memory — well above OWASP 19 MiB minimum" },
+        { "step": 3, "action": "observed_algorithm_parameter", "target": "DEFAULT_PARALLELISM / DEFAULT_OUTPUT_LENGTH_BITS / SALT_LENGTH_BITS", "finding": "p=4, output=256 bits, salt=128 bits all confirmed", "interpretation": "All security-critical parameters now directly observed" },
+        { "step": 4, "action": "observed_api_call", "target": "Argon2BytesGenerator.generateBytes()", "finding": "Full generate() call chain confirmed — parameters passed correctly to BouncyCastle", "interpretation": "BouncyCastle Argon2 implementation wiring confirmed" },
+        { "step": 5, "action": "identified_security_concern", "target": "DEFAULT_ITERATIONS=1", "finding": "OWASP 2023 recommends t>=2 for argon2id — Shiro default is t=1", "interpretation": "Borderline compliance — kept as no_security_concern_identified since RFC-sourced, noted in uncertainties" },
+        { "step": 6, "action": "quantum_relevance_assessed", "target": "Argon2id 256-bit output", "finding": "256-bit hash output — Grover reduces to 128-bit effective; adequate for PQC", "interpretation": "hash_security_margin_relevant" },
+        { "step": 7, "action": "concluded_outcome", "target": "HAR-004", "finding": "All parameters confirmed from revised CB-004 (rev2)", "interpretation": "outcome: crypto_finding, confidence: high" }
+      ]
+    },
+
+    {
+      "analysis_record_id": "HAR-013",
+      "analysis_task_id": "AT-013",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "BlowfishCipherService fully confirmed from revised CB-018 (rev2): ALGORITHM_NAME='Blowfish', BLOCK_SIZE=64 bits, default mode CBC, PKCS5 padding, IV size 64 bits. Repository-wide caller search returned no production instantiation — class is public API dead code. 64-bit block size is the primary weakness (birthday attack at ~32 GB). Class exists in production src/ — must be documented in CBOM as available weak cipher.",
+      "evidence_refs": ["EV-028", "EV-039"],
+      "evidence_type_observed": "class_declaration",
+      "labels": {
+        "evidence_category": ["api_call"],
+        "cryptographic_operation": "encrypt",
+        "algorithm_family": "symmetric_encryption",
+        "algorithm_name": "unknown",
+        "raw_algorithm_text": "Blowfish/CBC/PKCS5 / BLOCK_SIZE=64",
+        "normalized_algorithm": "unknown",
+        "mode": "CBC",
+        "padding": "PKCS5Padding",
+        "usage_context": "library_internal",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "symmetric_security_margin_relevant",
+        "security_concern": "weak_algorithm"
+      },
+      "parameters": {
+        "key_size": 128,
+        "curve": null,
+        "protocol_version": null,
+        "mode": "CBC",
+        "padding": "PKCS5Padding"
+      },
+      "raw_observations": [
+        "ALGORITHM_NAME='Blowfish' confirmed",
+        "BLOCK_SIZE=64 bits (8 bytes) confirmed",
+        "Default mode: CBC (from DefaultBlockCipherService parent)",
+        "Default padding: PKCS5 (from DefaultBlockCipherService parent)",
+        "IV size: 64 bits (setInitializationVectorSize(BLOCK_SIZE))",
+        "generateInitializationVectors=true default",
+        "No production caller found in grep sweep"
+      ],
+      "uncertainties": [
+        "DefaultBlockCipherService parent default mode/padding not directly read in this revision — CBC/PKCS5 values are from BlowfishCipherService Javadoc table, not parent source"
+      ],
+      "follow_up_suggestions": [
+        "Confirm DefaultBlockCipherService.setMode()/setPaddingScheme() defaults to verify CBC/PKCS5 are actually set by parent constructor.",
+        "Consider deprecating or removing BlowfishCipherService from public API given 64-bit block weakness."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": null,
+      "notes_for_planner": "FU-003 resolved. Blowfish class confirmed with all parameters. No active caller — dead code. review_level L3: weak_algorithm + high confidence triggers mandatory human escalation in Agent 3.5.",
+      "reasoning_trace": [
+        { "step": 1, "action": "observed_algorithm_parameter", "target": "ALGORITHM_NAME / BLOCK_SIZE", "finding": "ALGORITHM_NAME='Blowfish', BLOCK_SIZE=64 bits confirmed from source constants", "interpretation": "Blowfish 64-bit block cipher confirmed" },
+        { "step": 2, "action": "observed_algorithm_parameter", "target": "mode / padding / IV size", "finding": "CBC mode, PKCS5 padding, IV=64 bits confirmed from BlowfishCipherService Javadoc table", "interpretation": "Full cipher configuration confirmed" },
+        { "step": 3, "action": "identified_security_concern", "target": "64-bit block size", "finding": "64-bit block: birthday attack probability ~50% after 2^32 blocks (~32 GB plaintext)", "interpretation": "security_concern: weak_algorithm — 64-bit block is fundamentally weak regardless of key size" },
+        { "step": 4, "action": "checked_caller", "target": "BlowfishCipherService (repo-wide)", "finding": "No production instantiation found in grep sweep", "interpretation": "Dead code in public API — risk is API exposure, not active exploitation" },
+        { "step": 5, "action": "quantum_relevance_assessed", "target": "Blowfish 128-bit key", "finding": "128-bit key, Grover reduces to 64-bit — symmetric_security_margin_relevant", "interpretation": "Block size weakness dominates over key size concern" },
+        { "step": 6, "action": "concluded_outcome", "target": "HAR-013", "finding": "Class confirmed with all parameters; weak algorithm established from source", "interpretation": "outcome: crypto_finding, confidence: high" }
+      ]
+    },
+
+    {
+      "analysis_record_id": "HAR-019",
+      "analysis_task_id": "AT-019",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "PaddingScheme enum fully confirmed from revised CB-024 (rev2). 11 values: NONE, ISO10126, OAEP, OAEPWithMd5AndMgf1, OAEPWithSha1AndMgf1, OAEPWithSha256AndMgf1, OAEPWithSha384AndMgf1, OAEPWithSha512AndMgf1, PKCS1, PKCS5, SSL3. Security concerns: PKCS1Padding (Bleichenbacher-vulnerable for RSA), OAEPWithMD5AndMGF1Padding (MD5 in OAEP), SSL3Padding (deprecated SSL context).",
+      "evidence_refs": ["EV-040"],
+      "evidence_type_observed": "field_or_constant",
+      "labels": {
+        "evidence_category": ["api_call"],
+        "cryptographic_operation": "encrypt",
+        "algorithm_family": "symmetric_encryption",
+        "algorithm_name": "unknown",
+        "raw_algorithm_text": "PaddingScheme { NONE/NoPadding, PKCS1/PKCS1Padding, PKCS5/PKCS5Padding, OAEP variants, SSL3Padding }",
+        "normalized_algorithm": "unknown",
+        "mode": null,
+        "padding": "PKCS1Padding",
+        "usage_context": "library_internal",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_quantum_relevant",
+        "security_concern": "insecure_padding"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": "PKCS1Padding"
+      },
+      "raw_observations": [
+        "11 enum values confirmed: NONE, ISO10126, OAEP, OAEPWithMd5AndMgf1, OAEPWithSha1AndMgf1, OAEPWithSha256AndMgf1, OAEPWithSha384AndMgf1, OAEPWithSha512AndMgf1, PKCS1, PKCS5, SSL3",
+        "PKCS1Padding: vulnerable to Bleichenbacher attack (PKCS#1 v1.5 for RSA)",
+        "OAEPWithMD5AndMGF1Padding: MD5 used in OAEP digest — weak hash in asymmetric context",
+        "SSL3Padding: deprecated SSL 3.0 context",
+        "PKCS5Padding, OAEP+SHA-256/384/512 variants: acceptable"
+      ],
+      "uncertainties": [
+        "No active caller using PKCS1 or SSL3 padding found in grep hits — risk is API availability, not confirmed active use"
+      ],
+      "follow_up_suggestions": [
+        "Search codebase for setPaddingScheme(PaddingScheme.PKCS1) or SSL3 usage to confirm no active dangerous padding selection.",
+        "Consider deprecating PKCS1, SSL3, OAEPWithMd5AndMgf1 in a future Shiro release."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "FU-004 resolved. security_concern: insecure_padding assigned because PKCS1Padding is Bleichenbacher-vulnerable and present in the public API. padding field set to PKCS1Padding as the most critical insecure value.",
+      "reasoning_trace": [
+        { "step": 1, "action": "observed_algorithm_parameter", "target": "PaddingScheme enum", "finding": "11 padding values confirmed — PKCS1, SSL3, OAEPWithMd5AndMgf1 are security concerns", "interpretation": "Insecure padding options available in public API" },
+        { "step": 2, "action": "identified_security_concern", "target": "PKCS1Padding", "finding": "PKCS#1 v1.5 RSA padding is Bleichenbacher-vulnerable — oracle attack enabling private key recovery", "interpretation": "security_concern: insecure_padding — most critical value" },
+        { "step": 3, "action": "identified_security_concern", "target": "OAEPWithMD5AndMGF1Padding", "finding": "MD5 in OAEP digest — collision-vulnerable hash in asymmetric context", "interpretation": "Additional risk; lower severity than PKCS1" },
+        { "step": 4, "action": "identified_security_concern", "target": "SSL3Padding", "finding": "SSL3Padding references deprecated SSL 3.0 specification", "interpretation": "Deprecated padding scheme — should not be used" },
+        { "step": 5, "action": "quantum_relevance_assessed", "target": "PaddingScheme enum", "finding": "Padding schemes do not directly contribute to quantum vulnerability — cipher and key selection matters more", "interpretation": "not_quantum_relevant at padding layer" },
+        { "step": 6, "action": "concluded_outcome", "target": "HAR-019", "finding": "Full enum confirmed with security concerns identified", "interpretation": "outcome: crypto_finding, confidence: high" }
+      ]
+    },
+
+    {
+      "analysis_record_id": "HAR-020",
+      "analysis_task_id": "AT-020",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "JdbcRealm doGetAuthenticationInfo() fully confirmed from revised CB-025 (rev2). Default saltStyle=NO_SALT — returns raw DB password to CredentialsMatcher without salt. Hash algorithm delegated to externally configured CredentialsMatcher (not in JdbcRealm source). EXTERNAL saltStyle calls getSaltForUser() which returns the username — insecure predictable salt default. No hash operation in JdbcRealm itself.",
+      "evidence_refs": ["EV-041", "EV-042"],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": ["api_call", "configuration"],
+        "cryptographic_operation": "hash",
+        "algorithm_family": "kdf",
+        "algorithm_name": "unknown",
+        "raw_algorithm_text": "JdbcRealm / SaltStyle.NO_SALT / getSaltForUser()=username",
+        "normalized_algorithm": "unknown",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "configuration_driven",
+        "quantum_relevance": "unknown",
+        "security_concern": "weak_algorithm"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "saltStyle=SaltStyle.NO_SALT is the default field value",
+        "NO_SALT case: password = getPasswordForUser()[0] — raw DB string, no salt applied",
+        "EXTERNAL case: getSaltForUser() returns username — predictable salt",
+        "Hash algorithm not present in JdbcRealm — delegated to CredentialsMatcher",
+        "SimpleAuthenticationInfo stores raw password.toCharArray() — comparison by matcher"
+      ],
+      "uncertainties": [
+        "Actual hash algorithm used for credential comparison depends on CredentialsMatcher configuration — not determinable from JdbcRealm source alone",
+        "Whether deployers configure HashedCredentialsMatcher (correct) vs SimpleCredentialsMatcher (plaintext) is a deployment concern"
+      ],
+      "follow_up_suggestions": [
+        "Inspect default CredentialsMatcher wiring in AuthorizingRealm parent to determine if HashedCredentialsMatcher is the framework default.",
+        "Document getSaltForUser()=username insecure default in CBOM security_concern field."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": ["configuration_file"],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": null,
+      "notes_for_planner": "FU-005 resolved. security_concern: weak_algorithm assigned for getSaltForUser()=username (predictable salt). Hash algo delegation to CredentialsMatcher is a design pattern — not a bug — but requires correct deployer configuration. review_level L3: configuration_driven + security concern.",
+      "reasoning_trace": [
+        { "step": 1, "action": "observed_algorithm_parameter", "target": "saltStyle", "finding": "saltStyle=SaltStyle.NO_SALT is the default — no salt applied to password by default", "interpretation": "Unsalted credential storage by default — security risk if CredentialsMatcher does not hash" },
+        { "step": 2, "action": "observed_api_call", "target": "doGetAuthenticationInfo()", "finding": "NO_SALT: password=getPasswordForUser()[0] passed directly to SimpleAuthenticationInfo", "interpretation": "Raw DB string passed to matcher — hash depends entirely on matcher configuration" },
+        { "step": 3, "action": "identified_security_concern", "target": "getSaltForUser()", "finding": "EXTERNAL saltStyle: getSaltForUser() returns username — attacker who knows username can precompute salt", "interpretation": "security_concern: weak_algorithm (predictable salt is equivalent to no salt against targeted attacks)" },
+        { "step": 4, "action": "escalation_check", "target": "hash algorithm", "finding": "Hash algorithm NOT in JdbcRealm source — delegated to CredentialsMatcher. Cannot confirm algorithm from this source.", "interpretation": "algorithm_name: unknown — escalation prohibited" },
+        { "step": 5, "action": "concluded_outcome", "target": "HAR-020", "finding": "Credential mechanism confirmed; salt and hash algorithm risks identified", "interpretation": "outcome: crypto_finding, confidence: high" }
+      ]
+    },
+
+    {
+      "analysis_record_id": "HAR-024",
+      "analysis_task_id": "AT-024",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "SaltAwareJdbcRealm fully confirmed from revised CB-029 (rev2). Salt = ByteSource.Util.bytes(username) — username used directly as salt. Source code comment explicitly warns 'DON'T DO THIS IN A REAL APP!' — demonstrates insecure salt pattern for educational purposes. Sample code under samples/spring-mvc. Hash algorithm still delegated to CredentialsMatcher.",
+      "evidence_refs": ["EV-043"],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": ["api_call", "test_fixture"],
+        "cryptographic_operation": "hash",
+        "algorithm_family": "kdf",
+        "algorithm_name": "unknown",
+        "raw_algorithm_text": "SaltAwareJdbcRealm / setCredentialsSalt(ByteSource.Util.bytes(username))",
+        "normalized_algorithm": "unknown",
+        "mode": null,
+        "padding": null,
+        "usage_context": "sample_or_example_code",
+        "directness": "configuration_driven",
+        "quantum_relevance": "unknown",
+        "security_concern": "weak_algorithm"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "saInfo.setCredentialsSalt(ByteSource.Util.bytes(username)) — username as salt",
+        "Source comment: 'This (very bad) example uses the username as the salt... DON'T DO THIS IN A REAL APP!'",
+        "File: samples/spring-mvc/src/main/java/ — confirmed sample code",
+        "Extends JdbcRealm — inherits saltStyle and CredentialsMatcher delegation"
+      ],
+      "uncertainties": [
+        "Hash algorithm delegated to CredentialsMatcher — not in SaltAwareJdbcRealm source",
+        "Whether this sample is referenced by any production configuration in the test suite not confirmed"
+      ],
+      "follow_up_suggestions": [
+        "This record is a valuable negative training example: explicitly documented insecure salt pattern with source warning. Flag for golden dataset candidate as a security anti-pattern example."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": null,
+      "notes_for_planner": "FU-006 resolved. Username-as-salt anti-pattern confirmed with explicit source code warning. Valuable training example — security anti-pattern explicitly documented in source. review_level L3: security concern + configuration_driven.",
+      "reasoning_trace": [
+        { "step": 1, "action": "observed_api_call", "target": "setCredentialsSalt(ByteSource.Util.bytes(username))", "finding": "Username string used as credential salt", "interpretation": "Predictable salt — attacker knows username, can precompute targeted rainbow table" },
+        { "step": 2, "action": "identified_security_concern", "target": "username as salt", "finding": "Source comment explicitly: 'DON'T DO THIS IN A REAL APP! Salts should not be based on anything that a user could enter'", "interpretation": "security_concern: weak_algorithm — self-documented insecure pattern" },
+        { "step": 3, "action": "checked_test_context", "target": "samples/spring-mvc/src/main/java/", "finding": "Path confirms sample_or_example_code — not production src/", "interpretation": "usage_context: sample_or_example_code" },
+        { "step": 4, "action": "escalation_check", "target": "hash algorithm", "finding": "Hash algorithm delegated to CredentialsMatcher — not in SaltAwareJdbcRealm", "interpretation": "algorithm_name: unknown — cannot confirm from available source" },
+        { "step": 5, "action": "concluded_outcome", "target": "HAR-024", "finding": "Insecure salt pattern confirmed from direct source with explicit developer warning", "interpretation": "outcome: crypto_finding, confidence: high" }
+      ]
+    }
+
+  ],
+
+  "revised_adjudication_records": [
+    { "adjudication_id": "ADJ-002", "human_analysis_record_ref": "HAR-002", "analysis_task_id": "AT-002", "adjudication_outcome": null, "adjudicator_id": null, "adjudication_date": null, "disagreement_category": null, "adjudicator_notes": null, "label_corrections": {} },
+    { "adjudication_id": "ADJ-004", "human_analysis_record_ref": "HAR-004", "analysis_task_id": "AT-004", "adjudication_outcome": null, "adjudicator_id": null, "adjudication_date": null, "disagreement_category": null, "adjudicator_notes": null, "label_corrections": {} },
+    { "adjudication_id": "ADJ-013", "human_analysis_record_ref": "HAR-013", "analysis_task_id": "AT-013", "adjudication_outcome": null, "adjudicator_id": null, "adjudication_date": null, "disagreement_category": null, "adjudicator_notes": null, "label_corrections": {} },
+    { "adjudication_id": "ADJ-019", "human_analysis_record_ref": "HAR-019", "analysis_task_id": "AT-019", "adjudication_outcome": null, "adjudicator_id": null, "adjudication_date": null, "disagreement_category": null, "adjudicator_notes": null, "label_corrections": {} },
+    { "adjudication_id": "ADJ-020", "human_analysis_record_ref": "HAR-020", "analysis_task_id": "AT-020", "adjudication_outcome": null, "adjudicator_id": null, "adjudication_date": null, "disagreement_category": null, "adjudicator_notes": null, "label_corrections": {} },
+    { "adjudication_id": "ADJ-024", "human_analysis_record_ref": "HAR-024", "analysis_task_id": "AT-024", "adjudication_outcome": null, "adjudicator_id": null, "adjudication_date": null, "disagreement_category": null, "adjudicator_notes": null, "label_corrections": {} }
+  ],
+
+  "updated_batch_statistics": {
+    "note": "Updated after follow-up resolution. 6 needs_follow_up records resolved to crypto_finding.",
+    "total_human_analysis_records": 33,
+    "crypto_finding_count": 26,
+    "not_crypto_count": 7,
+    "insufficient_evidence_count": 0,
+    "needs_follow_up_count": 0,
+    "out_of_scope_count": 0,
+    "not_crypto_ratio": 0.212,
+    "quota_satisfied": false,
+    "quota_note": "not_crypto_ratio=7/33=0.212 still below 0.30. All needs_follow_up records resolved — quota deficit is the only remaining pipeline gap. 3 additional negative candidates needed: AT-034 (MapContext), AT-035 (HashMapCacheManager), AT-036 (QuartzSessionValidationJob)."
+  }
+}

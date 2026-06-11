@@ -1,0 +1,146 @@
+{
+  "agent": "LLM_Adjudicator",
+  "agent_version": "3.5",
+  "source_prompt_version": "v0.8",
+  "pass_type": "follow_up_revision",
+  "input_from_agent3_followup": "Agent3_FollowUp_Output_apache_shiro.json",
+  "adjudication_date": "2026-06-11",
+  "note": "Second Agent 3.5 pass covering only the 6 revised HARs. ADJ-002/004/013/019/020/024 are replaced. All other ADJs from Agent3_5_Output_apache_shiro.json remain unchanged.",
+
+  "revised_adjudication_records": [
+
+    {
+      "adjudication_id": "ADJ-002",
+      "human_analysis_record_ref": "HAR-002",
+      "analysis_task_id": "AT-002",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "IV generation fully confirmed from revised CB-002 (rev2). generateInitializationVector() → SecureRandom.nextBytes() on 128-bit array confirmed from method body (EV-034). IV prepend-to-ciphertext confirmed (EV-035). DEFAULT_KEY_SIZE=128, SHA1PRNG, generateInitializationVectors=true confirmed (EV-036). All mandatory full method body rule elements now satisfied. Previous needs_follow_up was correct — context was genuinely insufficient. Revised outcome crypto_finding + confidence:high is fully supported by direct_source_code evidence. No elevation violation.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-004",
+      "human_analysis_record_ref": "HAR-004",
+      "analysis_task_id": "AT-004",
+      "adjudication_outcome": "accepted_with_minor_edits",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "All Argon2 default parameters confirmed from direct source constants (EV-037/038). DEFAULT_ITERATIONS=1, DEFAULT_MEMORY_KIB=65536, DEFAULT_PARALLELISM=4, DEFAULT_OUTPUT_LENGTH_BITS=256, SALT_LENGTH_BITS=128 all directly observed. Minor edit: security_concern=no_security_concern_identified is defensible given RFC-sourced defaults, but the OWASP 2023 recommendation (t>=2) deviation is noted in uncertainties. Suggest labeling security_concern as 'weak_algorithm' with a note that t=1 is borderline — however Agent 3 chose no_security_concern_identified which is also defensible. Accept as-is with note.",
+      "label_corrections": {
+        "note": "security_concern: no_security_concern_identified is accepted. Alternative defensible label: weak_algorithm for t=1 below OWASP t=2 recommendation. Human reviewer should assess whether Shiro's RFC-draft sourcing overrides OWASP guidance for this training record."
+      },
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-013",
+      "human_analysis_record_ref": "HAR-013",
+      "analysis_task_id": "AT-013",
+      "adjudication_outcome": "needs_revision",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": "evidence_elevation",
+      "adjudicator_notes": "FAIL — Check 2 (Evidence Elevation). HAR-013 labels mode=CBC and padding=PKCS5Padding with confidence=high. However EV-039 extracted_content is BlowfishCipherService constructor and class body only. The CBC/PKCS5 values come from the BlowfishCipherService Javadoc table, which references DefaultBlockCipherService as the source of these defaults — but DefaultBlockCipherService constructor was NOT read in this revision. Agent 3 uncertainty statement acknowledges this: 'DefaultBlockCipherService parent default mode/padding not directly read in this revision — CBC/PKCS5 values are from BlowfishCipherService Javadoc table, not parent source.' This is a classic evidence elevation scenario: Javadoc description of inherited behavior is not the same as direct_source_code confirmation of the parent constructor. Required correction: read DefaultBlockCipherService constructor and confirm setMode(OperationMode.CBC) and setPaddingScheme(PaddingScheme.PKCS5) calls directly, OR set confidence to 'medium' and add known_limitations entry. escalate_to_human=false — fixable by Agent 3.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance"],
+      "checks_failed": ["evidence_elevation", "plausibility"]
+    },
+
+    {
+      "adjudication_id": "ADJ-019",
+      "human_analysis_record_ref": "HAR-019",
+      "analysis_task_id": "AT-019",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "Full PaddingScheme enum body confirmed (EV-040, 11 values). PKCS1Padding, SSL3Padding, OAEPWithMD5AndMGF1Padding security concerns directly observed from enum source. security_concern=insecure_padding is correct. padding field set to PKCS1Padding as most critical value — acceptable. not_quantum_relevant is correct at padding layer. Check 5 (taxonomy): insecure_padding is a valid security_concern enum value. All checks pass.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-020",
+      "human_analysis_record_ref": "HAR-020",
+      "analysis_task_id": "AT-020",
+      "adjudication_outcome": "accepted_with_minor_edits",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "doGetAuthenticationInfo() body fully confirmed (EV-041/042). saltStyle=NO_SALT default confirmed. getSaltForUser()=username insecure salt confirmed. security_concern=weak_algorithm is correct. Minor edit: cryptographic_operation=hash is a forward inference — JdbcRealm itself performs no hash; it delivers credentials to CredentialsMatcher. A more accurate label would be cryptographic_operation=unknown since no hash call is present in this file. However, the realm's purpose is credential verification (password hashing by matcher), so 'hash' as a functional label is defensible at the component level. Accept with note.",
+      "label_corrections": {
+        "note": "cryptographic_operation: 'hash' is a component-level label (realm purpose), not a direct API call. If strict direct-observation policy is applied, 'unknown' would be more accurate. Human reviewer should standardize this pattern for JDBC realm records."
+      },
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    },
+
+    {
+      "adjudication_id": "ADJ-024",
+      "human_analysis_record_ref": "HAR-024",
+      "analysis_task_id": "AT-024",
+      "adjudication_outcome": "accepted",
+      "adjudicator_id": "llm_agent_3.5",
+      "adjudication_date": "2026-06-11",
+      "disagreement_category": null,
+      "adjudicator_notes": "SaltAwareJdbcRealm body fully confirmed (EV-043). Username-as-salt anti-pattern confirmed with explicit in-source developer warning. security_concern=weak_algorithm correct. usage_context=sample_or_example_code confirmed from path (samples/spring-mvc). Valuable anti-pattern training example. All checks pass.",
+      "label_corrections": {},
+      "escalate_to_human": false,
+      "escalation_reason": null,
+      "checks_passed": ["schema_completeness", "context_sufficient_enforcement", "evidence_elevation", "outcome_confidence_consistency", "reasoning_trace_quality", "taxonomy_compliance", "plausibility"],
+      "checks_failed": []
+    }
+
+  ],
+
+  "needs_revision_loop": [
+    {
+      "record": "HAR-013",
+      "adjudication_id": "ADJ-013",
+      "action_required": "Agent 3 must read DefaultBlockCipherService constructor to confirm setMode(OperationMode.CBC) and setPaddingScheme(PaddingScheme.PKCS5) directly from source code, then resubmit HAR-013. Alternatively, reduce confidence to 'medium' and add known_limitations entry: 'CBC/PKCS5 values sourced from Javadoc table — DefaultBlockCipherService constructor not read directly.'",
+      "escalate_to_human": false
+    }
+  ],
+
+  "followup_adjudication_summary": {
+    "records_evaluated": 6,
+    "accepted": 3,
+    "accepted_with_minor_edits": 2,
+    "needs_revision": 1,
+    "rejected": 0,
+    "escalated_to_human": 0,
+    "needs_revision_record": "HAR-013 / ADJ-013",
+    "failure_reason": "evidence_elevation — CBC/PKCS5 mode/padding values sourced from Javadoc table, not DefaultBlockCipherService constructor"
+  },
+
+  "cumulative_pipeline_status": {
+    "total_hars": 33,
+    "accepted_or_minor_edits": 31,
+    "needs_revision_open": 1,
+    "escalated_to_human": 1,
+    "pipeline_ready": false,
+    "pipeline_ready_blockers": [
+      "ADJ-008: escalate_to_human=true (hardcoded_key_or_secret + confidence:high) — awaiting human coordinator",
+      "ADJ-013: needs_revision (evidence_elevation) — Agent 3 revision loop required for DefaultBlockCipherService constructor"
+    ],
+    "quota_note": "not_crypto_ratio=7/33=0.212 still below 0.30 threshold — 3 additional negative candidates needed."
+  }
+}

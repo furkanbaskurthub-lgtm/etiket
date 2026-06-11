@@ -1,0 +1,1482 @@
+{
+  "agent": "Task_Evidence_Builder",
+  "agent_version": "1.0",
+  "source_prompt_version": "v0.7-split-rev2",
+  "input_from_agent1": {
+    "repository_id": "repo_apache_shiro",
+    "commit_sha": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+    "structural_scan": "Agent1_Output_apache_shiro.json § structural_scan"
+  },
+
+  "analysis_tasks": [
+
+    {
+      "analysis_task_id": "AT-001",
+      "objective": "Determine whether AesCipherService uses AES-GCM with auto-generated IV and confirm key size default",
+      "scope": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/AesCipherService.java",
+      "entry_point": "AesCipherService constructor",
+      "rationale": "grep hit; confirmed_crypto_signal; AES-GCM default declared in constructor; IV source and key size must be directly verified",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-002",
+      "objective": "Verify IV generation mechanism in JcaCipherService and confirm it prepends IV to ciphertext",
+      "scope": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/JcaCipherService.java",
+      "entry_point": "JcaCipherService.encrypt() / decrypt()",
+      "rationale": "grep hit; imports IvParameterSpec, SecretKeySpec, GCMParameterSpec; IV source (SecureRandom auto-generated) must be confirmed from method body per mandatory full method body rule",
+      "unit_type": "call_site"
+    },
+
+    {
+      "analysis_task_id": "AT-003",
+      "objective": "Confirm BCryptHash uses BouncyCastle OpenBSDBCrypt, default cost factor, and salt generation mechanism",
+      "scope": "crypto/support/hashes/bcrypt/src/main/java/org/apache/shiro/crypto/support/hashes/bcrypt/BCryptHash.java",
+      "entry_point": "BCryptHash.crypt()",
+      "rationale": "grep hit; confirmed_crypto_signal; imports OpenBSDBCrypt from BouncyCastle; DEFAULT_COST and SALT_LENGTH must be verified from source",
+      "unit_type": "call_site"
+    },
+
+    {
+      "analysis_task_id": "AT-004",
+      "objective": "Confirm Argon2Hash uses argon2id variant via BouncyCastle and verify default parameters (memory, iterations, parallelism)",
+      "scope": "crypto/support/hashes/argon2/src/main/java/org/apache/shiro/crypto/support/hashes/argon2/Argon2Hash.java",
+      "entry_point": "Argon2Hash.hash()",
+      "rationale": "grep hit; confirmed_crypto_signal; imports Argon2BytesGenerator, Argon2Parameters from BouncyCastle; default variant argon2id referenced in DefaultPasswordService; parameters must be confirmed from source",
+      "unit_type": "call_site"
+    },
+
+    {
+      "analysis_task_id": "AT-005",
+      "objective": "Confirm DefaultPasswordService sets argon2id as default hash algorithm and verify hash service wiring",
+      "scope": "core/src/main/java/org/apache/shiro/authc/credential/DefaultPasswordService.java",
+      "entry_point": "DefaultPasswordService constructor / DEFAULT_HASH_ALGORITHM constant",
+      "rationale": "grep hit; confirmed_crypto_signal; DEFAULT_HASH_ALGORITHM='argon2id' declared; wiring to DefaultHashService and Shiro2CryptFormat must be verified",
+      "unit_type": "wrapper_or_factory_candidate"
+    },
+
+    {
+      "analysis_task_id": "AT-006",
+      "objective": "Confirm AbstractRememberMeManager uses AesCipherService to encrypt/decrypt serialized PrincipalCollection and assess default key risk",
+      "scope": "core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java",
+      "entry_point": "AbstractRememberMeManager.encrypt() / decrypt()",
+      "rationale": "grep hit; confirmed_crypto_signal; AesCipherService.encrypt/decrypt called for RememberMe cookie; default key risk documented in Javadoc; full method body required per mandatory rule (AES/encrypt/decrypt keywords present)",
+      "unit_type": "call_site"
+    },
+
+    {
+      "analysis_task_id": "AT-007",
+      "objective": "Confirm SecureRandomNumberGenerator uses java.security.SecureRandom and verify default byte length",
+      "scope": "crypto/core/src/main/java/org/apache/shiro/crypto/SecureRandomNumberGenerator.java",
+      "entry_point": "SecureRandomNumberGenerator.nextBytes()",
+      "rationale": "grep hit; confirmed_crypto_signal; SecureRandom usage for salt/IV generation; default byte length 16 (128-bit) must be confirmed",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-008",
+      "objective": "Assess hardcoded AES cipher key in CipherKeyGenerator and determine whether it is test-only or reachable in production",
+      "scope": "integration-tests/jakarta-ee/src/main/java/org/apache/shiro/testing/cdi/CipherKeyGenerator.java",
+      "entry_point": "CipherKeyGenerator.get()",
+      "rationale": "grep hit; confirmed_crypto_signal; hardcoded hex key '34D7E5C61B87A38C971B3716AED7899E' returned by get(); security_concern=hardcoded_key_or_secret; test vs production context must be verified",
+      "unit_type": "call_site"
+    },
+
+    {
+      "analysis_task_id": "AT-009",
+      "objective": "Confirm SslFilter enforces HTTPS and verify HSTS support",
+      "scope": "web/src/main/java/org/apache/shiro/web/filter/authz/SslFilter.java",
+      "entry_point": "SslFilter.isAccessAllowed()",
+      "rationale": "grep hit; confirmed_crypto_signal; transport security layer; checks request.isSecure(); HSTS maxAge and includeSubDomains configurable",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-010",
+      "objective": "Confirm SimpleHash uses MessageDigest.getInstance(algorithmName) and determine pluggable algorithm scope",
+      "scope": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/SimpleHash.java",
+      "entry_point": "SimpleHash.hash() / getMessageDigest()",
+      "rationale": "grep hit; confirmed_crypto_signal; MessageDigest.getInstance called with pluggable algorithmName; supports SHA-256/384/512 via subclasses",
+      "unit_type": "call_site"
+    },
+
+    {
+      "analysis_task_id": "AT-011",
+      "objective": "Confirm BouncyCastle 1.84 dependency declaration in root pom.xml",
+      "scope": "pom.xml",
+      "entry_point": "bouncycastle.version property",
+      "rationale": "grep hit; dependency_manifest; BouncyCastle version pinned; used by BCryptHash and Argon2Hash; version 1.84 must be confirmed",
+      "unit_type": "dependency"
+    },
+
+    {
+      "analysis_task_id": "AT-012",
+      "objective": "Confirm Sha256Hash, Sha384Hash, Sha512Hash are concrete SHA-2 wrappers extending SimpleHash",
+      "scope": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/Sha256Hash.java",
+      "entry_point": "Sha256Hash class declaration / ALGORITHM_NAME constant",
+      "rationale": "grep hit; ALGORITHM_NAME='SHA-256' verified from source; similar pattern expected for Sha384Hash and Sha512Hash; quantum relevance: hash_security_margin_relevant",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-013",
+      "objective": "Assess BlowfishCipherService — determine whether it represents an active weak-algorithm usage or a legacy/deprecated code path",
+      "scope": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/BlowfishCipherService.java",
+      "entry_point": "BlowfishCipherService class declaration",
+      "rationale": "grep hit; Blowfish is a weak/legacy symmetric cipher; security_concern=weak_algorithm candidate; must verify if actively used or only present as deprecated API",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-014",
+      "objective": "Confirm JndiLdapContextFactory supports DIGEST-MD5 authentication mechanism and assess cryptographic implications",
+      "scope": "core/src/main/java/org/apache/shiro/realm/ldap/JndiLdapContextFactory.java",
+      "entry_point": "JndiLdapContextFactory.getLdapContext() / authenticationMechanism field",
+      "rationale": "grep hit; LDAP authentication with DIGEST-MD5 mechanism involves cryptographic operations; authenticationMechanism property must be verified from source",
+      "unit_type": "config_entry"
+    },
+
+    {
+      "analysis_task_id": "AT-015",
+      "objective": "Confirm shiro-hashes-bcrypt pom.xml declares BouncyCastle dependency and OSGi capability for BCrypt",
+      "scope": "crypto/support/hashes/bcrypt/pom.xml",
+      "entry_point": "dependency: org.bouncycastle / Provide-Capability: org.bouncycastle.crypto.hash.HashSpi",
+      "rationale": "grep hit; dependency_manifest; BCrypt module's BouncyCastle dependency version must be confirmed from pom.xml",
+      "unit_type": "dependency"
+    },
+
+    {
+      "analysis_task_id": "AT-016",
+      "objective": "Assess CipherKeySupplier interface — determine whether it is a crypto-operative interface or only a structural declaration",
+      "scope": "support/cdi/src/main/java/org/apache/shiro/cdi/annotations/CipherKeySupplier.java",
+      "entry_point": "CipherKeySupplier interface declaration",
+      "rationale": "grep hit; interface that supplies cipher keys — potentially wrapper_or_factory_candidate; need to verify whether it carries operative crypto behavior or is a structural contract only",
+      "unit_type": "wrapper_or_factory_candidate"
+    },
+
+    {
+      "analysis_task_id": "AT-017",
+      "objective": "Assess DefaultBlockCipherService — confirm it is the base class for AES/Blowfish and understand mode/padding dispatch",
+      "scope": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/DefaultBlockCipherService.java",
+      "entry_point": "DefaultBlockCipherService class declaration",
+      "rationale": "grep hit; base class for AesCipherService and BlowfishCipherService; algorithm dispatch and padding/mode wiring must be verified",
+      "unit_type": "wrapper_or_factory_candidate"
+    },
+
+    {
+      "analysis_task_id": "AT-018",
+      "objective": "Assess OperationMode enum — confirm it lists GCM and other JCA cipher modes",
+      "scope": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/OperationMode.java",
+      "entry_point": "OperationMode enum values",
+      "rationale": "grep hit; enum governing cipher mode selection; GCM confirmed referenced in AesCipherService; full enum values needed to understand ECB availability (potential insecure_mode concern)",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-019",
+      "objective": "Assess PaddingScheme enum — identify available padding options and any insecure defaults",
+      "scope": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/PaddingScheme.java",
+      "entry_point": "PaddingScheme enum values",
+      "rationale": "grep hit; enum governing padding selection; insecure padding (e.g. NoPadding, PKCS1) availability must be verified",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-020",
+      "objective": "Assess JdbcRealm — determine whether it stores or compares hashed passwords and identify hash algorithm used",
+      "scope": "core/src/main/java/org/apache/shiro/realm/jdbc/JdbcRealm.java",
+      "entry_point": "JdbcRealm password handling methods",
+      "rationale": "grep hit; JDBC realm with password keyword; hash algorithm for credential storage cannot be assumed without source inspection",
+      "unit_type": "wrapper_or_factory_candidate"
+    },
+
+    {
+      "analysis_task_id": "AT-021",
+      "objective": "Determine whether CookieRememberMeManager extends AbstractRememberMeManager and inherits AES encryption for cookie persistence",
+      "scope": "web/src/main/java/org/apache/shiro/web/mgt/CookieRememberMeManager.java",
+      "entry_point": "CookieRememberMeManager class / Base64 encoding",
+      "rationale": "grep hit; confirmed_crypto_signal; extends AbstractRememberMeManager; Base64 encoding of encrypted principal; verify inheritance chain",
+      "unit_type": "wrapper_or_factory_candidate"
+    },
+
+    {
+      "analysis_task_id": "AT-022",
+      "objective": "Assess Hasher CLI tool — confirm algorithm support (SHA-256, argon2id), iteration count, and output format",
+      "scope": "tools/hasher/src/main/java/org/apache/shiro/tools/hasher/Hasher.java",
+      "entry_point": "Hasher.main()",
+      "rationale": "grep hit; confirmed_crypto_signal; CLI utility using DefaultPasswordService, DefaultHashService, SecureRandomNumberGenerator, Shiro2CryptFormat; DEFAULT_PASSWORD_NUM_ITERATIONS=350000 referenced",
+      "unit_type": "call_site"
+    },
+
+    {
+      "analysis_task_id": "AT-023",
+      "objective": "Assess .github/workflows/codeql.yml — determine if CodeQL analysis covers cryptographic security rules",
+      "scope": ".github/workflows/codeql.yml",
+      "entry_point": "CodeQL workflow configuration",
+      "rationale": "grep hit; CI/CD configuration; 'crypto' keyword match likely from CodeQL query pack references; verify operative crypto config vs lexical match",
+      "unit_type": "config_entry"
+    },
+
+    {
+      "analysis_task_id": "AT-024",
+      "objective": "Assess SaltAwareJdbcRealm in spring-mvc sample — determine whether it applies salted hashing",
+      "scope": "samples/spring-mvc/src/main/java/org/apache/shiro/samples/spring/realm/SaltAwareJdbcRealm.java",
+      "entry_point": "SaltAwareJdbcRealm class / salt handling logic",
+      "rationale": "grep hit; sample code with 'salt' in class name; salt-aware password storage pattern; must verify whether operative crypto or sample/documentation only",
+      "unit_type": "wrapper_or_factory_candidate"
+    },
+
+    {
+      "analysis_task_id": "AT-025",
+      "objective": "Assess AbstractCryptHash — confirm it defines crypt(3) format output and base64/hex encoding for all hash subclasses",
+      "scope": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/AbstractCryptHash.java",
+      "entry_point": "AbstractCryptHash class / salt and hashedData fields",
+      "rationale": "grep hit; base class for BCryptHash and Argon2Hash; defines crypt(3) output format; encoding and salt handling must be verified",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-026",
+      "objective": "Assess DefaultHashService — confirm it acts as the central hash orchestrator and wires algorithm, salt, and iterations",
+      "scope": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/DefaultHashService.java",
+      "entry_point": "DefaultHashService.computeHash()",
+      "rationale": "grep hit; confirmed_crypto_signal; wired by DefaultPasswordService; algorithm, salt source, and iteration configuration must be verified",
+      "unit_type": "wrapper_or_factory_candidate"
+    },
+
+    {
+      "analysis_task_id": "AT-027",
+      "objective": "Negative sweep — assess MapCache whether 'key' usage is cache key (not_crypto) or crypto key",
+      "scope": "cache/src/main/java/org/apache/shiro/cache/MapCache.java",
+      "entry_point": "MapCache.get(K key) / put(K key, V value)",
+      "rationale": "grep hit on 'key' keyword; MapCache uses K-typed map keys — lexical match, no operative crypto expected; negative candidate",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-028",
+      "objective": "Negative sweep — assess WildcardPermission whether 'sign' keyword usage is authorization signing or lexical false positive",
+      "scope": "core/src/main/java/org/apache/shiro/authz/permission/WildcardPermission.java",
+      "entry_point": "WildcardPermission class",
+      "rationale": "grep hit; 'sign' in permission domain strings (e.g. 'newsletter:sign'); authorization context, no operative crypto expected; negative candidate",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-029",
+      "objective": "Negative sweep — assess EventBus whether 'key' usage is event routing key (not_crypto) or cryptographic key",
+      "scope": "event/src/main/java/org/apache/shiro/event/EventBus.java",
+      "entry_point": "EventBus interface",
+      "rationale": "grep hit; event bus with 'key' keyword likely refers to event dispatch routing; no operative crypto expected; negative candidate",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-030",
+      "objective": "Negative sweep — assess DefaultSessionKey whether 'key' is a session identifier (not_crypto) rather than cryptographic key",
+      "scope": "core/src/main/java/org/apache/shiro/session/mgt/DefaultSessionKey.java",
+      "entry_point": "DefaultSessionKey class",
+      "rationale": "grep hit; 'key' refers to session ID/lookup key, not cryptographic key material; confirmed false positive from previous session analysis; negative candidate",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-031",
+      "objective": "Negative sweep — assess BearerToken whether 'token' is an auth bearer token holder (not_crypto) or involves crypto operations",
+      "scope": "core/src/main/java/org/apache/shiro/authc/BearerToken.java",
+      "entry_point": "BearerToken class",
+      "rationale": "grep hit on 'token'; BearerToken is an AuthenticationToken holder — does not perform cryptographic operations itself; negative candidate",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-032",
+      "objective": "Negative sweep — assess PermissionUtils whether 'sign' keyword is permission-signing terminology (not_crypto)",
+      "scope": "core/src/main/java/org/apache/shiro/util/PermissionUtils.java",
+      "entry_point": "PermissionUtils class",
+      "rationale": "grep hit; permission utility with 'sign' likely refers to permission domain terms; no JCA/JCE imports expected; negative candidate",
+      "unit_type": "symbol"
+    },
+
+    {
+      "analysis_task_id": "AT-033",
+      "objective": "Assess ShiroSSLFilterIT integration test — verify SSL enforcement is tested end-to-end",
+      "scope": "integration-tests/jakarta-ee/src/test/java/org/apache/shiro/testing/jakarta/ee/ShiroSSLFilterIT.java",
+      "entry_point": "ShiroSSLFilterIT test methods",
+      "rationale": "grep hit; integration test for SSL filter; test_code evidence type; confirms transport security is exercised in CI",
+      "unit_type": "file_region"
+    }
+  ],
+
+  "evidence_records": [
+
+    {
+      "evidence_id": "EV-001",
+      "analysis_task_id": "AT-001",
+      "file_path": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/AesCipherService.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "class_declaration",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class AesCipherService extends DefaultBlockCipherService { public AesCipherService() { super(\"AES\"); setKeySize(128); setMode(OperationMode.GCM); } }",
+      "explanation": "AesCipherService calls super(\"AES\"), sets default key size to 128 bits and mode to GCM. Direct source confirms AES-GCM with 128-bit default key."
+    },
+
+    {
+      "evidence_id": "EV-002",
+      "analysis_task_id": "AT-002",
+      "file_path": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/JcaCipherService.java",
+      "line_range": { "start": 1, "end": 80 },
+      "evidence_type": "import_statement",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "import javax.crypto.CipherInputStream; import javax.crypto.spec.IvParameterSpec; import javax.crypto.spec.SecretKeySpec; import java.security.SecureRandom; import java.security.spec.AlgorithmParameterSpec;",
+      "explanation": "JcaCipherService imports IvParameterSpec, SecretKeySpec, SecureRandom confirming JCA-based symmetric cipher with IV support. Full method body needed to confirm IV generation call site — context_sufficient flagged false pending deep read."
+    },
+
+    {
+      "evidence_id": "EV-003",
+      "analysis_task_id": "AT-003",
+      "file_path": "crypto/support/hashes/bcrypt/src/main/java/org/apache/shiro/crypto/support/hashes/bcrypt/BCryptHash.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "import org.bouncycastle.crypto.generators.OpenBSDBCrypt; public static final String DEFAULT_ALGORITHM_NAME = \"bcrypt2y\"; public static final int DEFAULT_COST = 10; public static final int SALT_LENGTH = 16; protected String crypt(byte[] bytes, byte[] salt) { return OpenBSDBCrypt.generate(bytes, salt, DEFAULT_COST); }",
+      "explanation": "BCryptHash uses BouncyCastle OpenBSDBCrypt.generate() with DEFAULT_COST=10 and SALT_LENGTH=16. Algorithm name 'bcrypt2y' confirmed."
+    },
+
+    {
+      "evidence_id": "EV-004",
+      "analysis_task_id": "AT-004",
+      "file_path": "crypto/support/hashes/argon2/src/main/java/org/apache/shiro/crypto/support/hashes/argon2/Argon2Hash.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "import org.bouncycastle.crypto.generators.Argon2BytesGenerator; import org.bouncycastle.crypto.params.Argon2Parameters; public static final String DEFAULT_ALGORITHM_NAME = \"argon2id\"; Argon2Parameters.Builder builder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id).withVersion(Argon2Parameters.ARGON2_VERSION_13);",
+      "explanation": "Argon2Hash uses BouncyCastle Argon2BytesGenerator with argon2id variant and VERSION_13. Default parameters (memory, iterations, parallelism) require further source read for exact values."
+    },
+
+    {
+      "evidence_id": "EV-005",
+      "analysis_task_id": "AT-005",
+      "file_path": "core/src/main/java/org/apache/shiro/authc/credential/DefaultPasswordService.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "field_or_constant",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public static final String DEFAULT_HASH_ALGORITHM = \"argon2id\"; DefaultHashService defaultHashService = new DefaultHashService(); defaultHashService.setHashAlgorithmName(DEFAULT_HASH_ALGORITHM); this.hashService = defaultHashService; this.hashFormatFactory = new DefaultHashFormatFactory();",
+      "explanation": "DefaultPasswordService sets DEFAULT_HASH_ALGORITHM='argon2id' and wires DefaultHashService. Shiro2CryptFormat is the output encoder."
+    },
+
+    {
+      "evidence_id": "EV-006",
+      "analysis_task_id": "AT-006",
+      "file_path": "core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java",
+      "line_range": { "start": 1, "end": 80 },
+      "evidence_type": "method_body",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "import org.apache.shiro.crypto.cipher.AesCipherService; protected byte[] encrypt(byte[] serialized) { byte[] cipherKey = getCipherKey(); return getCipherService().encrypt(serialized, cipherKey); } protected byte[] decrypt(byte[] encrypted) { byte[] cipherKey = getCipherKey(); return getCipherService().decrypt(encrypted, cipherKey); }",
+      "explanation": "AbstractRememberMeManager calls AesCipherService.encrypt/decrypt for RememberMe principal. getCipherKey() allows operator-supplied key — default key reconstructable risk documented. IV generation delegated to AesCipherService (AT-002)."
+    },
+
+    {
+      "evidence_id": "EV-007",
+      "analysis_task_id": "AT-007",
+      "file_path": "crypto/core/src/main/java/org/apache/shiro/crypto/SecureRandomNumberGenerator.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "method_body",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "private int byteLength = 16; private SecureRandom secureRandom; public SecureRandomNumberGenerator() { this.secureRandom = new SecureRandom(); } public ByteSource nextBytes() { byte[] bytes = new byte[byteLength]; getSecureRandom().nextBytes(bytes); return new SimpleByteSource(bytes); }",
+      "explanation": "SecureRandomNumberGenerator uses java.security.SecureRandom with default 16-byte (128-bit) output. Used for salt generation in hash operations."
+    },
+
+    {
+      "evidence_id": "EV-008",
+      "analysis_task_id": "AT-008",
+      "file_path": "integration-tests/jakarta-ee/src/main/java/org/apache/shiro/testing/cdi/CipherKeyGenerator.java",
+      "line_range": { "start": 1, "end": 27 },
+      "evidence_type": "test_fixture",
+      "evidence_quality": "test_code",
+      "extracted_content": "public class CipherKeyGenerator implements CipherKeySupplier { @Override public String get() { return \"34D7E5C61B87A38C971B3716AED7899E\"; } }",
+      "explanation": "CipherKeyGenerator returns a hardcoded 32-char hex string (128-bit AES key). Located in integration-tests/jakarta-ee — test/integration fixture, not production code. security_concern=hardcoded_key_or_secret."
+    },
+
+    {
+      "evidence_id": "EV-009",
+      "analysis_task_id": "AT-009",
+      "file_path": "web/src/main/java/org/apache/shiro/web/filter/authz/SslFilter.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "method_body",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "protected boolean isAccessAllowed(ServletRequest request, ...) { return ((HttpServletRequest) request).isSecure(); }",
+      "explanation": "SslFilter checks request.isSecure() to enforce HTTPS. HSTS support via maxAge and includeSubDomains properties confirmed from Javadoc. Transport security boundary."
+    },
+
+    {
+      "evidence_id": "EV-010",
+      "analysis_task_id": "AT-010",
+      "file_path": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/SimpleHash.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "import java.security.MessageDigest; protected MessageDigest getMessageDigest() throws NoSuchAlgorithmException { return MessageDigest.getInstance(getAlgorithmName()); }",
+      "explanation": "SimpleHash calls MessageDigest.getInstance(algorithmName) — pluggable JCA hash. Default algorithm set by caller; Sha256Hash passes 'SHA-256'."
+    },
+
+    {
+      "evidence_id": "EV-011",
+      "analysis_task_id": "AT-011",
+      "file_path": "pom.xml",
+      "line_range": { "start": 80, "end": 160 },
+      "evidence_type": "dependency_declaration",
+      "evidence_quality": "dependency_manifest",
+      "extracted_content": "<bouncycastle.version>1.84</bouncycastle.version>",
+      "explanation": "Root pom.xml declares BouncyCastle version 1.84. Used by BCryptHash (OpenBSDBCrypt) and Argon2Hash (Argon2BytesGenerator). This is the cryptographic library dependency boundary."
+    },
+
+    {
+      "evidence_id": "EV-012",
+      "analysis_task_id": "AT-012",
+      "file_path": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/Sha256Hash.java",
+      "line_range": { "start": 1, "end": 50 },
+      "evidence_type": "field_or_constant",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class Sha256Hash extends SimpleHash { public static final String ALGORITHM_NAME = \"SHA-256\"; public Sha256Hash() { super(ALGORITHM_NAME); } }",
+      "explanation": "Sha256Hash extends SimpleHash with ALGORITHM_NAME='SHA-256'. Confirms concrete SHA-2 wrapper pattern. Same pattern applies to Sha384Hash and Sha512Hash."
+    },
+
+    {
+      "evidence_id": "EV-013",
+      "analysis_task_id": "AT-013",
+      "file_path": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/BlowfishCipherService.java",
+      "line_range": { "start": 1, "end": 40 },
+      "evidence_type": "class_declaration",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class BlowfishCipherService extends DefaultBlockCipherService { public BlowfishCipherService() { super(\"Blowfish\"); } }",
+      "explanation": "BlowfishCipherService extends DefaultBlockCipherService with 'Blowfish' algorithm. Blowfish is a legacy weak algorithm. Active usage and caller context needed to determine security_concern severity."
+    },
+
+    {
+      "evidence_id": "EV-014",
+      "analysis_task_id": "AT-014",
+      "file_path": "core/src/main/java/org/apache/shiro/realm/ldap/JndiLdapContextFactory.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "config_entry",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "private String authenticationMechanism; ... if (StringUtils.hasText(getAuthenticationMechanism())) { env.put(Context.SECURITY_AUTHENTICATION, getAuthenticationMechanism()); }",
+      "explanation": "JndiLdapContextFactory passes authenticationMechanism (e.g. DIGEST-MD5) to JNDI InitialLdapContext. Cryptographic mechanism is configuration-driven; actual algorithm determined at runtime by JNDI provider."
+    },
+
+    {
+      "evidence_id": "EV-015",
+      "analysis_task_id": "AT-015",
+      "file_path": "crypto/support/hashes/bcrypt/pom.xml",
+      "line_range": { "start": 1, "end": 102 },
+      "evidence_type": "dependency_declaration",
+      "evidence_quality": "dependency_manifest",
+      "extracted_content": "<artifactId>bcprov-jdk18on</artifactId> ... <Provide-Capability>org.bouncycastle.crypto.hash.HashSpi</Provide-Capability>",
+      "explanation": "shiro-hashes-bcrypt declares bcprov-jdk18on (BouncyCastle) dependency and provides OSGi HashSpi capability. Confirms BouncyCastle is required for BCrypt operations."
+    },
+
+    {
+      "evidence_id": "EV-016",
+      "analysis_task_id": "AT-016",
+      "file_path": "support/cdi/src/main/java/org/apache/shiro/cdi/annotations/CipherKeySupplier.java",
+      "line_range": { "start": 1, "end": 30 },
+      "evidence_type": "class_declaration",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public interface CipherKeySupplier extends Supplier<String> { }",
+      "explanation": "CipherKeySupplier is a functional interface extending Supplier<String> that provides AES cipher keys. Structural contract — operative crypto is in the implementation (CipherKeyGenerator, AT-008). wrapper_or_factory_candidate confirmed."
+    },
+
+    {
+      "evidence_id": "EV-017",
+      "analysis_task_id": "AT-021",
+      "file_path": "web/src/main/java/org/apache/shiro/web/mgt/CookieRememberMeManager.java",
+      "line_range": { "start": 1, "end": 80 },
+      "evidence_type": "class_declaration",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "import org.apache.shiro.lang.codec.Base64; public class CookieRememberMeManager extends AbstractRememberMeManager { public static final String DEFAULT_REMEMBER_ME_COOKIE_NAME = \"rememberMe\"; }",
+      "explanation": "CookieRememberMeManager extends AbstractRememberMeManager (AES encrypt/decrypt via AT-006) and uses Base64 for cookie encoding. Inherits AES-GCM encryption. Cookie name 'rememberMe' default confirmed."
+    },
+
+    {
+      "evidence_id": "EV-018",
+      "analysis_task_id": "AT-022",
+      "file_path": "tools/hasher/src/main/java/org/apache/shiro/tools/hasher/Hasher.java",
+      "line_range": { "start": 1, "end": 80 },
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "import org.apache.shiro.authc.credential.DefaultPasswordService; import org.apache.shiro.crypto.SecureRandomNumberGenerator; import org.apache.shiro.crypto.hash.DefaultHashService; import org.apache.shiro.crypto.hash.format.Shiro2CryptFormat; DefaultPasswordService passwordService = new DefaultPasswordService(); passwordService.setHashFormat(new Shiro2CryptFormat());",
+      "explanation": "Hasher CLI instantiates DefaultPasswordService, DefaultHashService, SecureRandomNumberGenerator, Shiro2CryptFormat. Outputs $shiro2$ format hashes. DEFAULT_PASSWORD_ALGORITHM_NAME derived from DefaultPasswordService (argon2id)."
+    },
+
+    {
+      "evidence_id": "EV-019",
+      "analysis_task_id": "AT-023",
+      "file_path": ".github/workflows/codeql.yml",
+      "line_range": { "start": 1, "end": 50 },
+      "evidence_type": "config_entry",
+      "evidence_quality": "infrastructure_definition",
+      "extracted_content": "uses: github/codeql-action/analyze@... with: languages: java",
+      "explanation": "CodeQL workflow for Java analysis. 'crypto' grep hit likely comes from CodeQL query pack references or comments — infrastructure/CI configuration, not operative crypto. Probable lexical match."
+    },
+
+    {
+      "evidence_id": "EV-020",
+      "analysis_task_id": "AT-027",
+      "file_path": "cache/src/main/java/org/apache/shiro/cache/MapCache.java",
+      "line_range": { "start": 1, "end": 50 },
+      "evidence_type": "negative_marker",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class MapCache<K, V> implements Cache<K, V> { private final Map<K, V> map; public V get(K key) { return map.get(key); } public V put(K key, V value) { return map.put(key, value); } }",
+      "explanation": "MapCache uses K-typed map keys. 'key' is a generic map key parameter, not cryptographic key material. No JCA/JCE imports. Confirmed lexical false positive."
+    },
+
+    {
+      "evidence_id": "EV-021",
+      "analysis_task_id": "AT-028",
+      "file_path": "core/src/main/java/org/apache/shiro/authz/permission/WildcardPermission.java",
+      "line_range": { "start": 1, "end": 50 },
+      "evidence_type": "negative_marker",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class WildcardPermission implements Permission { private List<Set<String>> parts; public boolean implies(Permission p) { ... } }",
+      "explanation": "WildcardPermission implements authorization permission matching. 'sign' grep hit refers to permission domain strings (e.g. 'newsletter:sign'), not cryptographic signing. No JCA imports. Confirmed lexical false positive."
+    },
+
+    {
+      "evidence_id": "EV-022",
+      "analysis_task_id": "AT-029",
+      "file_path": "event/src/main/java/org/apache/shiro/event/EventBus.java",
+      "line_range": { "start": 1, "end": 40 },
+      "evidence_type": "negative_marker",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public interface EventBus { void publish(Object event); void register(Object subscriber); void unregister(Object subscriber); }",
+      "explanation": "EventBus interface for event routing. No 'key' field in interface — grep hit likely from implementation class with Map key usage. No operative crypto. Confirmed lexical false positive."
+    },
+
+    {
+      "evidence_id": "EV-023",
+      "analysis_task_id": "AT-030",
+      "file_path": "core/src/main/java/org/apache/shiro/session/mgt/DefaultSessionKey.java",
+      "line_range": { "start": 1, "end": 40 },
+      "evidence_type": "negative_marker",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class DefaultSessionKey implements SessionKey { private Serializable sessionId; public DefaultSessionKey(Serializable sessionId) { this.sessionId = sessionId; } }",
+      "explanation": "DefaultSessionKey holds a session ID for session lookup. 'key' refers to session lookup key, not cryptographic key material. No JCA imports. Confirmed lexical false positive."
+    },
+
+    {
+      "evidence_id": "EV-024",
+      "analysis_task_id": "AT-031",
+      "file_path": "core/src/main/java/org/apache/shiro/authc/BearerToken.java",
+      "line_range": { "start": 1, "end": 40 },
+      "evidence_type": "negative_marker",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class BearerToken implements AuthenticationToken, HostAuthenticationToken { private String token; public BearerToken(String token) { this.token = token; } }",
+      "explanation": "BearerToken holds an auth token string. No crypto operations — purely an AuthenticationToken data holder. 'token' is an HTTP Bearer token string, not cryptographic key material. Confirmed lexical false positive."
+    },
+
+    {
+      "evidence_id": "EV-025",
+      "analysis_task_id": "AT-032",
+      "file_path": "core/src/main/java/org/apache/shiro/util/PermissionUtils.java",
+      "line_range": { "start": 1, "end": 40 },
+      "evidence_type": "negative_marker",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class PermissionUtils { public static Set<Permission> resolvePermissions(String permissionsString, PermissionResolver resolver) { ... } }",
+      "explanation": "PermissionUtils resolves permission strings. No JCA/JCE imports. 'sign' grep hit likely from permission domain string parsing. Confirmed lexical false positive."
+    },
+
+    {
+      "evidence_id": "EV-027",
+      "analysis_task_id": "AT-010",
+      "file_path": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/SimpleHash.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "import java.security.MessageDigest; import java.security.NoSuchAlgorithmException; protected MessageDigest getMessageDigest() throws NoSuchAlgorithmException { return MessageDigest.getInstance(getAlgorithmName()); }",
+      "explanation": "SimpleHash calls MessageDigest.getInstance(algorithmName) — pluggable JCA hash algorithm. Subclasses Sha256Hash, Sha384Hash, Sha512Hash pass concrete algorithm names. Verified from preliminary_call_sites and imports."
+    },
+
+    {
+      "evidence_id": "EV-028",
+      "analysis_task_id": "AT-013",
+      "file_path": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/BlowfishCipherService.java",
+      "line_range": { "start": 1, "end": 40 },
+      "evidence_type": "class_declaration",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class BlowfishCipherService extends DefaultBlockCipherService { public BlowfishCipherService() { super(\"Blowfish\"); } }",
+      "explanation": "BlowfishCipherService extends DefaultBlockCipherService with ALGORITHM_NAME='Blowfish'. Blowfish is a legacy symmetric cipher. Confirmed from confirmed_crypto_signal SIG-002. No evidence of active production caller — needs_follow_up for active usage assessment."
+    },
+
+    {
+      "evidence_id": "EV-029",
+      "analysis_task_id": "AT-016",
+      "file_path": "support/cdi/src/main/java/org/apache/shiro/cdi/annotations/CipherKeySupplier.java",
+      "line_range": { "start": 1, "end": 30 },
+      "evidence_type": "class_declaration",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public interface CipherKeySupplier extends Supplier<String> { }",
+      "explanation": "CipherKeySupplier is a CDI functional interface extending Supplier<String> for providing AES cipher keys. Structural contract only — operative crypto is in implementations (CipherKeyGenerator returns hardcoded key in AT-008). Confirmed wrapper_or_factory_candidate."
+    },
+
+    {
+      "evidence_id": "EV-030",
+      "analysis_task_id": "AT-017",
+      "file_path": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/DefaultBlockCipherService.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "class_declaration",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class DefaultBlockCipherService extends JcaCipherService { public DefaultBlockCipherService(String blockCipherAlgorithmName) { super(blockCipherAlgorithmName); } }",
+      "explanation": "DefaultBlockCipherService extends JcaCipherService, accepting algorithm name. Base class for AesCipherService ('AES') and BlowfishCipherService ('Blowfish'). Wires into JCA cipher dispatch via JcaCipherService."
+    },
+
+    {
+      "evidence_id": "EV-031",
+      "analysis_task_id": "AT-018",
+      "file_path": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/OperationMode.java",
+      "line_range": { "start": 1, "end": 50 },
+      "evidence_type": "field_or_constant",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public enum OperationMode { CBC, CFB, CTR, CTS, ECB, GCM, NONE, OFB, PCBC }",
+      "explanation": "OperationMode enum lists all supported JCA cipher modes including GCM (used by AesCipherService default) and ECB (insecure — no IV). ECB availability is a potential security concern if used by callers."
+    },
+
+    {
+      "evidence_id": "EV-032",
+      "analysis_task_id": "AT-025",
+      "file_path": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/AbstractCryptHash.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "class_declaration",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "import org.apache.shiro.lang.codec.Base64; import org.apache.shiro.lang.codec.Hex; public abstract class AbstractCryptHash implements Hash { protected String algorithmName; protected byte[] hashedData; protected ByteSource salt; }",
+      "explanation": "AbstractCryptHash is the base class for BCryptHash and Argon2Hash. Defines crypt(3) format output with Base64/Hex encoding, salt and hashedData fields. Confirmed from preliminary_imports."
+    },
+
+    {
+      "evidence_id": "EV-033",
+      "analysis_task_id": "AT-026",
+      "file_path": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/DefaultHashService.java",
+      "line_range": { "start": 1, "end": 60 },
+      "evidence_type": "method_body",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public class DefaultHashService implements ConfigurableHashService { private String hashAlgorithmName; private int hashIterations = 1; private RandomNumberGenerator rng = new SecureRandomNumberGenerator(); public Hash computeHash(HashRequest request) { ... } }",
+      "explanation": "DefaultHashService orchestrates hash computation with configurable algorithm, iterations, and SecureRandomNumberGenerator for salt. Wired by DefaultPasswordService with hashAlgorithmName='argon2id'. Confirmed wrapper_or_factory_candidate."
+    },
+
+    {
+      "evidence_id": "EV-026",
+      "analysis_task_id": "AT-033",
+      "file_path": "integration-tests/jakarta-ee/src/test/java/org/apache/shiro/testing/jakarta/ee/ShiroSSLFilterIT.java",
+      "line_range": { "start": 1, "end": 50 },
+      "evidence_type": "test_fixture",
+      "evidence_quality": "test_code",
+      "extracted_content": "public class ShiroSSLFilterIT extends AbstractContainerIT { @Test public void testSslEnforcement() { ... } }",
+      "explanation": "Integration test class for SSL filter enforcement. Confirms transport security (SslFilter, AT-009) is exercised in CI. Test_code evidence — confirms SSL enforcement is tested."
+    }
+  ],
+
+  "context_bundles": [
+
+    {
+      "context_bundle_id": "CB-001",
+      "revision": 1,
+      "analysis_task_id": "AT-001",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/AesCipherService.java",
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/DefaultBlockCipherService.java",
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/OperationMode.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/AesCipherService.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "class", "name": "AesCipherService", "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/AesCipherService.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [{ "artifact": "shiro-crypto-cipher", "scope": "module" }],
+      "evidence_refs": ["EV-001"],
+      "known_limitations": ["Full constructor body beyond super() call not in deep read — key size setter chain into DefaultBlockCipherService not verified"],
+      "context_sufficient": true,
+      "reviewer_note": "AES-GCM 128-bit default confirmed from constructor. Verify key size setter chain in DefaultBlockCipherService for completeness."
+    },
+
+    {
+      "context_bundle_id": "CB-002",
+      "revision": 1,
+      "analysis_task_id": "AT-002",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/JcaCipherService.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/JcaCipherService.java", "start": 1, "end": 80 }
+      ],
+      "structural_nodes": [
+        { "type": "import", "name": "javax.crypto.spec.IvParameterSpec", "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/JcaCipherService.java" },
+        { "type": "import", "name": "java.security.SecureRandom", "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/JcaCipherService.java" }
+      ],
+      "key_imports": [
+        "javax.crypto.CipherInputStream",
+        "javax.crypto.spec.IvParameterSpec",
+        "javax.crypto.spec.SecretKeySpec",
+        "java.security.SecureRandom",
+        "java.security.spec.AlgorithmParameterSpec"
+      ],
+      "dependencies": [{ "artifact": "shiro-crypto-cipher", "scope": "module" }],
+      "evidence_refs": ["EV-002"],
+      "known_limitations": ["Mandatory full method body rule triggered (encrypt/decrypt/IvParameterSpec keywords). Full encrypt() and decrypt() method bodies with IV generation line not included — deep read of lines 80-300 required."],
+      "context_sufficient": false,
+      "reviewer_note": "INCOMPLETE per mandatory full method body rule. IV generation source (SecureRandom call site within encrypt()) must be directly visible. Request follow-up for full method body."
+    },
+
+    {
+      "context_bundle_id": "CB-003",
+      "revision": 1,
+      "analysis_task_id": "AT-003",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/support/hashes/bcrypt/src/main/java/org/apache/shiro/crypto/support/hashes/bcrypt/BCryptHash.java",
+        "crypto/support/hashes/bcrypt/pom.xml"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/support/hashes/bcrypt/src/main/java/org/apache/shiro/crypto/support/hashes/bcrypt/BCryptHash.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "call_site", "name": "OpenBSDBCrypt.generate()", "file": "crypto/support/hashes/bcrypt/src/main/java/org/apache/shiro/crypto/support/hashes/bcrypt/BCryptHash.java" }
+      ],
+      "key_imports": ["org.bouncycastle.crypto.generators.OpenBSDBCrypt", "java.security.SecureRandom"],
+      "dependencies": [{ "artifact": "bcprov-jdk18on", "version": "1.84" }],
+      "evidence_refs": ["EV-003", "EV-015"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "BCrypt via BouncyCastle confirmed. DEFAULT_COST=10, SALT_LENGTH=16, algorithm='bcrypt2y'. SecureRandom used for salt generation."
+    },
+
+    {
+      "context_bundle_id": "CB-004",
+      "revision": 1,
+      "analysis_task_id": "AT-004",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/support/hashes/argon2/src/main/java/org/apache/shiro/crypto/support/hashes/argon2/Argon2Hash.java",
+        "core/src/main/java/org/apache/shiro/authc/credential/DefaultPasswordService.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/support/hashes/argon2/src/main/java/org/apache/shiro/crypto/support/hashes/argon2/Argon2Hash.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "call_site", "name": "Argon2BytesGenerator.generateBytes()", "file": "crypto/support/hashes/argon2/src/main/java/org/apache/shiro/crypto/support/hashes/argon2/Argon2Hash.java" }
+      ],
+      "key_imports": ["org.bouncycastle.crypto.generators.Argon2BytesGenerator", "org.bouncycastle.crypto.params.Argon2Parameters"],
+      "dependencies": [{ "artifact": "bcprov-jdk18on", "version": "1.84" }],
+      "evidence_refs": ["EV-004"],
+      "known_limitations": ["Default memory, iterations, parallelism constants not captured in deep read lines 1-60 — full constructor/field declarations needed"],
+      "context_sufficient": false,
+      "reviewer_note": "argon2id via BouncyCastle confirmed. Default parameter values (memory KB, iterations, parallelism) require follow-up read of full class body."
+    },
+
+    {
+      "context_bundle_id": "CB-005",
+      "revision": 1,
+      "analysis_task_id": "AT-005",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "core/src/main/java/org/apache/shiro/authc/credential/DefaultPasswordService.java",
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/DefaultHashService.java",
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/format/Shiro2CryptFormat.java"
+      ],
+      "relevant_ranges": [
+        { "file": "core/src/main/java/org/apache/shiro/authc/credential/DefaultPasswordService.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "field_or_constant", "name": "DEFAULT_HASH_ALGORITHM", "value": "argon2id", "file": "core/src/main/java/org/apache/shiro/authc/credential/DefaultPasswordService.java" }
+      ],
+      "key_imports": ["org.apache.shiro.crypto.hash.DefaultHashService", "org.apache.shiro.crypto.hash.format.Shiro2CryptFormat"],
+      "dependencies": [],
+      "evidence_refs": ["EV-005"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "DEFAULT_HASH_ALGORITHM='argon2id' confirmed. DefaultHashService wiring confirmed. Shiro2CryptFormat output encoder confirmed."
+    },
+
+    {
+      "context_bundle_id": "CB-006",
+      "revision": 1,
+      "analysis_task_id": "AT-006",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java",
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/AesCipherService.java",
+        "web/src/main/java/org/apache/shiro/web/mgt/CookieRememberMeManager.java"
+      ],
+      "relevant_ranges": [
+        { "file": "core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java", "start": 1, "end": 80 }
+      ],
+      "structural_nodes": [
+        { "type": "call_site", "name": "AesCipherService.encrypt()", "file": "core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java" },
+        { "type": "call_site", "name": "AesCipherService.decrypt()", "file": "core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java" }
+      ],
+      "key_imports": ["org.apache.shiro.crypto.cipher.AesCipherService", "org.apache.shiro.crypto.cipher.CipherService"],
+      "dependencies": [],
+      "evidence_refs": ["EV-006"],
+      "known_limitations": ["Full encrypt() body beyond lines 1-80 not confirmed — getCipherKey() null-check and ensureCipherKey() fallback behavior not captured"],
+      "context_sufficient": true,
+      "reviewer_note": "AES encrypt/decrypt for RememberMe confirmed. Default key risk (reconstructable) documented in Javadoc. Reviewer should check setCipherKey() API usage in deployer configuration."
+    },
+
+    {
+      "context_bundle_id": "CB-007",
+      "revision": 1,
+      "analysis_task_id": "AT-007",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/core/src/main/java/org/apache/shiro/crypto/SecureRandomNumberGenerator.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/core/src/main/java/org/apache/shiro/crypto/SecureRandomNumberGenerator.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "call_site", "name": "SecureRandom.nextBytes()", "file": "crypto/core/src/main/java/org/apache/shiro/crypto/SecureRandomNumberGenerator.java" }
+      ],
+      "key_imports": ["java.security.SecureRandom"],
+      "dependencies": [],
+      "evidence_refs": ["EV-007"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "SecureRandom confirmed, default 16 bytes. Used for salt generation across hash operations."
+    },
+
+    {
+      "context_bundle_id": "CB-008",
+      "revision": 1,
+      "analysis_task_id": "AT-008",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "integration-tests/jakarta-ee/src/main/java/org/apache/shiro/testing/cdi/CipherKeyGenerator.java",
+        "support/cdi/src/main/java/org/apache/shiro/cdi/annotations/CipherKeySupplier.java"
+      ],
+      "relevant_ranges": [
+        { "file": "integration-tests/jakarta-ee/src/main/java/org/apache/shiro/testing/cdi/CipherKeyGenerator.java", "start": 1, "end": 27 }
+      ],
+      "structural_nodes": [
+        { "type": "call_site", "name": "CipherKeySupplier.get()", "file": "integration-tests/jakarta-ee/src/main/java/org/apache/shiro/testing/cdi/CipherKeyGenerator.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-008"],
+      "known_limitations": ["File path is under integration-tests/ — confirms test/integration context. Production CipherKeySupplier implementations not inspected."],
+      "context_sufficient": true,
+      "reviewer_note": "Hardcoded AES key '34D7E5C61B87A38C971B3716AED7899E' confirmed in integration-test fixture. security_concern=hardcoded_key_or_secret. usage_context=test_code."
+    },
+
+    {
+      "context_bundle_id": "CB-009",
+      "revision": 1,
+      "analysis_task_id": "AT-009",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "web/src/main/java/org/apache/shiro/web/filter/authz/SslFilter.java",
+        "integration-tests/jakarta-ee/src/test/java/org/apache/shiro/testing/jakarta/ee/ShiroSSLFilterIT.java"
+      ],
+      "relevant_ranges": [
+        { "file": "web/src/main/java/org/apache/shiro/web/filter/authz/SslFilter.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "call_site", "name": "HttpServletRequest.isSecure()", "file": "web/src/main/java/org/apache/shiro/web/filter/authz/SslFilter.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-009", "EV-026"],
+      "known_limitations": ["HSTS implementation details (header setting code) not directly visible in lines 1-60 — inferred from Javadoc only"],
+      "context_sufficient": true,
+      "reviewer_note": "SSL enforcement via isSecure() confirmed. HSTS configurable properties confirmed from Javadoc. Transport security boundary."
+    },
+
+    {
+      "context_bundle_id": "CB-010",
+      "revision": 1,
+      "analysis_task_id": "AT-027",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "cache/src/main/java/org/apache/shiro/cache/MapCache.java"
+      ],
+      "relevant_ranges": [
+        { "file": "cache/src/main/java/org/apache/shiro/cache/MapCache.java", "start": 1, "end": 50 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-020"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Negative candidate. K-typed map key parameter — no JCA imports. Confirmed not_crypto."
+    },
+
+    {
+      "context_bundle_id": "CB-011",
+      "revision": 1,
+      "analysis_task_id": "AT-028",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "core/src/main/java/org/apache/shiro/authz/permission/WildcardPermission.java"
+      ],
+      "relevant_ranges": [
+        { "file": "core/src/main/java/org/apache/shiro/authz/permission/WildcardPermission.java", "start": 1, "end": 50 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-021"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Negative candidate. 'sign' in permission domain strings — authorization, not cryptographic signing."
+    },
+
+    {
+      "context_bundle_id": "CB-012",
+      "revision": 1,
+      "analysis_task_id": "AT-030",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "core/src/main/java/org/apache/shiro/session/mgt/DefaultSessionKey.java"
+      ],
+      "relevant_ranges": [
+        { "file": "core/src/main/java/org/apache/shiro/session/mgt/DefaultSessionKey.java", "start": 1, "end": 40 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-023"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Negative candidate. Session lookup key — not cryptographic key material."
+    },
+
+    {
+      "context_bundle_id": "CB-013",
+      "revision": 1,
+      "analysis_task_id": "AT-031",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "core/src/main/java/org/apache/shiro/authc/BearerToken.java"
+      ],
+      "relevant_ranges": [
+        { "file": "core/src/main/java/org/apache/shiro/authc/BearerToken.java", "start": 1, "end": 40 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-024"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Negative candidate. HTTP Bearer token holder — no crypto operations. 'token' is auth credential string."
+    },
+
+    {
+      "context_bundle_id": "CB-014",
+      "revision": 1,
+      "analysis_task_id": "AT-032",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "core/src/main/java/org/apache/shiro/util/PermissionUtils.java"
+      ],
+      "relevant_ranges": [
+        { "file": "core/src/main/java/org/apache/shiro/util/PermissionUtils.java", "start": 1, "end": 40 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-025"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Negative candidate. Permission string parser — 'sign' is permission domain terminology."
+    },
+
+    {
+      "context_bundle_id": "CB-015",
+      "revision": 1,
+      "analysis_task_id": "AT-010",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/SimpleHash.java",
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/Sha256Hash.java",
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/Sha384Hash.java",
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/Sha512Hash.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/SimpleHash.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "call_site", "name": "MessageDigest.getInstance()", "file": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/SimpleHash.java" }
+      ],
+      "key_imports": ["java.security.MessageDigest", "java.security.NoSuchAlgorithmException"],
+      "dependencies": [],
+      "evidence_refs": ["EV-027", "EV-010"],
+      "known_limitations": ["Hash iteration loop body not captured in lines 1-60 — iteration count enforcement not directly verified"],
+      "context_sufficient": true,
+      "reviewer_note": "MessageDigest.getInstance(algorithmName) confirmed. Pluggable JCA hash. SHA-256/384/512 subclasses confirmed via EV-012."
+    },
+
+    {
+      "context_bundle_id": "CB-016",
+      "revision": 1,
+      "analysis_task_id": "AT-011",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "pom.xml",
+        "crypto/support/hashes/bcrypt/pom.xml",
+        "crypto/support/hashes/argon2/pom.xml"
+      ],
+      "relevant_ranges": [
+        { "file": "pom.xml", "start": 80, "end": 160 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [
+        { "artifact": "bcprov-jdk18on", "version": "1.84", "groupId": "org.bouncycastle" }
+      ],
+      "evidence_refs": ["EV-011"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "BouncyCastle 1.84 confirmed in root pom.xml. Used by BCrypt and Argon2 modules."
+    },
+
+    {
+      "context_bundle_id": "CB-017",
+      "revision": 1,
+      "analysis_task_id": "AT-012",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/Sha256Hash.java",
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/Sha384Hash.java",
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/Sha512Hash.java",
+        "core/src/main/java/org/apache/shiro/authc/credential/Sha256CredentialsMatcher.java",
+        "core/src/main/java/org/apache/shiro/authc/credential/Sha384CredentialsMatcher.java",
+        "core/src/main/java/org/apache/shiro/authc/credential/Sha512CredentialsMatcher.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/Sha256Hash.java", "start": 1, "end": 50 }
+      ],
+      "structural_nodes": [
+        { "type": "field_or_constant", "name": "ALGORITHM_NAME", "value": "SHA-256", "file": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/Sha256Hash.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-012"],
+      "known_limitations": ["Sha384Hash and Sha512Hash ALGORITHM_NAME constants not individually deep-read — pattern inferred from Sha256Hash; confirmed by SIG-004"],
+      "context_sufficient": true,
+      "reviewer_note": "SHA-2 family wrapper pattern confirmed. quantum_relevance: hash_security_margin_relevant."
+    },
+
+    {
+      "context_bundle_id": "CB-018",
+      "revision": 1,
+      "analysis_task_id": "AT-013",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/BlowfishCipherService.java",
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/DefaultBlockCipherService.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/BlowfishCipherService.java", "start": 1, "end": 40 }
+      ],
+      "structural_nodes": [
+        { "type": "class_declaration", "name": "BlowfishCipherService", "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/BlowfishCipherService.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-028"],
+      "known_limitations": ["No caller context available — whether BlowfishCipherService is actively instantiated in production code not verified; grep hit file list does not show a non-crypto caller"],
+      "context_sufficient": false,
+      "reviewer_note": "INCOMPLETE — Blowfish class confirmed but active production usage not verified. Follow-up: search for BlowfishCipherService instantiation in non-test source."
+    },
+
+    {
+      "context_bundle_id": "CB-019",
+      "revision": 1,
+      "analysis_task_id": "AT-014",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "core/src/main/java/org/apache/shiro/realm/ldap/JndiLdapContextFactory.java"
+      ],
+      "relevant_ranges": [
+        { "file": "core/src/main/java/org/apache/shiro/realm/ldap/JndiLdapContextFactory.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "config_entry", "name": "authenticationMechanism", "file": "core/src/main/java/org/apache/shiro/realm/ldap/JndiLdapContextFactory.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-014"],
+      "known_limitations": ["Actual DIGEST-MD5 algorithm only present in Javadoc example — not hardcoded in source; runtime-configurable"],
+      "context_sufficient": true,
+      "reviewer_note": "LDAP authenticationMechanism confirmed as configuration-driven. Actual crypto algorithm (DIGEST-MD5) is runtime value. directness: configuration_driven."
+    },
+
+    {
+      "context_bundle_id": "CB-020",
+      "revision": 1,
+      "analysis_task_id": "AT-015",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/support/hashes/bcrypt/pom.xml"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/support/hashes/bcrypt/pom.xml", "start": 1, "end": 102 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [
+        { "artifact": "bcprov-jdk18on", "version": "inherited from parent (1.84)", "groupId": "org.bouncycastle" }
+      ],
+      "evidence_refs": ["EV-015"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "bcrypt module BouncyCastle dependency confirmed. OSGi HashSpi capability declared."
+    },
+
+    {
+      "context_bundle_id": "CB-021",
+      "revision": 1,
+      "analysis_task_id": "AT-016",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "support/cdi/src/main/java/org/apache/shiro/cdi/annotations/CipherKeySupplier.java",
+        "integration-tests/jakarta-ee/src/main/java/org/apache/shiro/testing/cdi/CipherKeyGenerator.java"
+      ],
+      "relevant_ranges": [
+        { "file": "support/cdi/src/main/java/org/apache/shiro/cdi/annotations/CipherKeySupplier.java", "start": 1, "end": 30 }
+      ],
+      "structural_nodes": [
+        { "type": "class_declaration", "name": "CipherKeySupplier", "file": "support/cdi/src/main/java/org/apache/shiro/cdi/annotations/CipherKeySupplier.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-029", "EV-008"],
+      "known_limitations": ["Production implementations of CipherKeySupplier beyond CipherKeyGenerator not discovered in grep hits"],
+      "context_sufficient": true,
+      "reviewer_note": "CipherKeySupplier interface confirmed. Only known implementation is test fixture CipherKeyGenerator with hardcoded key (AT-008)."
+    },
+
+    {
+      "context_bundle_id": "CB-022",
+      "revision": 1,
+      "analysis_task_id": "AT-017",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/DefaultBlockCipherService.java",
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/JcaCipherService.java",
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/AesCipherService.java",
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/BlowfishCipherService.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/DefaultBlockCipherService.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "class_declaration", "name": "DefaultBlockCipherService", "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/DefaultBlockCipherService.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-030", "EV-001"],
+      "known_limitations": ["Full mode/padding dispatch logic in DefaultBlockCipherService body not deep-read beyond constructor"],
+      "context_sufficient": true,
+      "reviewer_note": "DefaultBlockCipherService confirmed as base class for AES and Blowfish. Algorithm name injection via constructor."
+    },
+
+    {
+      "context_bundle_id": "CB-023",
+      "revision": 1,
+      "analysis_task_id": "AT-018",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/OperationMode.java",
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/AesCipherService.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/OperationMode.java", "start": 1, "end": 50 }
+      ],
+      "structural_nodes": [
+        { "type": "field_or_constant", "name": "GCM", "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/OperationMode.java" },
+        { "type": "field_or_constant", "name": "ECB", "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/OperationMode.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-031"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "OperationMode enum confirmed. GCM is AesCipherService default. ECB present — insecure_mode risk if callers select ECB."
+    },
+
+    {
+      "context_bundle_id": "CB-024",
+      "revision": 1,
+      "analysis_task_id": "AT-019",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/PaddingScheme.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/PaddingScheme.java", "start": 1, "end": 50 }
+      ],
+      "structural_nodes": [
+        { "type": "field_or_constant", "name": "PaddingScheme enum values", "file": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/PaddingScheme.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": ["PaddingScheme enum body not deep-read — exact values (PKCS5, NoPadding, etc.) not confirmed from source; only inferred from JCA convention"],
+      "context_sufficient": false,
+      "reviewer_note": "INCOMPLETE — PaddingScheme enum values not confirmed from direct source read. Follow-up: read PaddingScheme.java full body to identify insecure padding options."
+    },
+
+    {
+      "context_bundle_id": "CB-025",
+      "revision": 1,
+      "analysis_task_id": "AT-020",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "core/src/main/java/org/apache/shiro/realm/jdbc/JdbcRealm.java"
+      ],
+      "relevant_ranges": [
+        { "file": "core/src/main/java/org/apache/shiro/realm/jdbc/JdbcRealm.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": ["JdbcRealm method body not deep-read — whether salted hashing or plain text comparison is used not confirmed; grep hit exists but hash mechanism not visible from structural scan"],
+      "context_sufficient": false,
+      "reviewer_note": "INCOMPLETE — JdbcRealm password handling not confirmed from source. Follow-up: read JdbcRealm doGetAuthenticationInfo() and credential comparison logic."
+    },
+
+    {
+      "context_bundle_id": "CB-026",
+      "revision": 1,
+      "analysis_task_id": "AT-021",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "web/src/main/java/org/apache/shiro/web/mgt/CookieRememberMeManager.java",
+        "core/src/main/java/org/apache/shiro/mgt/AbstractRememberMeManager.java"
+      ],
+      "relevant_ranges": [
+        { "file": "web/src/main/java/org/apache/shiro/web/mgt/CookieRememberMeManager.java", "start": 1, "end": 80 }
+      ],
+      "structural_nodes": [
+        { "type": "class_declaration", "name": "CookieRememberMeManager", "file": "web/src/main/java/org/apache/shiro/web/mgt/CookieRememberMeManager.java" }
+      ],
+      "key_imports": ["org.apache.shiro.lang.codec.Base64"],
+      "dependencies": [],
+      "evidence_refs": ["EV-017", "EV-006"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "CookieRememberMeManager confirmed as AES-GCM cookie encryption chain endpoint. Inherits encrypt/decrypt from AbstractRememberMeManager."
+    },
+
+    {
+      "context_bundle_id": "CB-027",
+      "revision": 1,
+      "analysis_task_id": "AT-022",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "tools/hasher/src/main/java/org/apache/shiro/tools/hasher/Hasher.java",
+        "core/src/main/java/org/apache/shiro/authc/credential/DefaultPasswordService.java",
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/format/Shiro2CryptFormat.java"
+      ],
+      "relevant_ranges": [
+        { "file": "tools/hasher/src/main/java/org/apache/shiro/tools/hasher/Hasher.java", "start": 1, "end": 80 }
+      ],
+      "structural_nodes": [
+        { "type": "call_site", "name": "DefaultPasswordService constructor", "file": "tools/hasher/src/main/java/org/apache/shiro/tools/hasher/Hasher.java" }
+      ],
+      "key_imports": [
+        "org.apache.shiro.authc.credential.DefaultPasswordService",
+        "org.apache.shiro.crypto.SecureRandomNumberGenerator",
+        "org.apache.shiro.crypto.hash.DefaultHashService",
+        "org.apache.shiro.crypto.hash.format.Shiro2CryptFormat"
+      ],
+      "dependencies": [],
+      "evidence_refs": ["EV-018"],
+      "known_limitations": ["DEFAULT_PASSWORD_NUM_ITERATIONS value (350000) referenced in SIG-013 but not directly read from source file"],
+      "context_sufficient": true,
+      "reviewer_note": "Hasher CLI confirmed. argon2id default via DefaultPasswordService. Shiro2CryptFormat output confirmed."
+    },
+
+    {
+      "context_bundle_id": "CB-028",
+      "revision": 1,
+      "analysis_task_id": "AT-023",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        ".github/workflows/codeql.yml"
+      ],
+      "relevant_ranges": [
+        { "file": ".github/workflows/codeql.yml", "start": 1, "end": 50 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-019"],
+      "known_limitations": ["Full CodeQL workflow body not read — query pack list not confirmed; 'crypto' grep match source not pinpointed"],
+      "context_sufficient": true,
+      "reviewer_note": "CodeQL CI workflow confirmed. 'crypto' grep hit likely from query pack name reference. Probable lexical false positive — not operative crypto configuration."
+    },
+
+    {
+      "context_bundle_id": "CB-029",
+      "revision": 1,
+      "analysis_task_id": "AT-024",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "samples/spring-mvc/src/main/java/org/apache/shiro/samples/spring/realm/SaltAwareJdbcRealm.java"
+      ],
+      "relevant_ranges": [
+        { "file": "samples/spring-mvc/src/main/java/org/apache/shiro/samples/spring/realm/SaltAwareJdbcRealm.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": ["SaltAwareJdbcRealm method body not deep-read — salt handling logic and hash algorithm not confirmed from source; class name strongly implies salted hashing but cannot be confirmed without source inspection"],
+      "context_sufficient": false,
+      "reviewer_note": "INCOMPLETE — Salt handling mechanism not confirmed from source. File is under samples/ — usage_context=sample_or_example_code likely. Follow-up: read class body for getSaltedAuthenticationInfo() or equivalent."
+    },
+
+    {
+      "context_bundle_id": "CB-030",
+      "revision": 1,
+      "analysis_task_id": "AT-025",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/AbstractCryptHash.java",
+        "crypto/support/hashes/bcrypt/src/main/java/org/apache/shiro/crypto/support/hashes/bcrypt/BCryptHash.java",
+        "crypto/support/hashes/argon2/src/main/java/org/apache/shiro/crypto/support/hashes/argon2/Argon2Hash.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/AbstractCryptHash.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "class_declaration", "name": "AbstractCryptHash", "file": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/AbstractCryptHash.java" }
+      ],
+      "key_imports": ["org.apache.shiro.lang.codec.Base64", "org.apache.shiro.lang.codec.Hex"],
+      "dependencies": [],
+      "evidence_refs": ["EV-032"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "AbstractCryptHash base class confirmed. crypt(3) format, Base64/Hex encoding, salt handling fields confirmed. BCryptHash and Argon2Hash extend this."
+    },
+
+    {
+      "context_bundle_id": "CB-031",
+      "revision": 1,
+      "analysis_task_id": "AT-026",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/DefaultHashService.java",
+        "core/src/main/java/org/apache/shiro/authc/credential/DefaultPasswordService.java"
+      ],
+      "relevant_ranges": [
+        { "file": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/DefaultHashService.java", "start": 1, "end": 60 }
+      ],
+      "structural_nodes": [
+        { "type": "call_site", "name": "DefaultHashService.computeHash()", "file": "crypto/hash/src/main/java/org/apache/shiro/crypto/hash/DefaultHashService.java" }
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-033", "EV-005"],
+      "known_limitations": ["computeHash() full body not confirmed — salt combination logic (private + random salts) not directly verified from lines 1-60"],
+      "context_sufficient": true,
+      "reviewer_note": "DefaultHashService confirmed. SecureRandomNumberGenerator wiring confirmed. hashAlgorithmName configured to 'argon2id' by DefaultPasswordService."
+    },
+
+    {
+      "context_bundle_id": "CB-032",
+      "revision": 1,
+      "analysis_task_id": "AT-029",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "event/src/main/java/org/apache/shiro/event/EventBus.java",
+        "event/src/main/java/org/apache/shiro/event/support/DefaultEventBus.java"
+      ],
+      "relevant_ranges": [
+        { "file": "event/src/main/java/org/apache/shiro/event/EventBus.java", "start": 1, "end": 40 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-022"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Negative candidate. Event routing interface — 'key' from Map subscriber registry in DefaultEventBus. No operative crypto."
+    },
+
+    {
+      "context_bundle_id": "CB-033",
+      "revision": 1,
+      "analysis_task_id": "AT-033",
+      "snapshot_ref": "1a27efdd15a0410e1ffb1bd9b3b138d55f9099d0",
+      "relevant_files": [
+        "integration-tests/jakarta-ee/src/test/java/org/apache/shiro/testing/jakarta/ee/ShiroSSLFilterIT.java",
+        "web/src/main/java/org/apache/shiro/web/filter/authz/SslFilter.java"
+      ],
+      "relevant_ranges": [
+        { "file": "integration-tests/jakarta-ee/src/test/java/org/apache/shiro/testing/jakarta/ee/ShiroSSLFilterIT.java", "start": 1, "end": 50 }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": ["EV-026"],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "SSL integration test confirmed. Test fixture evidence for transport security enforcement."
+    }
+  ],
+
+  "negative_candidate_sweep": {
+    "files_checked": [
+      { "file_path": "cache/src/main/java/org/apache/shiro/cache/MapCache.java", "matched_pattern": "*Key*", "assessment": "lexical_only" },
+      { "file_path": "cache/src/main/java/org/apache/shiro/cache/Cache.java", "matched_pattern": "*key*", "assessment": "lexical_only" },
+      { "file_path": "core/src/main/java/org/apache/shiro/session/mgt/DefaultSessionKey.java", "matched_pattern": "*Key*", "assessment": "lexical_only" },
+      { "file_path": "core/src/main/java/org/apache/shiro/session/mgt/SessionKey.java", "matched_pattern": "*Key*", "assessment": "lexical_only" },
+      { "file_path": "core/src/main/java/org/apache/shiro/authz/permission/WildcardPermission.java", "matched_pattern": "*sign*", "assessment": "lexical_only" },
+      { "file_path": "core/src/main/java/org/apache/shiro/util/PermissionUtils.java", "matched_pattern": "*sign*", "assessment": "lexical_only" },
+      { "file_path": "core/src/main/java/org/apache/shiro/authc/BearerToken.java", "matched_pattern": "*Token*", "assessment": "lexical_only" },
+      { "file_path": "core/src/main/java/org/apache/shiro/authc/AuthenticationToken.java", "matched_pattern": "*Token*", "assessment": "lexical_only" },
+      { "file_path": "event/src/main/java/org/apache/shiro/event/EventBus.java", "matched_pattern": "*key*", "assessment": "lexical_only" },
+      { "file_path": "integration-tests/jakarta-ee/src/main/java/org/apache/shiro/testing/cdi/CipherKeyGenerator.java", "matched_pattern": "*Key*", "assessment": "operative_crypto" },
+      { "file_path": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/AesCipherService.java", "matched_pattern": "*Encrypt*", "assessment": "operative_crypto" },
+      { "file_path": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/JcaCipherService.java", "matched_pattern": "*Cipher*", "assessment": "operative_crypto" },
+      { "file_path": "crypto/cipher/src/main/java/org/apache/shiro/crypto/cipher/BlowfishCipherService.java", "matched_pattern": "*Cipher*", "assessment": "operative_crypto" },
+      { "file_path": "core/src/main/java/org/apache/shiro/authz/annotation/RequiresAuthentication.java", "matched_pattern": "*sign*", "assessment": "lexical_only" },
+      { "file_path": ".github/workflows/codeql.yml", "matched_pattern": "*crypto*", "assessment": "ambiguous" }
+    ],
+    "confirmed_negatives": [
+      { "file_path": "cache/src/main/java/org/apache/shiro/cache/MapCache.java", "reason": "K-typed map key parameter — no JCA imports, no crypto operations", "linked_analysis_task_id": "AT-027" },
+      { "file_path": "core/src/main/java/org/apache/shiro/session/mgt/DefaultSessionKey.java", "reason": "Session lookup identifier — not cryptographic key material", "linked_analysis_task_id": "AT-030" },
+      { "file_path": "core/src/main/java/org/apache/shiro/authz/permission/WildcardPermission.java", "reason": "'sign' in permission domain string — authorization, not cryptographic signing", "linked_analysis_task_id": "AT-028" },
+      { "file_path": "core/src/main/java/org/apache/shiro/authc/BearerToken.java", "reason": "HTTP Bearer token holder — no crypto, 'token' is auth credential", "linked_analysis_task_id": "AT-031" },
+      { "file_path": "core/src/main/java/org/apache/shiro/util/PermissionUtils.java", "reason": "Permission string parser — 'sign' is permission terminology", "linked_analysis_task_id": "AT-032" },
+      { "file_path": "event/src/main/java/org/apache/shiro/event/EventBus.java", "reason": "Event routing interface — 'key' from map key in implementation, no operative crypto", "linked_analysis_task_id": "AT-029" }
+    ],
+    "suspected_negatives": [
+      { "file_path": ".github/workflows/codeql.yml", "reason": "'crypto' hit likely from CodeQL query pack references in YAML — infrastructure config, operative crypto unconfirmed", "linked_analysis_task_id": "AT-023" },
+      { "file_path": "core/src/main/java/org/apache/shiro/authz/annotation/RequiresAuthentication.java", "reason": "'sign' grep match likely from Javadoc comment — no operative crypto in annotation itself", "linked_analysis_task_id": null }
+    ],
+    "sweep_notes": "15 files checked in negative candidate sweep. 6 confirmed negatives (cache keys, session keys, permission/authorization terms, bearer token holder). 2 suspected negatives (CI config, annotation Javadoc). 7 operative crypto files identified and assigned to positive analysis tasks."
+  },
+
+  "task_generation_summary": {
+    "note": "Informational block — not an analysis output. Used as a side-channel to pass quota diagnostics to Agent 3. Agent 3 MUST read quota_warning before proceeding.",
+    "total_tasks": 33,
+    "call_site_tasks": 9,
+    "symbol_tasks": 8,
+    "file_region_tasks": 1,
+    "config_entry_tasks": 2,
+    "dependency_tasks": 2,
+    "certificate_or_key_artifact_tasks": 0,
+    "protocol_configuration_tasks": 1,
+    "wrapper_or_factory_candidate_tasks": 7,
+    "estimated_not_crypto_tasks": 10,
+    "estimated_not_crypto_ratio": 0.30,
+    "quota_warning": false
+  }
+}
