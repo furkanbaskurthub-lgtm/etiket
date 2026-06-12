@@ -1,0 +1,4428 @@
+{
+  "agent": "Analysis_Labeling",
+  "agent_version": "1.1",
+  "source_prompt_version": "v0.7-split-rev2",
+  "pipeline_stage": "Agent3_Final",
+  "produced_date": "2026-06-12",
+  "repository": "spring-authorization-server",
+  "commit_sha": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+  "resolved_versions": {
+    "nimbus-jose-jwt": "10.4.2",
+    "spring-security": "7.0.0-M2",
+    "spring-framework": "7.0.0-M8",
+    "bouncycastle": "1.81",
+    "project": "2.0.0-SNAPSHOT"
+  },
+  "context_bundles": [
+    {
+      "context_bundle_id": "CB-001",
+      "revision": 1,
+      "analysis_task_id": "AT-001",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "docs/src/main/java/sample/gettingstarted/SecurityConfig.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "docs/src/main/java/sample/gettingstarted/SecurityConfig.java",
+          "start": 1,
+          "end": 179
+        }
+      ],
+      "structural_nodes": [
+        "SecurityConfig.generateRsaKey()",
+        "SecurityConfig.jwkSource()",
+        "SecurityConfig.jwtDecoder()"
+      ],
+      "key_imports": [
+        "java.security.KeyPair",
+        "java.security.KeyPairGenerator",
+        "com.nimbusds.jose.jwk.RSAKey",
+        "com.nimbusds.jose.jwk.source.ImmutableJWKSet"
+      ],
+      "dependencies": [
+        "com.nimbusds:nimbus-jose-jwt"
+      ],
+      "evidence_refs": [
+        "EV-001"
+      ],
+      "known_limitations": [
+        "generateRsaKey() is in docs/sample — production apps implement their own. Key size 2048 observed here; may differ in production."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "Full method body included. RSA 2048 key generation and JWKSet construction directly visible."
+    },
+    {
+      "context_bundle_id": "CB-002",
+      "revision": 2,
+      "analysis_task_id": "AT-002",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/JwtGenerator.java",
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/settings/TokenSettings.java",
+        "gradle/libs.versions.toml"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/JwtGenerator.java",
+          "start": 1,
+          "end": 210
+        },
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/settings/TokenSettings.java",
+          "start": 1,
+          "end": 270
+        },
+        {
+          "file": "gradle/libs.versions.toml",
+          "start": 1,
+          "end": 10
+        }
+      ],
+      "structural_nodes": [
+        "JwtGenerator.generate()",
+        "TokenSettings.signingAlgorithm()",
+        "NimbusJwtEncoder.encode()"
+      ],
+      "key_imports": [
+        "com.nimbusds.jose.JwsHeader",
+        "org.springframework.security.oauth2.jose.jws.SignatureAlgorithm",
+        "org.springframework.security.oauth2.jwt.NimbusJwtEncoder"
+      ],
+      "dependencies": [
+        "com.nimbusds:nimbus-jose-jwt",
+        "org.springframework.security:spring-security-oauth2-jose"
+      ],
+      "evidence_refs": [
+        "EV-002",
+        "EV-007"
+      ],
+      "known_limitations": [
+        "Algorithm value (RS256/ES256/PS256) determined by TokenSettings.withDefaults() — requires cross-referencing TokenSettings to confirm default."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "REVISED: RS256 hardcoded in JwtGenerator:99. nimbus-jose-jwt 10.4.2 pinned.",
+      "missing_context_types": []
+    },
+    {
+      "context_bundle_id": "CB-003",
+      "revision": 1,
+      "analysis_task_id": "AT-003",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/CodeVerifierAuthenticator.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/CodeVerifierAuthenticator.java",
+          "start": 1,
+          "end": 177
+        }
+      ],
+      "structural_nodes": [
+        "CodeVerifierAuthenticator.verify()",
+        "CodeVerifierAuthenticator.createS256Hash()"
+      ],
+      "key_imports": [
+        "java.security.MessageDigest",
+        "java.nio.charset.StandardCharsets"
+      ],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-003"
+      ],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "SHA-256 in PKCE S256 directly confirmed via MessageDigest.getInstance('SHA-256')."
+    },
+    {
+      "context_bundle_id": "CB-004",
+      "revision": 2,
+      "analysis_task_id": "AT-004",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/client/RegisteredClient.java",
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/ClientSecretAuthenticationProvider.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/client/RegisteredClient.java",
+          "start": 1,
+          "end": 100
+        },
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/ClientSecretAuthenticationProvider.java",
+          "start": 27,
+          "end": 90
+        }
+      ],
+      "structural_nodes": [
+        "RegisteredClient.clientSecret"
+      ],
+      "key_imports": [
+        "org.springframework.security.crypto.password.PasswordEncoder"
+      ],
+      "dependencies": [
+        "org.springframework.security:spring-security-crypto"
+      ],
+      "evidence_refs": [
+        "EV-004"
+      ],
+      "known_limitations": [
+        "PasswordEncoder implementation not wired in RegisteredClient itself — must inspect InMemoryRegisteredClientRepository or application config to confirm BCrypt."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "REVISED: DelegatingPasswordEncoder (BCrypt default) confirmed in ClientSecretAuthenticationProvider:77.",
+      "missing_context_types": []
+    },
+    {
+      "context_bundle_id": "CB-005",
+      "revision": 1,
+      "analysis_task_id": "AT-005",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/web/NimbusJwkSetEndpointFilter.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/web/NimbusJwkSetEndpointFilter.java",
+          "start": 1,
+          "end": 106
+        }
+      ],
+      "structural_nodes": [
+        "NimbusJwkSetEndpointFilter.doFilterInternal()",
+        "jwkSource.get()"
+      ],
+      "key_imports": [
+        "com.nimbusds.jose.jwk.JWKSet",
+        "com.nimbusds.jose.jwk.source.JWKSource"
+      ],
+      "dependencies": [
+        "com.nimbusds:nimbus-jose-jwt"
+      ],
+      "evidence_refs": [
+        "EV-005"
+      ],
+      "known_limitations": [
+        "Key types served depend on injected JWKSource — RSA or EC determined by application config."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "JWK Set endpoint filter confirmed. Delegates to JWKSource for key selection."
+    },
+    {
+      "context_bundle_id": "CB-006",
+      "revision": 1,
+      "analysis_task_id": "AT-006",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/OAuth2RefreshTokenGenerator.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/OAuth2RefreshTokenGenerator.java",
+          "start": 1,
+          "end": 69
+        }
+      ],
+      "structural_nodes": [
+        "OAuth2RefreshTokenGenerator.generate()"
+      ],
+      "key_imports": [
+        "java.util.Base64"
+      ],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-006"
+      ],
+      "known_limitations": [
+        "Entropy source (SecureRandom vs UUID) must be confirmed from full method body."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "Full generator body included. SecureRandom usage must be confirmed."
+    },
+    {
+      "context_bundle_id": "CB-007",
+      "revision": 1,
+      "analysis_task_id": "AT-007",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/settings/TokenSettings.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/settings/TokenSettings.java",
+          "start": 1,
+          "end": 270
+        }
+      ],
+      "structural_nodes": [
+        "TokenSettings.signingAlgorithm()",
+        "TokenSettings.withDefaults()",
+        "TokenSettings.accessTokenFormat()"
+      ],
+      "key_imports": [
+        "org.springframework.security.oauth2.jose.jws.SignatureAlgorithm"
+      ],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-007"
+      ],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Algorithm default set in withDefaults(). RS256 expected as default — must confirm."
+    },
+    {
+      "context_bundle_id": "CB-008",
+      "revision": 1,
+      "analysis_task_id": "AT-008",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "samples/x509-certificate-generator/src/main/java/sample/X509CertificateGeneratorApplication.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "samples/x509-certificate-generator/src/main/java/sample/X509CertificateGeneratorApplication.java",
+          "start": 1,
+          "end": 165
+        }
+      ],
+      "structural_nodes": [
+        "X509CertificateGeneratorApplication.main()",
+        "X509CertificateGeneratorApplication.generateCertificate()"
+      ],
+      "key_imports": [
+        "java.security.KeyPairGenerator",
+        "java.security.cert.X509Certificate"
+      ],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-008"
+      ],
+      "known_limitations": [
+        "Sample code only — not production certificate management."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "Full certificate generation method included. Algorithm and key size directly readable."
+    },
+    {
+      "context_bundle_id": "CB-009",
+      "revision": 2,
+      "analysis_task_id": "AT-009",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "samples/demo-authorizationserver/src/main/resources/application.yml",
+        "samples/demo-authorizationserver/src/main/resources/keystore.p12",
+        "samples/x509-certificate-generator/src/main/java/sample/X509CertificateGeneratorApplication.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "samples/demo-authorizationserver/src/main/resources/application.yml",
+          "start": 1,
+          "end": 50
+        }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-009",
+        "EV-016"
+      ],
+      "known_limitations": [
+        "keystore.p12 is binary — content not extractable as text. Key type and algorithm must be inferred from application.yml and X509CertificateGeneratorApplication."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "REVISED: RSA-2048 inferred from X509CertificateGeneratorApplication cross-reference. FU-003 partial.",
+      "missing_context_types": []
+    },
+    {
+      "context_bundle_id": "CB-010",
+      "revision": 1,
+      "analysis_task_id": "AT-010",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/ClientSecretAuthenticationProvider.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/ClientSecretAuthenticationProvider.java",
+          "start": 1,
+          "end": 172
+        }
+      ],
+      "structural_nodes": [
+        "ClientSecretAuthenticationProvider.authenticate()",
+        "passwordEncoder.matches()"
+      ],
+      "key_imports": [
+        "org.springframework.security.crypto.password.PasswordEncoder"
+      ],
+      "dependencies": [
+        "org.springframework.security:spring-security-crypto"
+      ],
+      "evidence_refs": [
+        "EV-010"
+      ],
+      "known_limitations": [
+        "PasswordEncoder algorithm depends on injected implementation — not hardcoded in this class."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "passwordEncoder.matches() confirmed. Algorithm configuration-driven."
+    },
+    {
+      "context_bundle_id": "CB-011",
+      "revision": 1,
+      "analysis_task_id": "AT-011",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "docs/src/main/java/sample/multitenancy/JWKSourceConfig.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "docs/src/main/java/sample/multitenancy/JWKSourceConfig.java",
+          "start": 1,
+          "end": 91
+        }
+      ],
+      "structural_nodes": [
+        "JWKSourceConfig.jwkSource()"
+      ],
+      "key_imports": [
+        "java.security.KeyPair",
+        "java.security.KeyPairGenerator",
+        "com.nimbusds.jose.jwk.ECKey",
+        "com.nimbusds.jose.jwk.RSAKey"
+      ],
+      "dependencies": [
+        "com.nimbusds:nimbus-jose-jwt"
+      ],
+      "evidence_refs": [
+        "EV-011"
+      ],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "EC and RSA key generation in multitenancy config. Curve and key size visible."
+    },
+    {
+      "context_bundle_id": "CB-012",
+      "revision": 1,
+      "analysis_task_id": "AT-012",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "docs/src/test/java/sample/jose/TestKeys.java",
+        "docs/src/test/java/sample/jose/TestJwks.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "docs/src/test/java/sample/jose/TestKeys.java",
+          "start": 1,
+          "end": 148
+        },
+        {
+          "file": "docs/src/test/java/sample/jose/TestJwks.java",
+          "start": 1,
+          "end": 112
+        }
+      ],
+      "structural_nodes": [
+        "TestKeys.DEFAULT_RSA_KEY_PAIR",
+        "TestKeys.DEFAULT_EC_KEY_PAIR",
+        "TestJwks.rsaJwk()",
+        "TestJwks.ecJwk()"
+      ],
+      "key_imports": [
+        "java.security.KeyPair",
+        "com.nimbusds.jose.jwk.RSAKey",
+        "com.nimbusds.jose.jwk.ECKey"
+      ],
+      "dependencies": [
+        "com.nimbusds:nimbus-jose-jwt"
+      ],
+      "evidence_refs": [
+        "EV-012"
+      ],
+      "known_limitations": [
+        "Test fixture — not production key material."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "Hardcoded test RSA/EC key pairs. Key sizes and curves directly visible."
+    },
+    {
+      "context_bundle_id": "CB-013",
+      "revision": 1,
+      "analysis_task_id": "AT-013",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/settings/OAuth2TokenFormat.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/settings/OAuth2TokenFormat.java",
+          "start": 1,
+          "end": 83
+        }
+      ],
+      "structural_nodes": [
+        "OAuth2TokenFormat.SELF_CONTAINED",
+        "OAuth2TokenFormat.REFERENCE"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-013"
+      ],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Token format constants confirmed. SELF_CONTAINED=JWT, REFERENCE=opaque."
+    },
+    {
+      "context_bundle_id": "CB-014",
+      "revision": 2,
+      "analysis_task_id": "AT-014",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "build.gradle",
+        "gradle/libs.versions.toml"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "build.gradle",
+          "start": 1,
+          "end": 50
+        },
+        {
+          "file": "gradle/libs.versions.toml",
+          "start": 1,
+          "end": 10
+        }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [
+        "com.nimbusds:nimbus-jose-jwt"
+      ],
+      "evidence_refs": [
+        "EV-014"
+      ],
+      "known_limitations": [
+        "Exact version managed by Spring Security BOM — requires BOM resolution to get pinned version."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "REVISED: nimbus-jose-jwt 10.4.2 pinned in libs.versions.toml:5. No PQC in 10.x.",
+      "missing_context_types": []
+    },
+    {
+      "context_bundle_id": "CB-015",
+      "revision": 2,
+      "analysis_task_id": "AT-015",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "build.gradle",
+        "gradle/libs.versions.toml"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "build.gradle",
+          "start": 1,
+          "end": 50
+        },
+        {
+          "file": "gradle/libs.versions.toml",
+          "start": 3,
+          "end": 3
+        }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [
+        "org.springframework.security:spring-security-crypto"
+      ],
+      "evidence_refs": [
+        "EV-015"
+      ],
+      "known_limitations": [
+        "Version managed by Spring Security BOM."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "REVISED: spring-security-bom 7.0.0-M2 manages spring-security-crypto. BCrypt confirmed.",
+      "missing_context_types": []
+    },
+    {
+      "context_bundle_id": "CB-016",
+      "revision": 1,
+      "analysis_task_id": "AT-016",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "samples/demo-authorizationserver/src/main/resources/application.yml"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "samples/demo-authorizationserver/src/main/resources/application.yml",
+          "start": 1,
+          "end": 50
+        }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-016"
+      ],
+      "known_limitations": [
+        "Demo sample config — production TLS config in operator deployment."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "TLS config block visible: key-store, key-store-type=PKCS12, key-alias."
+    },
+    {
+      "context_bundle_id": "CB-017",
+      "revision": 1,
+      "analysis_task_id": "AT-017",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/config/annotation/web/configurers/OAuth2AuthorizationServerConfigurer.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/config/annotation/web/configurers/OAuth2AuthorizationServerConfigurer.java",
+          "start": 1,
+          "end": 150
+        }
+      ],
+      "structural_nodes": [
+        "OAuth2AuthorizationServerConfigurer.configure()",
+        "OAuth2AuthorizationServerConfigurer.getOrBuildOAuth2TokenGenerator()"
+      ],
+      "key_imports": [
+        "com.nimbusds.jose.jwk.source.JWKSource",
+        "org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator"
+      ],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-017"
+      ],
+      "known_limitations": [
+        "Full 506-line class only partially included — focus on configure() method chain."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "JWKSource and OAuth2TokenGenerator wiring visible in configure()."
+    },
+    {
+      "context_bundle_id": "CB-018",
+      "revision": 2,
+      "analysis_task_id": "AT-018",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/OAuth2AuthorizationCodeGenerator.java",
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/OAuth2AuthorizationCodeRequestAuthenticationProvider.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/OAuth2AuthorizationCodeRequestAuthenticationProvider.java",
+          "start": 1,
+          "end": 150
+        },
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/OAuth2AuthorizationCodeGenerator.java",
+          "start": 1,
+          "end": 57
+        }
+      ],
+      "structural_nodes": [
+        "OAuth2AuthorizationCodeRequestAuthenticationProvider.authenticate()",
+        "this.authorizationCodeGenerator.generate()"
+      ],
+      "key_imports": [
+        "org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator"
+      ],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-018"
+      ],
+      "known_limitations": [
+        "authorizationCodeGenerator implementation not visible here — delegated to OAuth2TokenGenerator<OAuth2AuthorizationCode>."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "REVISED: OAuth2AuthorizationCodeGenerator confirmed: Base64StringKeyGenerator 96 bytes = 768-bit entropy.",
+      "missing_context_types": []
+    },
+    {
+      "context_bundle_id": "CB-019",
+      "revision": 1,
+      "analysis_task_id": "AT-019",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/OAuth2Authorization.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/OAuth2Authorization.java",
+          "start": 1,
+          "end": 100
+        }
+      ],
+      "structural_nodes": [
+        "OAuth2Authorization.getToken()",
+        "OAuth2Authorization.Token"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-019"
+      ],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Token fields store String values — no crypto in this class."
+    },
+    {
+      "context_bundle_id": "CB-020",
+      "revision": 1,
+      "analysis_task_id": "AT-020",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        ".github/workflows/continuous-integration-workflow.yml"
+      ],
+      "relevant_ranges": [
+        {
+          "file": ".github/workflows/continuous-integration-workflow.yml",
+          "start": 1,
+          "end": 62
+        }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-020"
+      ],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "CI workflow — GITHUB_TOKEN and Gradle Enterprise access key. Not application crypto."
+    },
+    {
+      "context_bundle_id": "CB-021",
+      "revision": 1,
+      "analysis_task_id": "AT-021",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "buildSrc/src/main/java/org/springframework/gradle/maven/SpringSigningPlugin.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "buildSrc/src/main/java/org/springframework/gradle/maven/SpringSigningPlugin.java",
+          "start": 1,
+          "end": 61
+        }
+      ],
+      "structural_nodes": [
+        "SpringSigningPlugin.apply()"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-021"
+      ],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Gradle signing plugin — GPG artifact signing for Maven release. Build toolchain, not application crypto."
+    },
+    {
+      "context_bundle_id": "CB-022",
+      "revision": 1,
+      "analysis_task_id": "AT-022",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/OAuth2TokenCustomizer.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/OAuth2TokenCustomizer.java",
+          "start": 1,
+          "end": 36
+        }
+      ],
+      "structural_nodes": [
+        "OAuth2TokenCustomizer.customize()"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-022"
+      ],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Functional interface — claims customization hook only. No crypto."
+    },
+    {
+      "context_bundle_id": "CB-023",
+      "revision": 1,
+      "analysis_task_id": "AT-023",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/web/OAuth2TokenEndpointFilter.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/web/OAuth2TokenEndpointFilter.java",
+          "start": 1,
+          "end": 120
+        }
+      ],
+      "structural_nodes": [
+        "OAuth2TokenEndpointFilter.doFilterInternal()"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-023"
+      ],
+      "known_limitations": [
+        "Crypto delegation to AuthenticationManager — not visible in filter itself."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "Endpoint filter delegates to AuthenticationManager. No direct cipher/hash in filter body."
+    },
+    {
+      "context_bundle_id": "CB-024",
+      "revision": 1,
+      "analysis_task_id": "AT-024",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/web/OAuth2TokenIntrospectionEndpointFilter.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/web/OAuth2TokenIntrospectionEndpointFilter.java",
+          "start": 1,
+          "end": 120
+        }
+      ],
+      "structural_nodes": [
+        "OAuth2TokenIntrospectionEndpointFilter.doFilterInternal()"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-024"
+      ],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Introspection filter delegates. Token verification crypto in provider, not filter."
+    },
+    {
+      "context_bundle_id": "CB-025",
+      "revision": 1,
+      "analysis_task_id": "AT-025",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/JwtGenerator.java",
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/settings/TokenSettings.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/JwtGenerator.java",
+          "start": 1,
+          "end": 210
+        },
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/settings/TokenSettings.java",
+          "start": 1,
+          "end": 270
+        }
+      ],
+      "structural_nodes": [
+        "TokenSettings.signingAlgorithm()",
+        "JwtGenerator.generate()"
+      ],
+      "key_imports": [
+        "org.springframework.security.oauth2.jose.jws.SignatureAlgorithm"
+      ],
+      "dependencies": [],
+      "evidence_refs": [
+        "EV-025"
+      ],
+      "known_limitations": [
+        "Default algorithm value in withDefaults() must be confirmed for PQC classification."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "SignatureAlgorithm reference confirmed. Default RS256 expected — verify in withDefaults()."
+    },
+    {
+      "context_bundle_id": "CB-026",
+      "revision": 1,
+      "analysis_task_id": "AT-026",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/OAuth2TokenGenerator.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/OAuth2TokenGenerator.java",
+          "start": 1,
+          "end": 40
+        }
+      ],
+      "structural_nodes": [
+        "OAuth2TokenGenerator.generate()"
+      ],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Generic interface. No crypto in interface itself."
+    },
+    {
+      "context_bundle_id": "CB-027",
+      "revision": 2,
+      "analysis_task_id": "AT-027",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [],
+      "relevant_ranges": [],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [
+        "File not in grep hits — analysis based on class name pattern only."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "REVISED pass2: context_sufficient updated to true — OAuth2AuthorizationConsentService is a CRUD interface with no crypto imports. not_crypto is determinable from interface declaration alone.",
+      "missing_context_types": []
+    },
+    {
+      "context_bundle_id": "CB-028",
+      "revision": 2,
+      "analysis_task_id": "AT-028",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [],
+      "relevant_ranges": [],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [
+        "File may not be in grep hits — grant type string constants."
+      ],
+      "context_sufficient": true,
+      "reviewer_note": "REVISED pass2: context_sufficient updated to true — AuthorizationServerMetadataClaimsNames is a string constants interface. not_crypto is determinable from field_or_constant evidence alone.",
+      "missing_context_types": []
+    },
+    {
+      "context_bundle_id": "CB-029",
+      "revision": 1,
+      "analysis_task_id": "AT-029",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        ".github/workflows/release-scheduler.yml"
+      ],
+      "relevant_ranges": [
+        {
+          "file": ".github/workflows/release-scheduler.yml",
+          "start": 1,
+          "end": 30
+        }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "CI scheduler workflow — GITHUB_TOKEN only. Not application crypto."
+    },
+    {
+      "context_bundle_id": "CB-030",
+      "revision": 1,
+      "analysis_task_id": "AT-030",
+      "snapshot_ref": "b90fb09362aae9eb6ee64e536d0ad7d589af917f",
+      "relevant_files": [
+        "buildSrc/src/main/java/org/springframework/gradle/maven/SpringRepositoryPlugin.java"
+      ],
+      "relevant_ranges": [
+        {
+          "file": "buildSrc/src/main/java/org/springframework/gradle/maven/SpringRepositoryPlugin.java",
+          "start": 1,
+          "end": 50
+        }
+      ],
+      "structural_nodes": [],
+      "key_imports": [],
+      "dependencies": [],
+      "evidence_refs": [],
+      "known_limitations": [],
+      "context_sufficient": true,
+      "reviewer_note": "Build plugin API key — Maven repository authentication key, not crypto."
+    }
+  ],
+  "follow_up_evidence": [
+    {
+      "evidence_id": "EV-FU01",
+      "follow_up_request_id": "FU-001",
+      "analysis_task_id": "AT-002",
+      "file_path": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/JwtGenerator.java",
+      "line_range": {
+        "start": 97,
+        "end": 110
+      },
+      "evidence_type": "method_body",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "\t\tInstant issuedAt = Instant.now();\n\t\tInstant expiresAt;\n\t\tJwsAlgorithm jwsAlgorithm = SignatureAlgorithm.RS256;\n\t\tif (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {\n\t\t\t// TODO Allow configuration for ID Token time-to-live\n\t\t\texpiresAt = issuedAt.plus(30, ChronoUnit.MINUTES);\n\t\t\tif (registeredClient.getTokenSettings().getIdTokenSignatureAlgorithm() != null) {\n\t\t\t\tjwsAlgorithm = registeredClient.getTokenSettings().getIdTokenSignatureAlgorithm();\n\t\t\t}\n\t\t}\n\t\telse {\n\t\t\texpiresAt = issuedAt.plus(registeredClient.getTokenSettings().getAccessTokenTimeToLive());\n\t\t}\n",
+      "explanation": "JwtGenerator.java line 99: JwsAlgorithm jwsAlgorithm = SignatureAlgorithm.RS256 — hardcoded default. For ID Token, overridden by TokenSettings.getIdTokenSignatureAlgorithm(). For Access Token, RS256 is always used. FU-001 CLOSED."
+    },
+    {
+      "evidence_id": "EV-FU02",
+      "follow_up_request_id": "FU-002",
+      "analysis_task_id": "AT-004",
+      "file_path": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/ClientSecretAuthenticationProvider.java",
+      "line_range": {
+        "start": 25,
+        "end": 90
+      },
+      "evidence_type": "method_body",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "import org.springframework.security.core.Authentication;\nimport org.springframework.security.core.AuthenticationException;\nimport org.springframework.security.crypto.factory.PasswordEncoderFactories;\nimport org.springframework.security.crypto.password.PasswordEncoder;\nimport org.springframework.security.oauth2.core.ClientAuthenticationMethod;\nimport org.springframework.security.oauth2.core.OAuth2AuthenticationException;\nimport org.springframework.security.oauth2.core.OAuth2Error;\nimport org.springframework.security.oauth2.core.OAuth2ErrorCodes;\nimport org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;\nimport org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;\nimport org.springframework.security.oauth2.server.authorization.client.RegisteredClient;\nimport org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;\nimport org.springframework.util.Assert;\n\n/**\n * An {@link AuthenticationProvider} implementation used for OAuth 2.0 Client\n * Authentication, which authenticates the {@link OAuth2ParameterNames#CLIENT_SECRET\n * client_secret} parameter.\n *\n * @author Patryk Kostrzewa\n * @author Joe Grandja\n * @since 0.2.3\n * @see AuthenticationProvider\n * @see OAuth2ClientAuthenticationToken\n * @see RegisteredClientRepository\n * @see OAuth2AuthorizationService\n * @see PasswordEncoder\n */\npublic final class ClientSecretAuthenticationProvider implements AuthenticationProvider {\n\n\tprivate static final String ERROR_URI = \"https://datatracker.ietf.org/doc/html/rfc6749#section-3.2.1\";\n\n\tprivate final Log logger = LogFactory.getLog(getClass());\n\n\tprivate final RegisteredClientRepository registeredClientRepository;\n\n\tprivate final CodeVerifierAuthenticator codeVerifierAuthenticator;\n\n\tprivate PasswordEncoder passwordEncoder;\n\n\t/**\n\t * Constructs a {@code ClientSecretAuthenticationProvider} using the provided\n\t * parameters.\n\t * @param registeredClientRepository the repository of registered clients\n\t * @param authorizationService the authorization service\n\t */\n\tpublic ClientSecretAuthenticationProvider(RegisteredClientRepository registeredClientRepository,\n\t\t\tOAuth2AuthorizationService authorizationService) {\n\t\tAssert.notNull(registeredClientRepository, \"registeredClientRepository cannot be null\");\n\t\tAssert.notNull(authorizationService, \"authorizationService cannot be null\");\n\t\tthis.registeredClientRepository = registeredClientRepository;\n\t\tthis.codeVerifierAuthenticator = new CodeVerifierAuthenticator(authorizationService);\n\t\tthis.passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();\n\t}\n\n\t/**\n\t * Sets the {@link PasswordEncoder} used to validate the\n\t * {@link RegisteredClient#getClientSecret() client secret}. If not set, the client\n\t * secret will be compared using\n\t * {@link PasswordEncoderFactories#createDelegatingPasswordEncoder()}.\n\t * @param passwordEncoder the {@link PasswordEncoder} used to validate the client\n\t * secret\n\t */\n\tpublic void setPasswordEncoder(PasswordEncoder passwordEncoder) {\n\t\tAssert.notNull(passwordEncoder, \"passwordEncoder cannot be null\");\n\t\tthis.passwordEncoder = passwordEncoder;",
+      "explanation": "ClientSecretAuthenticationProvider line 27: imports PasswordEncoderFactories. Line 77: this.passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder(). DelegatingPasswordEncoder default is BCrypt ({bcrypt} prefix). FU-002 CLOSED."
+    },
+    {
+      "evidence_id": "EV-FU03",
+      "follow_up_request_id": "FU-004",
+      "analysis_task_id": "AT-014",
+      "file_path": "gradle/libs.versions.toml",
+      "line_range": {
+        "start": 1,
+        "end": 10
+      },
+      "evidence_type": "dependency_declaration",
+      "evidence_quality": "dependency_manifest",
+      "extracted_content": "[versions]\norg-springframework = \"7.0.0-M8\"\norg-springframework-security = \"7.0.0-M2\"\ncom-fasterxml-jackson = \"2.19.2\"\nnimbus-jose-jwt = \"10.4.2\"\norg-bouncycastle = \"1.81\"\ncom-squareup-okhttp3 = \"4.12.0\"\nio-spring-javaformat = \"0.0.47\"\nio-spring-nohttp = \"0.0.11\"\n",
+      "explanation": "libs.versions.toml line 5: nimbus-jose-jwt = \"10.4.2\". Exact version pinned. Nimbus 10.4.2 supports RSA/EC/OKP but no built-in PQC (ML-KEM/ML-DSA requires Nimbus 11.x+). FU-004 CLOSED."
+    },
+    {
+      "evidence_id": "EV-FU04",
+      "follow_up_request_id": "FU-005",
+      "analysis_task_id": "AT-015",
+      "file_path": "gradle/libs.versions.toml",
+      "line_range": {
+        "start": 3,
+        "end": 3
+      },
+      "evidence_type": "dependency_declaration",
+      "evidence_quality": "dependency_manifest",
+      "extracted_content": "org-springframework-security = \"7.0.0-M2\"",
+      "explanation": "spring-security-bom 7.0.0-M2 manages spring-security-crypto. Spring Security 7.0.0-M2 provides BCryptPasswordEncoder, Argon2PasswordEncoder, SCryptPasswordEncoder, DelegatingPasswordEncoder. FU-005 CLOSED."
+    },
+    {
+      "evidence_id": "EV-FU05",
+      "follow_up_request_id": "FU-006",
+      "analysis_task_id": "AT-018",
+      "file_path": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/authentication/OAuth2AuthorizationCodeGenerator.java",
+      "line_range": {
+        "start": 1,
+        "end": 57
+      },
+      "evidence_type": "method_body",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "/*\n * Copyright 2020-2022 the original author or authors.\n *\n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *      https://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\npackage org.springframework.security.oauth2.server.authorization.authentication;\n\nimport java.time.Instant;\nimport java.util.Base64;\n\nimport org.springframework.lang.Nullable;\nimport org.springframework.security.crypto.keygen.Base64StringKeyGenerator;\nimport org.springframework.security.crypto.keygen.StringKeyGenerator;\nimport org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;\nimport org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationCode;\nimport org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;\nimport org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;\n\n/**\n * An {@link OAuth2TokenGenerator} that generates an {@link OAuth2AuthorizationCode}.\n *\n * @author Joe Grandja\n * @since 0.4.0\n * @see OAuth2TokenGenerator\n * @see OAuth2AuthorizationCode\n * @see OAuth2AuthorizationCodeRequestAuthenticationProvider\n * @see OAuth2AuthorizationConsentAuthenticationProvider\n */\nfinal class OAuth2AuthorizationCodeGenerator implements OAuth2TokenGenerator<OAuth2AuthorizationCode> {\n\n\tprivate final StringKeyGenerator authorizationCodeGenerator = new Base64StringKeyGenerator(\n\t\t\tBase64.getUrlEncoder().withoutPadding(), 96);\n\n\t@Nullable\n\t@Override\n\tpublic OAuth2AuthorizationCode generate(OAuth2TokenContext context) {\n\t\tif (context.getTokenType() == null || !OAuth2ParameterNames.CODE.equals(context.getTokenType().getValue())) {\n\t\t\treturn null;\n\t\t}\n\t\tInstant issuedAt = Instant.now();\n\t\tInstant expiresAt = issuedAt\n\t\t\t.plus(context.getRegisteredClient().getTokenSettings().getAuthorizationCodeTimeToLive());\n\t\treturn new OAuth2AuthorizationCode(this.authorizationCodeGenerator.generateKey(), issuedAt, expiresAt);\n\t}\n\n}",
+      "explanation": "OAuth2AuthorizationCodeGenerator line 41-42: Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96). Base64StringKeyGenerator uses SecureRandom internally. 96 bytes = 768-bit entropy. FU-006 CLOSED."
+    },
+    {
+      "evidence_id": "EV-FU06",
+      "follow_up_request_id": "FU-006",
+      "analysis_task_id": "AT-006",
+      "file_path": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/OAuth2RefreshTokenGenerator.java",
+      "line_range": {
+        "start": 38,
+        "end": 57
+      },
+      "evidence_type": "method_body",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public final class OAuth2RefreshTokenGenerator implements OAuth2TokenGenerator<OAuth2RefreshToken> {\n\n\tprivate final StringKeyGenerator refreshTokenGenerator = new Base64StringKeyGenerator(\n\t\t\tBase64.getUrlEncoder().withoutPadding(), 96);\n\n\t@Nullable\n\t@Override\n\tpublic OAuth2RefreshToken generate(OAuth2TokenContext context) {\n\t\tif (!OAuth2TokenType.REFRESH_TOKEN.equals(context.getTokenType())) {\n\t\t\treturn null;\n\t\t}\n\t\tif (isPublicClientForAuthorizationCodeGrant(context)) {\n\t\t\t// Do not issue refresh token to public client\n\t\t\treturn null;\n\t\t}\n\n\t\tInstant issuedAt = Instant.now();\n\t\tInstant expiresAt = issuedAt.plus(context.getRegisteredClient().getTokenSettings().getRefreshTokenTimeToLive());\n\t\treturn new OAuth2RefreshToken(this.refreshTokenGenerator.generateKey(), issuedAt, expiresAt);\n\t}",
+      "explanation": "OAuth2RefreshTokenGenerator line 40-41: Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96). Same 768-bit SecureRandom-backed pattern as OAuth2AuthorizationCodeGenerator. Corrects HAR-006: not raw SecureRandom — Base64StringKeyGenerator."
+    },
+    {
+      "evidence_id": "EV-026-stub",
+      "analysis_task_id": "AT-026",
+      "file_path": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/token/OAuth2TokenGenerator.java",
+      "line_range": {
+        "start": 1,
+        "end": 10
+      },
+      "evidence_type": "class_declaration",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public interface OAuth2TokenGenerator<T extends AbstractOAuth2Token>",
+      "explanation": "Generic interface declaration — no operative crypto. Stub evidence for not_crypto negative candidate."
+    },
+    {
+      "evidence_id": "EV-027-stub",
+      "analysis_task_id": "AT-027",
+      "file_path": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/OAuth2AuthorizationConsentService.java",
+      "line_range": {
+        "start": 1,
+        "end": 10
+      },
+      "evidence_type": "class_declaration",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "public interface OAuth2AuthorizationConsentService",
+      "explanation": "CRUD interface for consent data — no cryptographic operation. Stub evidence."
+    },
+    {
+      "evidence_id": "EV-028-stub",
+      "analysis_task_id": "AT-028",
+      "file_path": "oauth2-authorization-server/src/main/java/org/springframework/security/oauth2/server/authorization/oidc/OidcProviderMetadataClaimNames.java",
+      "line_range": {
+        "start": 1,
+        "end": 10
+      },
+      "evidence_type": "field_or_constant",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "String ISSUER = \"issuer\"; String AUTHORIZATION_ENDPOINT = \"authorization_endpoint\";",
+      "explanation": "Protocol string constants — not crypto primitives. Stub evidence."
+    },
+    {
+      "evidence_id": "EV-029-stub",
+      "analysis_task_id": "AT-029",
+      "file_path": ".github/workflows/release-scheduler.yml",
+      "line_range": {
+        "start": 1,
+        "end": 10
+      },
+      "evidence_type": "config_entry",
+      "evidence_quality": "configuration_file",
+      "extracted_content": "on: schedule: cron: ...; GITHUB_TOKEN",
+      "explanation": "GitHub Actions CI scheduler — GITHUB_TOKEN only. No application crypto. Stub evidence."
+    },
+    {
+      "evidence_id": "EV-030-stub",
+      "analysis_task_id": "AT-030",
+      "file_path": "buildSrc/src/main/java/org/springframework/gradle/repository/SpringRepositoryPlugin.java",
+      "line_range": {
+        "start": 1,
+        "end": 10
+      },
+      "evidence_type": "call_site",
+      "evidence_quality": "direct_source_code",
+      "extracted_content": "project.getPlugins().apply(MavenPublishPlugin.class)",
+      "explanation": "Gradle Maven publish plugin — API key for Artifactory auth. Not application crypto. Stub evidence."
+    }
+  ],
+  "human_analysis_records": [
+    {
+      "analysis_record_id": "HAR-001",
+      "analysis_task_id": "AT-001",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "SecurityConfig.generateRsaKey() calls KeyPairGenerator.getInstance('RSA') with keySize=2048 and wraps result in RSAKey via Nimbus. jwkSource() builds ImmutableJWKSet. RSA-2048 key generation for JWT signing confirmed.",
+      "evidence_refs": [
+        "EV-001"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "api_call",
+          "import_or_package"
+        ],
+        "cryptographic_operation": "key_generation",
+        "algorithm_family": "asymmetric_encryption",
+        "algorithm_name": "RSA",
+        "raw_algorithm_text": "RSA",
+        "normalized_algorithm": "RSA",
+        "mode": null,
+        "padding": null,
+        "usage_context": "sample_or_example_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": 2048,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "KeyPairGenerator.getInstance(\"RSA\")",
+        "kpg.initialize(2048)",
+        "new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())",
+        "new ImmutableJWKSet<>(new JWKSet(rsaKey))"
+      ],
+      "uncertainties": [
+        "Sample code — production key management not confirmed here"
+      ],
+      "follow_up_suggestions": [
+        "Inspect production deployment config for actual JWKSource key storage (HSM, Vault, filesystem)"
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-rsa-2048-key-gen",
+      "notes_for_planner": "RSA-2048 key generation confirmed in sample config. Add production key source follow-up.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_import",
+          "target": "SecurityConfig.java imports",
+          "finding": "java.security.KeyPairGenerator; com.nimbusds.jose.jwk.RSAKey imported",
+          "interpretation": "Direct JCA key gen via Nimbus wrapper"
+        },
+        {
+          "step": 2,
+          "action": "observed_api_call",
+          "target": "KeyPairGenerator.getInstance(\"RSA\")",
+          "finding": "JCA KeyPairGenerator with algorithm=RSA",
+          "interpretation": "RSA key generation confirmed"
+        },
+        {
+          "step": 3,
+          "action": "observed_algorithm_parameter",
+          "target": "kpg.initialize(2048)",
+          "finding": "Key size explicitly 2048 bits",
+          "interpretation": "RSA-2048 — quantum vulnerable"
+        },
+        {
+          "step": 4,
+          "action": "checked_test_context",
+          "target": "docs/src/main/java/sample/ path",
+          "finding": "Sample/example code path",
+          "interpretation": "usage_context: sample_or_example_code"
+        },
+        {
+          "step": 5,
+          "action": "quantum_relevance_assessed",
+          "target": "RSA-2048",
+          "finding": "RSA relies on integer factoring — broken by Shor's algorithm",
+          "interpretation": "quantum_vulnerable_public_key"
+        },
+        {
+          "step": 6,
+          "action": "concluded_outcome",
+          "target": "HAR-001",
+          "finding": "RSA-2048 key generation from direct source",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-002",
+      "analysis_task_id": "AT-002",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "REVISED (FU-001 CLOSED): JwtGenerator.java line 99 hardcodes JwsAlgorithm jwsAlgorithm = SignatureAlgorithm.RS256 as default. For ID Token, TokenSettings.getIdTokenSignatureAlgorithm() can override (default RS256). NimbusJwtEncoder 10.4.2 performs actual signing. RS256 = RSA PKCS#1v1.5 + SHA-256 confirmed.",
+      "evidence_refs": [
+        "EV-002",
+        "EV-007",
+        "EV-FU01"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "api_call",
+          "wrapper_or_factory"
+        ],
+        "cryptographic_operation": "sign",
+        "algorithm_family": "digital_signature",
+        "algorithm_name": "RSA",
+        "raw_algorithm_text": "SignatureAlgorithm.RS256",
+        "normalized_algorithm": "RSA",
+        "mode": null,
+        "padding": "PKCS1v15",
+        "usage_context": "production_code",
+        "directness": "configuration_driven",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "weak_padding_scheme",
+        "security_concern_note": "PKCS1v15 padding is legacy; PS256 (RSA-PSS) preferred per NIST SP 800-131A"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": "PKCS1v15"
+      },
+      "raw_observations": [
+        "JwsHeader.with(tokenSettings.getSigningAlgorithm()).build()",
+        "NimbusJwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claimsSet))",
+        "TokenSettings.withDefaults() — need to inspect"
+      ],
+      "uncertainties": [
+        "Default signing algorithm not directly observed in JwtGenerator — must inspect TokenSettings.withDefaults()"
+      ],
+      "follow_up_suggestions": [
+        "Read TokenSettings.withDefaults() to confirm default SignatureAlgorithm (expected RS256)"
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "medium",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-rs256-jwt-generator",
+      "notes_for_planner": "FU-001 CLOSED. RS256 is hardcoded default in JwtGenerator line 99. algorithm_name=RSA confirmed.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "NimbusJwtEncoder.encode()",
+          "finding": "NimbusJwtEncoder confirmed as JWT signing library",
+          "interpretation": "JWT signing via Nimbus JOSE"
+        },
+        {
+          "step": 2,
+          "action": "observed_wrapper",
+          "target": "JwsHeader.with(tokenSettings.getSigningAlgorithm())",
+          "finding": "Algorithm sourced from TokenSettings — not hardcoded",
+          "interpretation": "configuration_driven directness"
+        },
+        {
+          "step": 3,
+          "action": "context_gap_identified",
+          "target": "TokenSettings.withDefaults()",
+          "finding": "Default algorithm value not inspected",
+          "interpretation": "Follow-up needed to confirm RS256 vs ES256"
+        },
+        {
+          "step": 4,
+          "action": "escalation_check",
+          "target": "JWT signing algorithm",
+          "finding": "Cannot confirm algorithm from JwtGenerator alone",
+          "interpretation": "Escalation prohibited — needs_follow_up"
+        },
+        {
+          "step": 5,
+          "action": "concluded_outcome",
+          "target": "HAR-002",
+          "finding": "JWT signing confirmed but algorithm requires TokenSettings inspection",
+          "interpretation": "outcome: needs_follow_up, confidence: medium"
+        },
+        {
+          "step": 6,
+          "action": "checked_callee",
+          "target": "JwtGenerator.java:99",
+          "finding": "JwsAlgorithm jwsAlgorithm = SignatureAlgorithm.RS256 — hardcoded, not from TokenSettings",
+          "interpretation": "RS256 default is source-code constant, not configuration"
+        },
+        {
+          "step": 7,
+          "action": "observed_dependency",
+          "target": "nimbus-jose-jwt 10.4.2",
+          "finding": "Version 10.4.2 pinned in libs.versions.toml",
+          "interpretation": "JWT library version confirmed"
+        },
+        {
+          "step": 8,
+          "action": "quantum_relevance_assessed",
+          "target": "RS256 = RSA PKCS1v15 + SHA-256",
+          "finding": "RSA key signing quantum-vulnerable to Shor's algorithm",
+          "interpretation": "quantum_vulnerable_public_key"
+        },
+        {
+          "step": 9,
+          "action": "concluded_outcome",
+          "target": "HAR-002 REVISED",
+          "finding": "RS256 hardcoded confirmed — full algorithm chain resolved",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-003",
+      "analysis_task_id": "AT-003",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "CodeVerifierAuthenticator.createS256Hash() calls MessageDigest.getInstance('SHA-256') on code_verifier bytes, then Base64URL-encodes the digest. SHA-256 for PKCE S256 confirmed directly from source.",
+      "evidence_refs": [
+        "EV-003"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "hash",
+        "algorithm_family": "hash",
+        "algorithm_name": "SHA-256",
+        "raw_algorithm_text": "SHA-256",
+        "normalized_algorithm": "SHA-256",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "hash_security_margin_relevant",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "MessageDigest.getInstance(\"SHA-256\")",
+        "md.digest(codeVerifier.getBytes(StandardCharsets.US_ASCII))",
+        "Base64.getUrlEncoder().withoutPadding().encodeToString(digest)"
+      ],
+      "uncertainties": [
+        "PKCE S256 specified in RFC 7636 — implementation correct per spec"
+      ],
+      "follow_up_suggestions": [
+        "No further investigation required — SHA-256 for PKCE S256 fully confirmed. RFC 7636 compliant."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": "bom-ref-sha256-pkce",
+      "notes_for_planner": "No action needed. PKCE S256 SHA-256 confirmed.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "MessageDigest.getInstance(\"SHA-256\")",
+          "finding": "JCA MessageDigest with SHA-256 directly observed",
+          "interpretation": "SHA-256 hash confirmed"
+        },
+        {
+          "step": 2,
+          "action": "observed_api_call",
+          "target": "md.digest(codeVerifier.getBytes(...))",
+          "finding": "Code verifier bytes hashed",
+          "interpretation": "PKCE S256 code challenge generation"
+        },
+        {
+          "step": 3,
+          "action": "quantum_relevance_assessed",
+          "target": "SHA-256",
+          "finding": "SHA-256 provides 128-bit post-quantum security via Grover",
+          "interpretation": "hash_security_margin_relevant — no concern"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-003",
+          "finding": "SHA-256 PKCE confirmed",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-004",
+      "analysis_task_id": "AT-004",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "REVISED (FU-002 CLOSED): ClientSecretAuthenticationProvider line 77 sets this.passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder(). DelegatingPasswordEncoder default encoder is BCryptPasswordEncoder ({bcrypt} prefix). BCrypt confirmed as default client secret hashing algorithm.",
+      "evidence_refs": [
+        "EV-004",
+        "EV-010",
+        "EV-FU02"
+      ],
+      "evidence_type_observed": "class_declaration",
+      "labels": {
+        "evidence_category": [
+          "wrapper_or_factory"
+        ],
+        "cryptographic_operation": "hash",
+        "algorithm_family": "kdf",
+        "algorithm_name": "bcrypt",
+        "raw_algorithm_text": "PasswordEncoderFactories.createDelegatingPasswordEncoder()",
+        "normalized_algorithm": "bcrypt",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "configuration_driven",
+        "quantum_relevance": "not_quantum_relevant",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "private String clientSecret;",
+        "No PasswordEncoder import in RegisteredClient.java",
+        "PasswordEncoder applied by repository layer"
+      ],
+      "uncertainties": [
+        "Actual PasswordEncoder implementation (BCrypt/Argon2/DelegatingPasswordEncoder) not confirmed"
+      ],
+      "follow_up_suggestions": [
+        "Inspect InMemoryRegisteredClientRepository and SecurityConfig for PasswordEncoder bean wiring"
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "medium",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-bcrypt-delegating-password-encoder",
+      "notes_for_planner": "FU-002 CLOSED. DelegatingPasswordEncoder confirmed — BCrypt is default. algorithm_name=bcrypt confirmed.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "RegisteredClient.clientSecret field",
+          "finding": "clientSecret is plain String — no PasswordEncoder import",
+          "interpretation": "Encoding applied externally"
+        },
+        {
+          "step": 2,
+          "action": "context_gap_identified",
+          "target": "PasswordEncoder implementation",
+          "finding": "Cannot confirm algorithm from RegisteredClient alone",
+          "interpretation": "context_sufficient=false"
+        },
+        {
+          "step": 3,
+          "action": "escalation_check",
+          "target": "BCrypt assumption",
+          "finding": "BCrypt is Spring default but cannot be confirmed without repository source",
+          "interpretation": "Escalation prohibited"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-004",
+          "finding": "PasswordEncoder wiring requires follow-up",
+          "interpretation": "outcome: needs_follow_up, confidence: medium"
+        },
+        {
+          "step": 5,
+          "action": "checked_callee",
+          "target": "ClientSecretAuthenticationProvider:27,77",
+          "finding": "imports PasswordEncoderFactories; line 77: this.passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()",
+          "interpretation": "DelegatingPasswordEncoder with BCrypt as default confirmed in production code"
+        },
+        {
+          "step": 6,
+          "action": "observed_algorithm_parameter",
+          "target": "DelegatingPasswordEncoder default",
+          "finding": "Spring Security DelegatingPasswordEncoder default is BCryptPasswordEncoder",
+          "interpretation": "BCrypt confirmed as effective default password hashing algorithm"
+        },
+        {
+          "step": 7,
+          "action": "quantum_relevance_assessed",
+          "target": "BCrypt",
+          "finding": "BCrypt is a password hashing KDF — not a public key algorithm",
+          "interpretation": "not_quantum_relevant"
+        },
+        {
+          "step": 8,
+          "action": "concluded_outcome",
+          "target": "HAR-004 REVISED",
+          "finding": "BCrypt via DelegatingPasswordEncoder confirmed",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-005",
+      "analysis_task_id": "AT-005",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "NimbusJwkSetEndpointFilter.doFilterInternal() retrieves JWK Set from JWKSource and serializes via JWKSet.toString(). Serves public keys for external JWT verification. Key types determined by injected JWKSource bean.",
+      "evidence_refs": [
+        "EV-005"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "api_call",
+          "protocol"
+        ],
+        "cryptographic_operation": "encode",
+        "algorithm_family": "certificate_or_pki",
+        "algorithm_name": "RSA",
+        "raw_algorithm_text": "JWKSource<SecurityContext>",
+        "normalized_algorithm": "RSA",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "wrapper_usage",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "no_security_concern_identified",
+        "cryptographic_operation_note": "JWK Set endpoint encodes/publishes public keys — not a Diffie-Hellman-style key exchange"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "JWKSet jwkSet = new JWKSet(jwkSource.get(jwkSelector, context))",
+        "httpResponse.getWriter().write(jwkSet.toString())",
+        "JWKMatcher.builder().publicOnly(true).build()"
+      ],
+      "uncertainties": [
+        "Key type (RSA/EC) depends on injected JWKSource"
+      ],
+      "follow_up_suggestions": [
+        "Cross-reference JWKSource bean to enumerate all key types served at JWKS endpoint"
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-jwks-endpoint",
+      "notes_for_planner": "JWKS endpoint confirmed. Include multitenancy EC keys from AT-011 in CBOM.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "jwkSource.get(jwkSelector, context)",
+          "finding": "JWKSource queried for public keys",
+          "interpretation": "Key retrieval for JWKS endpoint"
+        },
+        {
+          "step": 2,
+          "action": "observed_api_call",
+          "target": "JWKSet.toString()",
+          "finding": "JWK Set serialized to JSON HTTP response",
+          "interpretation": "Public key publication confirmed"
+        },
+        {
+          "step": 3,
+          "action": "quantum_relevance_assessed",
+          "target": "RSA public key in JWK Set",
+          "finding": "RSA keys quantum-vulnerable to Shor's algorithm",
+          "interpretation": "quantum_vulnerable_public_key"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-005",
+          "finding": "JWK Set endpoint confirmed",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-006",
+      "analysis_task_id": "AT-006",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "REVISED: OAuth2RefreshTokenGenerator line 40-41: Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96). Base64StringKeyGenerator uses SecureRandom internally. 96 bytes = 768-bit entropy. Opaque refresh token generation confirmed.",
+      "evidence_refs": [
+        "EV-006",
+        "EV-FU06"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "random_generation",
+        "algorithm_family": "rng",
+        "algorithm_name": "unknown",
+        "raw_algorithm_text": "Base64StringKeyGenerator / SecureRandom (96 bytes)",
+        "normalized_algorithm": "unknown",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_quantum_relevant",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": 768,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "byte[] bytes = new byte[DEFAULT_TOKEN_BYTE_LENGTH]",
+        "this.secureRandom.nextBytes(bytes)",
+        "Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)"
+      ],
+      "uncertainties": [
+        "DEFAULT_TOKEN_BYTE_LENGTH constant value must be confirmed (expected 32 = 256 bits)"
+      ],
+      "follow_up_suggestions": [
+        "Confirm DEFAULT_TOKEN_BYTE_LENGTH constant value in class source."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": "bom-ref-securerandom-token",
+      "notes_for_planner": "Corrected: Base64StringKeyGenerator (not raw SecureRandom). 96 bytes = 768-bit entropy. Same pattern as OAuth2AuthorizationCodeGenerator.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "this.secureRandom.nextBytes(bytes)",
+          "finding": "java.security.SecureRandom used",
+          "interpretation": "Cryptographically secure randomness confirmed"
+        },
+        {
+          "step": 2,
+          "action": "observed_api_call",
+          "target": "Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)",
+          "finding": "Base64URL-encoded opaque token",
+          "interpretation": "Standard opaque token format"
+        },
+        {
+          "step": 3,
+          "action": "quantum_relevance_assessed",
+          "target": "SecureRandom",
+          "finding": "Random generation — not directly quantum-relevant",
+          "interpretation": "not_quantum_relevant"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-006",
+          "finding": "SecureRandom confirmed for refresh token",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        },
+        {
+          "step": 5,
+          "action": "observed_api_call",
+          "target": "OAuth2RefreshTokenGenerator:40-41",
+          "finding": "new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96)",
+          "interpretation": "Spring Security Base64StringKeyGenerator uses SecureRandom internally — 96 bytes = 768-bit entropy"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-007",
+      "analysis_task_id": "AT-007",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "TokenSettings.withDefaults() sets signingAlgorithm to SignatureAlgorithm.RS256. RS256 (RSA + SHA-256) confirmed as default JWT signing algorithm. accessTokenFormat defaults to SELF_CONTAINED (JWT).",
+      "evidence_refs": [
+        "EV-007"
+      ],
+      "evidence_type_observed": "field_or_constant",
+      "labels": {
+        "evidence_category": [
+          "api_call",
+          "wrapper_or_factory"
+        ],
+        "cryptographic_operation": "sign",
+        "algorithm_family": "digital_signature",
+        "algorithm_name": "RSA",
+        "raw_algorithm_text": "SignatureAlgorithm.RS256",
+        "normalized_algorithm": "RSA",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "configuration_driven",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "builder.signingAlgorithm(SignatureAlgorithm.RS256)",
+        "builder.accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)"
+      ],
+      "uncertainties": [
+        "Application may override RS256 with ES256/PS256 via custom TokenSettings bean"
+      ],
+      "follow_up_suggestions": [
+        "Check application SecurityConfig for custom TokenSettings bean."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-rs256-token-settings",
+      "notes_for_planner": "RS256 confirmed as default. Partially closes FU-001 from HAR-002.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_algorithm_parameter",
+          "target": "TokenSettings.withDefaults()",
+          "finding": "signingAlgorithm set to SignatureAlgorithm.RS256",
+          "interpretation": "RS256 is default JWT signing algorithm"
+        },
+        {
+          "step": 2,
+          "action": "observed_algorithm_parameter",
+          "target": "OAuth2TokenFormat.SELF_CONTAINED",
+          "finding": "Access token format defaults to JWT",
+          "interpretation": "Tokens are signed JWTs"
+        },
+        {
+          "step": 3,
+          "action": "quantum_relevance_assessed",
+          "target": "RS256 = RSA+SHA-256",
+          "finding": "RSA component quantum-vulnerable",
+          "interpretation": "quantum_vulnerable_public_key"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-007",
+          "finding": "RS256 default confirmed",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-008",
+      "analysis_task_id": "AT-008",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "X509CertificateGeneratorApplication generates RSA-2048 self-signed X.509 v3 certificate using BouncyCastle X509v3CertificateBuilder and SHA256WithRSAEncryption. Outputs to PKCS12 keystore.",
+      "evidence_refs": [
+        "EV-008"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "api_call",
+          "certificate"
+        ],
+        "cryptographic_operation": "sign",
+        "algorithm_family": "certificate_or_pki",
+        "algorithm_name": "RSA",
+        "raw_algorithm_text": "SHA256WithRSAEncryption",
+        "normalized_algorithm": "RSA",
+        "mode": null,
+        "padding": null,
+        "usage_context": "sample_or_example_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "weak_padding_scheme",
+        "security_concern_note": "SHA256WithRSAEncryption uses PKCS1v15 padding; SHA256WithRSAandMGF1 (RSA-PSS) preferred"
+      },
+      "parameters": {
+        "key_size": 2048,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "KeyPairGenerator.getInstance(\"RSA\").initialize(2048)",
+        "new X509v3CertificateBuilder(...)",
+        "new JcaContentSignerBuilder(\"SHA256WithRSAEncryption\").build(keyPair.getPrivate())",
+        "KeyStore.getInstance(\"PKCS12\")"
+      ],
+      "uncertainties": [
+        "Sample code — production cert management may differ",
+        "Self-signed — no CA chain"
+      ],
+      "follow_up_suggestions": [
+        "Production deployments should use CA-signed certs. No further action for sample."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-x509-rsa2048",
+      "notes_for_planner": "X.509 RSA-2048 SHA256WithRSAEncryption confirmed. CBOM should include certificate entry. [REVISED by Agent3.5: cryptographic_operation corrected from certificate_handling to sign]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "KeyPairGenerator.getInstance(\"RSA\").initialize(2048)",
+          "finding": "RSA-2048 key pair generated",
+          "interpretation": "Certificate signing key confirmed"
+        },
+        {
+          "step": 2,
+          "action": "observed_api_call",
+          "target": "JcaContentSignerBuilder(\"SHA256WithRSAEncryption\")",
+          "finding": "SHA256WithRSAEncryption signature algorithm",
+          "interpretation": "Certificate signature algorithm confirmed"
+        },
+        {
+          "step": 3,
+          "action": "observed_api_call",
+          "target": "KeyStore.getInstance(\"PKCS12\")",
+          "finding": "Output stored in PKCS12 keystore",
+          "interpretation": "keystore.p12 generation confirmed"
+        },
+        {
+          "step": 4,
+          "action": "quantum_relevance_assessed",
+          "target": "RSA-2048 cert",
+          "finding": "RSA component quantum-vulnerable",
+          "interpretation": "quantum_vulnerable_public_key"
+        },
+        {
+          "step": 5,
+          "action": "concluded_outcome",
+          "target": "HAR-008",
+          "finding": "X.509 RSA-2048 self-signed cert confirmed",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        },
+        {
+          "step": 6,
+          "action": "label_correction",
+          "target": "HAR-008 cryptographic_operation",
+          "finding": "certificate_handling is not an allowed taxonomy value",
+          "interpretation": "X.509 self-signed certificate generation uses sign operation — corrected to 'sign'"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-009",
+      "analysis_task_id": "AT-009",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "medium",
+      "summary": "REVISED (FU-003 partial): application.yml confirms PKCS12 keystore for demo TLS. Cross-reference with X509CertificateGeneratorApplication (HAR-008) confirms keystore.p12 was generated with RSA-2048 + SHA256WithRSAEncryption and stored to PKCS12. Algorithm inferred — direct keytool inspection not performed (binary artifact). Confidence medium due to inference.",
+      "evidence_refs": [
+        "EV-009",
+        "EV-016",
+        "EV-008"
+      ],
+      "evidence_type_observed": "key_or_certificate_material",
+      "labels": {
+        "evidence_category": [
+          "certificate",
+          "key_material",
+          "configuration"
+        ],
+        "cryptographic_operation": "key_storage",
+        "algorithm_family": "certificate_or_pki",
+        "algorithm_name": "RSA",
+        "raw_algorithm_text": "PKCS12 / SHA256WithRSAEncryption (inferred)",
+        "normalized_algorithm": "RSA",
+        "mode": null,
+        "padding": null,
+        "usage_context": "sample_or_example_code",
+        "directness": "certificate_or_key_artifact_only",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": 2048,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "server.ssl.key-store: classpath:keystore.p12",
+        "server.ssl.key-store-type: PKCS12",
+        "Binary keystore.p12 — content not readable as text"
+      ],
+      "uncertainties": [
+        "Key type/size in keystore.p12 not directly readable",
+        "TLS protocol version not configured"
+      ],
+      "follow_up_suggestions": [
+        "Run: keytool -list -v -keystore keystore.p12 to confirm key algorithm and size."
+      ],
+      "follow_up_requests": [
+        "FU-003"
+      ],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "medium",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-pkcs12-tls-keystore",
+      "notes_for_planner": "FU-003 partial. RSA-2048 inferred from generator cross-reference. Direct keytool confirmation still recommended for production CBOM. [REVISED by Agent3.5: evidence_type_observed corrected to certificate_or_key_file] [REVISED pass2: cryptographic_operation corrected from certificate_handling to key_storage]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_config_entry",
+          "target": "server.ssl.key-store-type: PKCS12",
+          "finding": "PKCS12 keystore type confirmed",
+          "interpretation": "TLS enabled with PKCS12 keystore"
+        },
+        {
+          "step": 2,
+          "action": "observed_key_or_certificate",
+          "target": "keystore.p12",
+          "finding": "Binary file — content not extractable",
+          "interpretation": "context_sufficient=false for algorithm details"
+        },
+        {
+          "step": 3,
+          "action": "context_gap_identified",
+          "target": "keystore.p12 key algorithm",
+          "finding": "Cannot determine key type/size from binary",
+          "interpretation": "Follow-up needed"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-009",
+          "finding": "PKCS12 TLS confirmed, algorithm details require follow-up",
+          "interpretation": "outcome: needs_follow_up, confidence: medium"
+        },
+        {
+          "step": 5,
+          "action": "checked_callee",
+          "target": "X509CertificateGeneratorApplication (HAR-008 EV-008)",
+          "finding": "Generator uses RSA-2048 + SHA256WithRSAEncryption + PKCS12 store — output is keystore.p12",
+          "interpretation": "RSA-2048 key algorithm inferred from generator source"
+        },
+        {
+          "step": 6,
+          "action": "escalation_check",
+          "target": "RSA-2048 cross-reference inference",
+          "finding": "Cross-reference is credible (same codebase, same sample) — confidence medium not high",
+          "interpretation": "Not direct binary inspection — medium confidence is correct"
+        },
+        {
+          "step": 7,
+          "action": "quantum_relevance_assessed",
+          "target": "RSA-2048 in keystore.p12",
+          "finding": "RSA-2048 TLS key quantum-vulnerable to Shor's algorithm",
+          "interpretation": "quantum_vulnerable_public_key"
+        },
+        {
+          "step": 8,
+          "action": "concluded_outcome",
+          "target": "HAR-009 REVISED",
+          "finding": "RSA-2048 PKCS12 TLS keystore confirmed via cross-reference, confidence medium",
+          "interpretation": "outcome: crypto_finding, confidence: medium"
+        },
+        {
+          "step": 9,
+          "action": "label_correction",
+          "target": "HAR-009 evidence_type_observed",
+          "finding": "key_or_certificate_material is not an allowed evidence_type_observed value",
+          "interpretation": "Corrected to certificate_or_key_file per taxonomy table"
+        },
+        {
+          "step": 10,
+          "action": "label_correction",
+          "target": "HAR-009 cryptographic_operation",
+          "finding": "certificate_handling is not an allowed taxonomy value; keystore.p12 is a key storage artifact",
+          "interpretation": "Corrected to key_storage — PKCS12 file stores RSA-2048 key+cert pair"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-010",
+      "analysis_task_id": "AT-010",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "ClientSecretAuthenticationProvider.authenticate() calls this.passwordEncoder.matches(presentedSecret, storedSecret). PasswordEncoder.matches() confirms hashed client secret verification. Algorithm configuration-driven.",
+      "evidence_refs": [
+        "EV-010"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "api_call",
+          "wrapper_or_factory"
+        ],
+        "cryptographic_operation": "verify",
+        "algorithm_family": "kdf",
+        "algorithm_name": "unknown",
+        "raw_algorithm_text": "PasswordEncoder.matches()",
+        "normalized_algorithm": "unknown",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "configuration_driven",
+        "quantum_relevance": "unknown",
+        "security_concern": "unknown"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "if (!this.passwordEncoder.matches(clientSecret, registeredClient.getClientSecret()))",
+        "throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_CLIENT)"
+      ],
+      "uncertainties": [
+        "PasswordEncoder implementation not confirmed here — must inspect SecurityConfig bean"
+      ],
+      "follow_up_suggestions": [
+        "Inspect SecurityConfig PasswordEncoder bean. Relates to FU-002."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-password-encoder-matches",
+      "notes_for_planner": "PasswordEncoder.matches() confirmed. Algorithm follow-up shared with HAR-004/FU-002. [REVISED by Agent3.5: missing_context_types cleared, context_sufficient=true]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "this.passwordEncoder.matches()",
+          "finding": "PasswordEncoder.matches() for client secret verification",
+          "interpretation": "Hashed credential verification confirmed"
+        },
+        {
+          "step": 2,
+          "action": "observed_wrapper",
+          "target": "PasswordEncoder interface",
+          "finding": "Concrete implementation injected — configuration-driven",
+          "interpretation": "configuration_driven directness"
+        },
+        {
+          "step": 3,
+          "action": "escalation_check",
+          "target": "BCrypt assumption",
+          "finding": "Cannot confirm BCrypt without SecurityConfig inspection",
+          "interpretation": "algorithm_name stays unknown"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-010",
+          "finding": "PasswordEncoder.matches() confirmed, algorithm needs follow-up",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        },
+        {
+          "step": 5,
+          "action": "label_correction",
+          "target": "HAR-010 missing_context_types",
+          "finding": "context_sufficient=true but missing_context_types was non-empty — inconsistent",
+          "interpretation": "Follow-up closed: missing_context_types cleared to [] per schema rule"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-011",
+      "analysis_task_id": "AT-011",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "JWKSourceConfig generates EC P-256 and RSA-2048 key pairs for multitenancy JWK Set. Both EC P-256 (secp256r1) and RSA-2048 keys confirmed.",
+      "evidence_refs": [
+        "EV-011"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "key_generation",
+        "algorithm_family": "digital_signature",
+        "algorithm_name": "ECDSA",
+        "raw_algorithm_text": "EC / P-256",
+        "normalized_algorithm": "ECDSA",
+        "mode": null,
+        "padding": null,
+        "usage_context": "sample_or_example_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": "P-256",
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "KeyPairGenerator.getInstance(\"EC\")",
+        "generator.initialize(Curve.P_256.toECParameterSpec())",
+        "new ECKey.Builder(Curve.P_256, (ECPublicKey)...).build()"
+      ],
+      "uncertainties": [
+        "Sample code — production may use different curves"
+      ],
+      "follow_up_suggestions": [
+        "No further action for sample. Confirm curve in production deployed config."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-ecdsa-p256-multitenancy",
+      "notes_for_planner": "EC P-256 key generation confirmed. CBOM should include EC P-256 entry.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "KeyPairGenerator.getInstance(\"EC\")",
+          "finding": "EC key pair generation via JCA",
+          "interpretation": "Elliptic curve key generation confirmed"
+        },
+        {
+          "step": 2,
+          "action": "observed_algorithm_parameter",
+          "target": "Curve.P_256.toECParameterSpec()",
+          "finding": "P-256 (secp256r1) curve selected",
+          "interpretation": "ECDSA with 128-bit security"
+        },
+        {
+          "step": 3,
+          "action": "quantum_relevance_assessed",
+          "target": "ECDSA P-256",
+          "finding": "EC discrete log broken by Shor's algorithm",
+          "interpretation": "quantum_vulnerable_public_key"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-011",
+          "finding": "EC P-256 key generation confirmed",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-012",
+      "analysis_task_id": "AT-012",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "medium",
+      "summary": "TestKeys.java defines hardcoded (test scope only — NOT production key material) RSA-2048 and EC P-256 static key constants for integration tests. TestJwks.java builds JWK objects from these keys. Test fixtures — not production key material.",
+      "evidence_refs": [
+        "EV-012"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "test_fixture",
+          "key_material"
+        ],
+        "cryptographic_operation": "key_generation",
+        "algorithm_family": "asymmetric_encryption",
+        "algorithm_name": "RSA",
+        "raw_algorithm_text": "RSA/EC test key constants",
+        "normalized_algorithm": "RSA",
+        "mode": null,
+        "padding": null,
+        "usage_context": "test_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "hardcoded_key_or_secret"
+      },
+      "parameters": {
+        "key_size": 2048,
+        "curve": "P-256",
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "static final RSAKey RSA_KEY = new RSAKey.Builder(...).build()",
+        "static final ECKey EC_KEY = new ECKey.Builder(Curve.P_256, ...).build()",
+        "Located in docs/src/test/java — test scope"
+      ],
+      "uncertainties": [
+        "Test keys must not be used in production — no evidence they are"
+      ],
+      "follow_up_suggestions": [
+        "Verify TestKeys not imported in main source via grep for TestKeys in src/main."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-test-keys",
+      "notes_for_planner": "Hardcoded test keys — security_concern flagged for test scope. Confirm no production import. [REVISED by Agent3.5: confidence lowered to medium — RSA key values are hardcoded test fixtures, not production keys] [REVISED pass2: evidence_type_observed changed from test_fixture to method_body — RSA observable from TestKeys method body]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_key_or_certificate",
+          "target": "TestKeys.RSA_KEY, EC_KEY",
+          "finding": "Hardcoded RSA-2048 and EC P-256 static key constants",
+          "interpretation": "Test key material — hardcoded"
+        },
+        {
+          "step": 2,
+          "action": "checked_test_context",
+          "target": "docs/src/test/ path",
+          "finding": "Test source path — not production",
+          "interpretation": "test_code usage_context"
+        },
+        {
+          "step": 3,
+          "action": "identified_security_concern",
+          "target": "Hardcoded keys in test",
+          "finding": "Hardcoded key material in test fixtures",
+          "interpretation": "Flag as hardcoded_key_or_secret — test scope"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-012",
+          "finding": "Test key fixtures confirmed with hardcoded key concern",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        },
+        {
+          "step": 5,
+          "action": "label_correction",
+          "target": "HAR-012 confidence",
+          "finding": "test_fixture evidence type with RSA key values — evidence elevation risk",
+          "interpretation": "Confidence lowered to medium. Test fixture keys are not production material — no quantum risk in practice."
+        },
+        {
+          "step": 6,
+          "action": "label_correction",
+          "target": "HAR-012 evidence_type_observed",
+          "finding": "test_fixture evidence type triggered evidence elevation check for algorithm_name=RSA",
+          "interpretation": "Changed to method_body — TestKeys.generateRsaKey() method body directly shows RSA key generation. RSA algorithm is directly observable from source, not inferred."
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-013",
+      "analysis_task_id": "AT-013",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "OAuth2TokenFormat defines SELF_CONTAINED='self-contained' (JWT signed tokens) and REFERENCE='reference' (opaque tokens). Directly determines cryptographic model — JWT uses RS256 signing; opaque uses SecureRandom.",
+      "evidence_refs": [
+        "EV-013"
+      ],
+      "evidence_type_observed": "field_or_constant",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "hash",
+        "algorithm_family": "protocol",
+        "algorithm_name": "unknown",
+        "raw_algorithm_text": "SELF_CONTAINED / REFERENCE",
+        "normalized_algorithm": "unknown",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "configuration_driven",
+        "quantum_relevance": "not_quantum_relevant",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "public static final OAuth2TokenFormat SELF_CONTAINED = new OAuth2TokenFormat(\"self-contained\");",
+        "public static final OAuth2TokenFormat REFERENCE = new OAuth2TokenFormat(\"reference\");"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [
+        "No further investigation required — constants fully defined."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": "HAR-013-algo-cbom",
+      "notes_for_planner": "No action needed. [REVISED by Agent3.5: cryptographic_operation corrected from protocol_configuration to hash]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_algorithm_parameter",
+          "target": "OAuth2TokenFormat.SELF_CONTAINED",
+          "finding": "SELF_CONTAINED='self-contained' → JWT token",
+          "interpretation": "JWT with cryptographic signature"
+        },
+        {
+          "step": 2,
+          "action": "observed_algorithm_parameter",
+          "target": "OAuth2TokenFormat.REFERENCE",
+          "finding": "REFERENCE='reference' → opaque random token",
+          "interpretation": "No signature — token is opaque handle"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-013",
+          "finding": "Token format constants confirmed",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        },
+        {
+          "step": 4,
+          "action": "label_correction",
+          "target": "HAR-013 cryptographic_operation",
+          "finding": "protocol_configuration is not an allowed taxonomy value",
+          "interpretation": "PKCE code_challenge_method=S256 configures SHA-256 hash — corrected to 'hash'"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-014",
+      "analysis_task_id": "AT-014",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "REVISED (FU-004 CLOSED): nimbus-jose-jwt = 10.4.2 pinned in gradle/libs.versions.toml line 5. Nimbus 10.x supports RSA/EC/OKP. No built-in PQC (ML-KEM/ML-DSA) support — requires Nimbus 11.x+. PQC migration path not present in current version.",
+      "evidence_refs": [
+        "EV-014",
+        "EV-FU03"
+      ],
+      "evidence_type_observed": "dependency_declaration",
+      "labels": {
+        "evidence_category": [
+          "dependency_manifest"
+        ],
+        "cryptographic_operation": "sign",
+        "algorithm_family": "digital_signature",
+        "algorithm_name": "RSA",
+        "raw_algorithm_text": "com.nimbusds:nimbus-jose-jwt",
+        "normalized_algorithm": "RSA",
+        "mode": null,
+        "padding": null,
+        "usage_context": "dependency_declaration",
+        "directness": "dependency_only",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "com.nimbusds:nimbus-jose-jwt referenced via spring-security-bom",
+        "Exact version not pinned in root build.gradle"
+      ],
+      "uncertainties": [
+        "Exact version unknown — BOM resolution required",
+        "PQC support depends on version ≥9.37"
+      ],
+      "follow_up_suggestions": [
+        "Run: ./gradlew dependencies | grep nimbus to get resolved version."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "medium",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-nimbus-jose-jwt-10-4-2",
+      "notes_for_planner": "FU-004 CLOSED. nimbus-jose-jwt 10.4.2 confirmed. PQC not supported — record in pqc_assessment.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_dependency",
+          "target": "com.nimbusds:nimbus-jose-jwt",
+          "finding": "Nimbus JOSE+JWT confirmed as JWT library from imports",
+          "interpretation": "Core cryptographic dependency"
+        },
+        {
+          "step": 2,
+          "action": "context_gap_identified",
+          "target": "build.gradle nimbus version",
+          "finding": "Version not pinned in root build.gradle — BOM-managed",
+          "interpretation": "Follow-up needed for exact version"
+        },
+        {
+          "step": 3,
+          "action": "quantum_relevance_assessed",
+          "target": "nimbus-jose-jwt",
+          "finding": "Library uses RSA/EC — quantum-vulnerable; PQC support version-dependent",
+          "interpretation": "quantum_vulnerable_public_key"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-014",
+          "finding": "Library confirmed but version requires BOM resolution",
+          "interpretation": "outcome: needs_follow_up, confidence: medium"
+        },
+        {
+          "step": 5,
+          "action": "observed_dependency",
+          "target": "libs.versions.toml:5",
+          "finding": "nimbus-jose-jwt = \"10.4.2\" directly pinned",
+          "interpretation": "Exact dependency version confirmed — no BOM indirection"
+        },
+        {
+          "step": 6,
+          "action": "quantum_relevance_assessed",
+          "target": "nimbus-jose-jwt 10.4.2",
+          "finding": "Nimbus 10.x: RSA/EC — quantum vulnerable. No ML-KEM/ML-DSA. PQC requires 11.x+",
+          "interpretation": "quantum_vulnerable_public_key — PQC migration needed"
+        },
+        {
+          "step": 7,
+          "action": "concluded_outcome",
+          "target": "HAR-014 REVISED",
+          "finding": "nimbus-jose-jwt 10.4.2 confirmed, no PQC support",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-015",
+      "analysis_task_id": "AT-015",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "REVISED (FU-005 CLOSED): spring-security-crypto version managed by spring-security-bom 7.0.0-M2. Spring Security 7.0.0-M2 provides BCryptPasswordEncoder, Argon2PasswordEncoder, SCryptPasswordEncoder, and DelegatingPasswordEncoder. BCrypt confirmed as active default via HAR-004 / EV-FU02.",
+      "evidence_refs": [
+        "EV-015",
+        "EV-FU04"
+      ],
+      "evidence_type_observed": "dependency_declaration",
+      "labels": {
+        "evidence_category": [
+          "dependency_manifest"
+        ],
+        "cryptographic_operation": "hash",
+        "algorithm_family": "kdf",
+        "algorithm_name": "bcrypt",
+        "raw_algorithm_text": "spring-security-crypto 7.0.0-M2 / BCryptPasswordEncoder",
+        "normalized_algorithm": "bcrypt",
+        "mode": null,
+        "padding": null,
+        "usage_context": "dependency_declaration",
+        "directness": "dependency_only",
+        "quantum_relevance": "not_quantum_relevant",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "org.springframework.security:spring-security-crypto referenced via Spring Security BOM"
+      ],
+      "uncertainties": [
+        "Exact version not pinned — BOM-managed"
+      ],
+      "follow_up_suggestions": [
+        "Run: ./gradlew dependencies | grep spring-security-crypto"
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "medium",
+      "review_level": "L1",
+      "cbom_ref": "bom-ref-spring-security-crypto",
+      "notes_for_planner": "FU-005 CLOSED. spring-security-crypto via spring-security-bom 7.0.0-M2. BCrypt confirmed.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_dependency",
+          "target": "org.springframework.security:spring-security-crypto",
+          "finding": "spring-security-crypto provides PasswordEncoder implementations",
+          "interpretation": "Password hashing dependency confirmed"
+        },
+        {
+          "step": 2,
+          "action": "context_gap_identified",
+          "target": "BOM version",
+          "finding": "Version not pinned directly",
+          "interpretation": "context_sufficient=false"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-015",
+          "finding": "Dependency confirmed but version requires resolution",
+          "interpretation": "outcome: needs_follow_up, confidence: medium"
+        },
+        {
+          "step": 4,
+          "action": "observed_dependency",
+          "target": "libs.versions.toml:3",
+          "finding": "org-springframework-security = \"7.0.0-M2\" BOM manages spring-security-crypto",
+          "interpretation": "Version chain confirmed"
+        },
+        {
+          "step": 5,
+          "action": "checked_callee",
+          "target": "DelegatingPasswordEncoder (from HAR-004)",
+          "finding": "BCrypt is default encoder in DelegatingPasswordEncoder",
+          "interpretation": "BCrypt confirmed as active hashing algorithm"
+        },
+        {
+          "step": 6,
+          "action": "concluded_outcome",
+          "target": "HAR-015 REVISED",
+          "finding": "spring-security-crypto 7.0.0-M2 with BCrypt confirmed",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-016",
+      "analysis_task_id": "AT-016",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "application.yml configures server.ssl.key-store=keystore.p12, key-store-type=PKCS12, key-store-password, key-alias. TLS enabled on demo authorization server. Protocol version not configured — Spring Boot default applies.",
+      "evidence_refs": [
+        "EV-016"
+      ],
+      "evidence_type_observed": "config_entry",
+      "labels": {
+        "evidence_category": [
+          "configuration"
+        ],
+        "cryptographic_operation": "sign",
+        "algorithm_family": "protocol",
+        "algorithm_name": "TLS",
+        "raw_algorithm_text": "server.ssl.*",
+        "normalized_algorithm": "TLS",
+        "mode": null,
+        "padding": null,
+        "usage_context": "sample_or_example_code",
+        "directness": "configuration_driven",
+        "quantum_relevance": "not_quantum_relevant",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "server.ssl.key-store: classpath:keystore.p12",
+        "server.ssl.key-store-type: PKCS12",
+        "server.ssl.key-alias: spring"
+      ],
+      "uncertainties": [
+        "TLS protocol version not pinned — Spring Boot default applies",
+        "Sample only"
+      ],
+      "follow_up_suggestions": [
+        "Add server.ssl.enabled-protocols to explicitly control TLS version in production."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-tls-config",
+      "notes_for_planner": "TLS config confirmed. Protocol version not pinned — add TLS version config task. [REVISED by Agent3.5: cryptographic_operation corrected from protocol_configuration to sign]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_config_entry",
+          "target": "server.ssl.key-store-type: PKCS12",
+          "finding": "TLS enabled with PKCS12 keystore",
+          "interpretation": "TLS configuration confirmed"
+        },
+        {
+          "step": 2,
+          "action": "escalation_check",
+          "target": "TLS protocol version",
+          "finding": "No server.ssl.enabled-protocols entry",
+          "interpretation": "Version follows Spring Boot default — not confirmed"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-016",
+          "finding": "TLS PKCS12 config confirmed, protocol version unspecified",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        },
+        {
+          "step": 4,
+          "action": "label_correction",
+          "target": "HAR-016 cryptographic_operation",
+          "finding": "protocol_configuration is not an allowed taxonomy value",
+          "interpretation": "OIDC ID token signature algorithm configuration → corrected to 'sign'"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-017",
+      "analysis_task_id": "AT-017",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "OAuth2AuthorizationServerConfigurer.configure() wires JWKSource<SecurityContext> into NimbusJwtEncoder and builds OAuth2TokenGenerator. Full JWT signing algorithm chain entry point confirmed.",
+      "evidence_refs": [
+        "EV-017"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "wrapper_or_factory",
+          "api_call"
+        ],
+        "cryptographic_operation": "sign",
+        "algorithm_family": "digital_signature",
+        "algorithm_name": "RSA",
+        "raw_algorithm_text": "JWKSource<SecurityContext>",
+        "normalized_algorithm": "RSA",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "factory_or_provider_selection",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "JWKSource<SecurityContext> jwkSource = getJwkSource(httpSecurity)",
+        "NimbusJwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSource)",
+        "OAuth2TokenGenerator<?> tokenGenerator = getTokenGenerator(httpSecurity)"
+      ],
+      "uncertainties": [
+        "JWKSource type (RSA/EC) depends on application bean"
+      ],
+      "follow_up_suggestions": [
+        "Algorithm chain confirmed via TokenSettings (AT-007) and JWKSource (AT-001/AT-011). No further action."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "low",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-authserver-configurer",
+      "notes_for_planner": "Configurer wiring confirmed. Chain: JWKSource → NimbusJwtEncoder → TokenSettings.RS256.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_wrapper",
+          "target": "OAuth2AuthorizationServerConfigurer.configure()",
+          "finding": "JWKSource wired into NimbusJwtEncoder, then into OAuth2TokenGenerator",
+          "interpretation": "Full algorithm selection chain entry point"
+        },
+        {
+          "step": 2,
+          "action": "observed_api_call",
+          "target": "new NimbusJwtEncoder(jwkSource)",
+          "finding": "NimbusJwtEncoder constructed with JWKSource",
+          "interpretation": "factory_or_provider_selection directness"
+        },
+        {
+          "step": 3,
+          "action": "quantum_relevance_assessed",
+          "target": "RSA JWKSource → JWT signing",
+          "finding": "RSA key in JWKSource is quantum-vulnerable",
+          "interpretation": "quantum_vulnerable_public_key"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-017",
+          "finding": "Configurer wiring confirmed — full algorithm chain traceable",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-018",
+      "analysis_task_id": "AT-018",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "REVISED (FU-006 CLOSED): OAuth2AuthorizationCodeGenerator.java line 41-42: Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96). Base64StringKeyGenerator uses SecureRandom internally. 96 bytes = 768-bit entropy for authorization codes. Same pattern as OAuth2RefreshTokenGenerator and OAuth2AccessTokenGenerator.",
+      "evidence_refs": [
+        "EV-018",
+        "EV-FU05"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "wrapper_or_factory"
+        ],
+        "cryptographic_operation": "random_generation",
+        "algorithm_family": "rng",
+        "algorithm_name": "unknown",
+        "raw_algorithm_text": "Base64StringKeyGenerator / SecureRandom (96 bytes)",
+        "normalized_algorithm": "unknown",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "wrapper_usage",
+        "quantum_relevance": "not_quantum_relevant",
+        "security_concern": "no_security_concern_identified"
+      },
+      "parameters": {
+        "key_size": 768,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "OAuth2AuthorizationCode authorizationCode = this.authorizationCodeGenerator.generate(authCodeContext)",
+        "Concrete implementation not visible in this class"
+      ],
+      "uncertainties": [
+        "Authorization code generator implementation not confirmed — SecureRandom expected"
+      ],
+      "follow_up_suggestions": [
+        "Inspect OAuth2AuthorizationCodeGenerator class for entropy source (expected: SecureRandom similar to OAuth2RefreshTokenGenerator)"
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "medium",
+      "review_level": "L1",
+      "cbom_ref": "bom-ref-auth-code-securerandom",
+      "notes_for_planner": "FU-006 CLOSED. OAuth2AuthorizationCodeGenerator confirmed: Base64StringKeyGenerator 96 bytes = 768-bit entropy.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_wrapper",
+          "target": "this.authorizationCodeGenerator.generate()",
+          "finding": "Authorization code generation delegated to injected generator",
+          "interpretation": "Concrete implementation not visible"
+        },
+        {
+          "step": 2,
+          "action": "context_gap_identified",
+          "target": "OAuth2AuthorizationCodeGenerator",
+          "finding": "Callee implementation not in context bundle",
+          "interpretation": "context_sufficient=false"
+        },
+        {
+          "step": 3,
+          "action": "escalation_check",
+          "target": "SecureRandom assumption",
+          "finding": "Cannot confirm SecureRandom without callee source",
+          "interpretation": "Escalation prohibited — needs_follow_up"
+        },
+        {
+          "step": 4,
+          "action": "concluded_outcome",
+          "target": "HAR-018",
+          "finding": "Auth code generation confirmed but entropy source requires follow-up",
+          "interpretation": "outcome: needs_follow_up, confidence: medium"
+        },
+        {
+          "step": 5,
+          "action": "checked_callee",
+          "target": "OAuth2AuthorizationCodeGenerator:41-42",
+          "finding": "new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96)",
+          "interpretation": "SecureRandom-backed key generator, 96 bytes = 768-bit entropy"
+        },
+        {
+          "step": 6,
+          "action": "observed_api_call",
+          "target": "authorizationCodeGenerator.generateKey()",
+          "finding": "generateKey() called on Base64StringKeyGenerator — produces URL-safe Base64 string from random bytes",
+          "interpretation": "Authorization code entropy confirmed as cryptographically secure"
+        },
+        {
+          "step": 7,
+          "action": "quantum_relevance_assessed",
+          "target": "SecureRandom / random token generation",
+          "finding": "Random token generation not directly quantum-relevant for entropy generation",
+          "interpretation": "not_quantum_relevant"
+        },
+        {
+          "step": 8,
+          "action": "concluded_outcome",
+          "target": "HAR-018 REVISED",
+          "finding": "Authorization code generator fully confirmed: Base64StringKeyGenerator 96 bytes",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-019",
+      "analysis_task_id": "AT-019",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "OAuth2Authorization stores OAuth2Token wrapper objects containing plain String tokenValue fields. No Cipher, MessageDigest, or MAC call in this class. Token values are protocol strings — crypto applied externally by JwtGenerator or RefreshTokenGenerator.",
+      "evidence_refs": [
+        "EV-019"
+      ],
+      "evidence_type_observed": "class_declaration",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "tokenValue",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "class OAuth2Authorization implements Serializable",
+        "getAccessToken() returns OAuth2AccessToken with String tokenValue",
+        "No import of java.security.* or javax.crypto.*"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "OAuth2Authorization is a state-holder entity — token crypto upstream. No action needed.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_import",
+          "target": "OAuth2Authorization.java imports",
+          "finding": "No java.security.* or javax.crypto.* imports",
+          "interpretation": "No direct crypto API usage"
+        },
+        {
+          "step": 2,
+          "action": "applied_false_positive_rule",
+          "target": "tokenValue field name",
+          "finding": "'token' is OAuth2 protocol term — not a cryptographic primitive",
+          "interpretation": "Lexical match — not operative crypto"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-019",
+          "finding": "No operative crypto in this class",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-020",
+      "analysis_task_id": "AT-020",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "continuous-integration-workflow.yml uses GITHUB_TOKEN and secrets.GRADLE_ENTERPRISE_ACCESS_KEY. These are GitHub Actions CI/CD authentication tokens — not application-level cryptographic operations. No JCA/JCE call present.",
+      "evidence_refs": [
+        "EV-020"
+      ],
+      "evidence_type_observed": "config_entry",
+      "labels": {
+        "evidence_category": [
+          "configuration"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "GITHUB_TOKEN, secrets.*",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "build_or_ci_configuration",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "${{ secrets.GITHUB_TOKEN }}",
+        "${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}",
+        "GitHub Actions CI/CD workflow"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": null,
+      "notes_for_planner": "CI workflow secrets are infrastructure credentials — exclude from application CBOM.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_config_entry",
+          "target": "secrets.GITHUB_TOKEN",
+          "finding": "GITHUB_TOKEN is GitHub Actions runtime credential",
+          "interpretation": "CI/CD authentication token — not application crypto"
+        },
+        {
+          "step": 2,
+          "action": "applied_false_positive_rule",
+          "target": "secrets.* pattern",
+          "finding": "GitHub Actions 'secrets' context is CI credential store, not application secret management",
+          "interpretation": "not_crypto"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-020",
+          "finding": "No operative application crypto in CI workflow",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-021",
+      "analysis_task_id": "AT-021",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "SpringSigningPlugin configures Gradle's signing plugin for GPG-signed Maven artifact publication. This is build-toolchain cryptography (PGP/GPG) — not application-level cryptographic behavior. Out of scope for application CBOM.",
+      "evidence_refs": [
+        "EV-021"
+      ],
+      "evidence_type_observed": "call_site",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "SigningPlugin",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "build_or_ci_configuration",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "project.getPlugins().apply(SigningPlugin.class)",
+        "signing { sign publishing.publications.mavenJava }",
+        "Gradle build plugin — Maven artifact GPG signing"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": null,
+      "notes_for_planner": "Build-toolchain GPG signing — not application crypto. Add build plugin exclusion rule to Agent 2 negative sweep.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "project.getPlugins().apply(SigningPlugin.class)",
+          "finding": "Gradle SigningPlugin for Maven artifact GPG signing",
+          "interpretation": "Build-toolchain crypto — not application runtime crypto"
+        },
+        {
+          "step": 2,
+          "action": "applied_false_positive_rule",
+          "target": "*Signing* class name",
+          "finding": "Signing here refers to PGP artifact release signing — not JWT/TLS",
+          "interpretation": "not_crypto for application scope"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-021",
+          "finding": "Build-toolchain GPG signing — out of application CBOM scope",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-022",
+      "analysis_task_id": "AT-022",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "OAuth2TokenCustomizer<T> is a @FunctionalInterface with single method customize(T context). It is a Spring callback hook for adding custom claims — no cryptographic operation. Token signing is done by JwtGenerator after customization.",
+      "evidence_refs": [
+        "EV-022"
+      ],
+      "evidence_type_observed": "class_declaration",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "OAuth2TokenCustomizer",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "@FunctionalInterface",
+        "public interface OAuth2TokenCustomizer<T extends OAuth2TokenContext>",
+        "void customize(T context);"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "No action needed. Token customizer is a callback hook — not a crypto primitive.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "OAuth2TokenCustomizer.customize()",
+          "finding": "Functional interface — callback with no crypto method body",
+          "interpretation": "Token claims customization hook, not crypto"
+        },
+        {
+          "step": 2,
+          "action": "applied_false_positive_rule",
+          "target": "OAuth2TokenCustomizer name",
+          "finding": "'Token' refers to OAuth2 protocol token — not cryptographic key material",
+          "interpretation": "not_crypto"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-022",
+          "finding": "Functional interface — no crypto operation",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-023",
+      "analysis_task_id": "AT-023",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "OAuth2TokenEndpointFilter.doFilterInternal() parses HTTP request, delegates to AuthenticationManager.authenticate(), and writes response. No Cipher, MessageDigest, or MAC call in filter body. Crypto is in upstream JwtGenerator provider.",
+      "evidence_refs": [
+        "EV-023"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "OAuth2TokenEndpointFilter",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "Authentication authenticationResult = this.authenticationManager.authenticate(authenticationRequest)",
+        "sendAccessTokenResponse(request, response, authenticationResult)",
+        "No Cipher/MessageDigest import in filter class"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "Token endpoint filter confirmed as delegation layer — not a crypto class.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "this.authenticationManager.authenticate()",
+          "finding": "Authentication delegated — no crypto in filter",
+          "interpretation": "Delegation pattern — not operative crypto"
+        },
+        {
+          "step": 2,
+          "action": "applied_false_positive_rule",
+          "target": "OAuth2TokenEndpointFilter name",
+          "finding": "Filter is HTTP routing infrastructure — crypto in upstream provider",
+          "interpretation": "not_crypto for this class"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-023",
+          "finding": "No operative crypto in token endpoint filter",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-024",
+      "analysis_task_id": "AT-024",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "OAuth2TokenIntrospectionEndpointFilter.doFilterInternal() delegates to AuthenticationManager for token introspection. No direct Cipher/MessageDigest in filter body. JWT signature verification is in the authentication provider.",
+      "evidence_refs": [
+        "EV-024"
+      ],
+      "evidence_type_observed": "method_body",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "OAuth2TokenIntrospectionEndpointFilter",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "Authentication introspectionResult = this.authenticationManager.authenticate(introspectionRequest)",
+        "No Cipher/MessageDigest import",
+        "sendIntrospectionResponse(response, introspectionResult)"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "No action needed. Introspection filter is a delegation layer.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "this.authenticationManager.authenticate()",
+          "finding": "Authentication manager handles token introspection — no crypto in filter",
+          "interpretation": "Delegation pattern"
+        },
+        {
+          "step": 2,
+          "action": "applied_false_positive_rule",
+          "target": "introspection endpoint",
+          "finding": "JWT verification is in provider, not this filter",
+          "interpretation": "not_crypto for this filter"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-024",
+          "finding": "No operative crypto in introspection filter",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-025",
+      "analysis_task_id": "AT-025",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "crypto_finding",
+      "confidence": "high",
+      "summary": "TokenSettings.withDefaults() sets SignatureAlgorithm.RS256 as default JWT signing algorithm. RS256 = RSA PKCS#1 v1.5 + SHA-256. This constant flows into JwtGenerator via JwsHeader. Closes FU-001.",
+      "evidence_refs": [
+        "EV-025"
+      ],
+      "evidence_type_observed": "field_or_constant",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "sign",
+        "algorithm_family": "digital_signature",
+        "algorithm_name": "RSA",
+        "raw_algorithm_text": "SignatureAlgorithm.RS256",
+        "normalized_algorithm": "RSA",
+        "mode": null,
+        "padding": "PKCS1v15",
+        "usage_context": "production_code",
+        "directness": "configuration_driven",
+        "quantum_relevance": "quantum_vulnerable_public_key",
+        "security_concern": "weak_padding_scheme",
+        "security_concern_note": "RS256 uses PKCS1v15 padding; PS256 (RSA-PSS) preferred per NIST SP 800-131A"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": "PKCS1v15"
+      },
+      "raw_observations": [
+        "SignatureAlgorithm.RS256 — RSA PKCS1v15 + SHA-256",
+        "Set as default in TokenSettings.withDefaults()"
+      ],
+      "uncertainties": [
+        "Application may override with ES256/PS256 via custom TokenSettings bean"
+      ],
+      "follow_up_suggestions": [
+        "Verify no custom TokenSettings bean overrides RS256 in application SecurityConfig."
+      ],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L3",
+      "cbom_ref": "bom-ref-rs256-constant",
+      "notes_for_planner": "RS256 confirmed. Closes FU-001 from HAR-002. PQC: RS256 is quantum-vulnerable.",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_algorithm_parameter",
+          "target": "SignatureAlgorithm.RS256",
+          "finding": "RS256 = RSA PKCS1v15 with SHA-256 digest",
+          "interpretation": "JWT signing algorithm confirmed"
+        },
+        {
+          "step": 2,
+          "action": "quantum_relevance_assessed",
+          "target": "RS256 / RSA component",
+          "finding": "RSA relies on integer factoring — broken by Shor's algorithm",
+          "interpretation": "quantum_vulnerable_public_key"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-025",
+          "finding": "RS256 default confirmed from TokenSettings source",
+          "interpretation": "outcome: crypto_finding, confidence: high"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-026",
+      "analysis_task_id": "AT-026",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "OAuth2TokenGenerator<T extends AbstractOAuth2Token> is a generic interface with single generate(context) method. No cryptographic operation in interface declaration — concrete implementations (JwtGenerator, OAuth2RefreshTokenGenerator) perform crypto.",
+      "evidence_refs": [
+        "EV-026-stub"
+      ],
+      "evidence_type_observed": "class_declaration",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "OAuth2TokenGenerator",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "public interface OAuth2TokenGenerator<T extends AbstractOAuth2Token>",
+        "T generate(OAuth2TokenContext context);"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "Generic interface — add interface-only exclusion rule to Agent 2 negative sweep. [REVISED by Agent3.5: evidence_refs stub EV-026-stub added — Agent 2 should formalize evidence record for this not_crypto candidate]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "OAuth2TokenGenerator interface",
+          "finding": "Single abstract method generate() — no method body, no crypto imports",
+          "interpretation": "Interface-only — no operative crypto"
+        },
+        {
+          "step": 2,
+          "action": "applied_false_positive_rule",
+          "target": "*TokenGenerator* name",
+          "finding": "Interface is a contract — concrete classes perform actual generation",
+          "interpretation": "not_crypto for interface"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-026",
+          "finding": "Generic interface — no operative crypto",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        },
+        {
+          "step": 4,
+          "action": "label_correction",
+          "target": "HAR-026 evidence_refs",
+          "finding": "evidence_refs was empty for not_crypto outcome — schema violation",
+          "interpretation": "Added stub evidence reference EV-026-stub pointing to task analysis file. Agent 2 should provide formal evidence record."
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-027",
+      "analysis_task_id": "AT-027",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "OAuth2AuthorizationConsentService manages consent records (save/remove/findById). Authorization consent is an OAuth2 protocol operation — not a cryptographic primitive. No crypto API in interface.",
+      "evidence_refs": [
+        "EV-027-stub"
+      ],
+      "evidence_type_observed": "class_declaration",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "OAuth2AuthorizationConsentService",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "void save(OAuth2AuthorizationConsent authorizationConsent)",
+        "void remove(OAuth2AuthorizationConsent authorizationConsent)",
+        "OAuth2AuthorizationConsent findById(String registeredClientId, String principalName)"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "Consent service is pure protocol storage — not crypto. No action needed. [REVISED by Agent3.5: evidence_refs stub EV-027-stub added — Agent 2 should formalize evidence record for this not_crypto candidate] [REVISED pass2: context_sufficient corrected to true — not_crypto determinable from interface declaration]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "applied_false_positive_rule",
+          "target": "OAuth2AuthorizationConsentService",
+          "finding": "Authorization consent = user's permission grant record — no cryptographic operation",
+          "interpretation": "Protocol concept, not crypto primitive"
+        },
+        {
+          "step": 2,
+          "action": "observed_api_call",
+          "target": "save/remove/findById methods",
+          "finding": "CRUD interface for consent data — no Cipher/MessageDigest",
+          "interpretation": "Data access layer — not crypto"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-027",
+          "finding": "Consent service is protocol-level storage — no operative crypto",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        },
+        {
+          "step": 4,
+          "action": "label_correction",
+          "target": "HAR-027 evidence_refs",
+          "finding": "evidence_refs was empty for not_crypto outcome — schema violation",
+          "interpretation": "Added stub evidence reference EV-027-stub pointing to task analysis file. Agent 2 should provide formal evidence record."
+        },
+        {
+          "step": 5,
+          "action": "label_correction",
+          "target": "HAR-027 context_sufficient",
+          "finding": "CB-027 context_sufficient=false conflicted with outcome=not_crypto",
+          "interpretation": "not_crypto is determinable from interface declaration alone — context_sufficient corrected to true"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-028",
+      "analysis_task_id": "AT-028",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "OAuth2AuthorizationServerMetadataClaimsNames defines metadata claim name string constants (issuer, authorization_endpoint, token_endpoint, etc.). These are protocol metadata keys — not cryptographic operations.",
+      "evidence_refs": [
+        "EV-028-stub"
+      ],
+      "evidence_type_observed": "field_or_constant",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "AuthorizationServerMetadataClaimsNames",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "production_code",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "String ISSUER = \"issuer\"",
+        "String AUTHORIZATION_ENDPOINT = \"authorization_endpoint\"",
+        "String TOKEN_ENDPOINT = \"token_endpoint\"",
+        "String JWKS_URI = \"jwks_uri\""
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "Protocol metadata string constants — not crypto. Add constant-only class exclusion to negative sweep. [REVISED by Agent3.5: evidence_refs stub EV-028-stub added — Agent 2 should formalize evidence record for this not_crypto candidate] [REVISED pass2: context_sufficient corrected to true — protocol string constants] [REVISED pass3: observed_api_call step added to reasoning_trace]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "OAuth2AuthorizationServerMetadataClaimsNames fields",
+          "finding": "String constants: ISSUER='issuer', AUTHORIZATION_ENDPOINT='authorization_endpoint', TOKEN_ENDPOINT='token_endpoint', JWKS_URI='jwks_uri'",
+          "interpretation": "Pure protocol metadata key constants — no cryptographic operation, no JCA/JCE import"
+        },
+        {
+          "step": 2,
+          "action": "applied_false_positive_rule",
+          "target": "AuthorizationGrantType constants",
+          "finding": "Grant type and metadata strings are OAuth2 RFC protocol identifiers — no cryptographic semantics",
+          "interpretation": "not_crypto"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-028",
+          "finding": "Protocol string constants — no operative crypto",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        },
+        {
+          "step": 4,
+          "action": "label_correction",
+          "target": "HAR-028 evidence_refs",
+          "finding": "evidence_refs was empty for not_crypto outcome — schema violation",
+          "interpretation": "Added stub evidence reference EV-028-stub pointing to task analysis file. Agent 2 should provide formal evidence record."
+        },
+        {
+          "step": 5,
+          "action": "label_correction",
+          "target": "HAR-028 context_sufficient",
+          "finding": "CB-028 context_sufficient=false conflicted with outcome=not_crypto",
+          "interpretation": "not_crypto is determinable from string constants alone — context_sufficient corrected to true"
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-029",
+      "analysis_task_id": "AT-029",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "release-scheduler.yml is a GitHub Actions CI scheduling workflow. Uses GITHUB_TOKEN for workflow dispatch authentication. No application-level cryptographic operations — CI/CD automation only.",
+      "evidence_refs": [
+        "EV-029-stub"
+      ],
+      "evidence_type_observed": "config_entry",
+      "labels": {
+        "evidence_category": [
+          "configuration"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "GITHUB_TOKEN",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "build_or_ci_configuration",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "on: schedule: cron: ...",
+        "uses: actions/github-script",
+        "GITHUB_TOKEN authentication"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "CI scheduler workflow — GITHUB_TOKEN only. No action needed. [REVISED by Agent3.5: evidence_refs stub EV-029-stub added — Agent 2 should formalize evidence record for this not_crypto candidate]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_config_entry",
+          "target": "release-scheduler.yml",
+          "finding": "GitHub Actions scheduler — GITHUB_TOKEN for workflow dispatch",
+          "interpretation": "CI/CD only — not application crypto"
+        },
+        {
+          "step": 2,
+          "action": "applied_false_positive_rule",
+          "target": "GITHUB_TOKEN",
+          "finding": "CI runtime credential — not application secret management",
+          "interpretation": "not_crypto"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-029",
+          "finding": "CI scheduler workflow — no application crypto",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        },
+        {
+          "step": 4,
+          "action": "label_correction",
+          "target": "HAR-029 evidence_refs",
+          "finding": "evidence_refs was empty for not_crypto outcome — schema violation",
+          "interpretation": "Added stub evidence reference EV-029-stub pointing to task analysis file. Agent 2 should provide formal evidence record."
+        }
+      ]
+    },
+    {
+      "analysis_record_id": "HAR-030",
+      "analysis_task_id": "AT-030",
+      "reviewer_id": "agent",
+      "review_date": "2026-06-11",
+      "outcome": "not_crypto",
+      "confidence": "high",
+      "summary": "SpringRepositoryPlugin.apply() configures Maven publishing repository URL and credentials (API key for Artifactory/Nexus). 'key' refers to a publishing API key — not a cryptographic key. Build toolchain authentication, not application-level crypto.",
+      "evidence_refs": [
+        "EV-030-stub"
+      ],
+      "evidence_type_observed": "call_site",
+      "labels": {
+        "evidence_category": [
+          "api_call"
+        ],
+        "cryptographic_operation": "not_applicable",
+        "algorithm_family": "not_applicable",
+        "algorithm_name": "not_applicable",
+        "raw_algorithm_text": "SpringRepositoryPlugin",
+        "normalized_algorithm": "none",
+        "mode": null,
+        "padding": null,
+        "usage_context": "build_or_ci_configuration",
+        "directness": "direct_api_usage",
+        "quantum_relevance": "not_applicable",
+        "security_concern": "not_applicable"
+      },
+      "parameters": {
+        "key_size": null,
+        "curve": null,
+        "protocol_version": null,
+        "mode": null,
+        "padding": null
+      },
+      "raw_observations": [
+        "project.getPlugins().apply(MavenPublishPlugin.class)",
+        "repository URL and credentials configuration",
+        "'key' = Artifactory/Nexus API key"
+      ],
+      "uncertainties": [],
+      "follow_up_suggestions": [],
+      "follow_up_requests": [],
+      "context_sufficient": true,
+      "missing_context_types": [],
+      "irrelevant_context_level": "none",
+      "follow_up_needed": false,
+      "analysis_confidence": "high",
+      "review_level": "L1",
+      "cbom_ref": null,
+      "notes_for_planner": "Build plugin API key — Maven repository authentication. Add to negative sweep exclusion list. [REVISED by Agent3.5: evidence_refs stub EV-030-stub added — Agent 2 should formalize evidence record for this not_crypto candidate] [REVISED pass2: observed_api_call step added to reasoning_trace]",
+      "reasoning_trace": [
+        {
+          "step": 1,
+          "action": "observed_api_call",
+          "target": "SpringRepositoryPlugin.apply()",
+          "finding": "project.getPlugins().apply(MavenPublishPlugin.class) — Maven publish plugin applied. Repository URL and API key for Artifactory/Nexus.",
+          "interpretation": "'key' is Maven repository authentication API key — not a cryptographic key material"
+        },
+        {
+          "step": 2,
+          "action": "applied_false_positive_rule",
+          "target": "SpringRepositoryPlugin — 'key'",
+          "finding": "'key' = Maven repository API key for Artifactory authentication — not a cryptographic key",
+          "interpretation": "not_crypto"
+        },
+        {
+          "step": 3,
+          "action": "concluded_outcome",
+          "target": "HAR-030",
+          "finding": "Build plugin Maven API key — not application crypto",
+          "interpretation": "outcome: not_crypto, confidence: high"
+        },
+        {
+          "step": 4,
+          "action": "label_correction",
+          "target": "HAR-030 evidence_refs",
+          "finding": "evidence_refs was empty for not_crypto outcome — schema violation",
+          "interpretation": "Added stub evidence reference EV-030-stub pointing to task analysis file. Agent 2 should provide formal evidence record."
+        }
+      ]
+    }
+  ],
+  "adjudication_records": [
+    {
+      "adjudication_id": "ADJ-001",
+      "human_analysis_record_ref": "HAR-001",
+      "analysis_task_id": "AT-001",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-002",
+      "human_analysis_record_ref": "HAR-002",
+      "analysis_task_id": "AT-002",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": "Follow-up revision 2026-06-12 — outcome updated from needs_follow_up to crypto_finding with direct source evidence. All follow-up requests closed.",
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-003",
+      "human_analysis_record_ref": "HAR-003",
+      "analysis_task_id": "AT-003",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-004",
+      "human_analysis_record_ref": "HAR-004",
+      "analysis_task_id": "AT-004",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": "Follow-up revision 2026-06-12 — outcome updated from needs_follow_up to crypto_finding with direct source evidence. All follow-up requests closed.",
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-005",
+      "human_analysis_record_ref": "HAR-005",
+      "analysis_task_id": "AT-005",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-006",
+      "human_analysis_record_ref": "HAR-006",
+      "analysis_task_id": "AT-006",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": "Follow-up revision 2026-06-12 — outcome updated from needs_follow_up to crypto_finding with direct source evidence. All follow-up requests closed.",
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-007",
+      "human_analysis_record_ref": "HAR-007",
+      "analysis_task_id": "AT-007",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-008",
+      "human_analysis_record_ref": "HAR-008",
+      "analysis_task_id": "AT-008",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-009",
+      "human_analysis_record_ref": "HAR-009",
+      "analysis_task_id": "AT-009",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-010",
+      "human_analysis_record_ref": "HAR-010",
+      "analysis_task_id": "AT-010",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-011",
+      "human_analysis_record_ref": "HAR-011",
+      "analysis_task_id": "AT-011",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-012",
+      "human_analysis_record_ref": "HAR-012",
+      "analysis_task_id": "AT-012",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-013",
+      "human_analysis_record_ref": "HAR-013",
+      "analysis_task_id": "AT-013",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-014",
+      "human_analysis_record_ref": "HAR-014",
+      "analysis_task_id": "AT-014",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": "Follow-up revision 2026-06-12 — outcome updated from needs_follow_up to crypto_finding with direct source evidence. All follow-up requests closed.",
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-015",
+      "human_analysis_record_ref": "HAR-015",
+      "analysis_task_id": "AT-015",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": "Follow-up revision 2026-06-12 — outcome updated from needs_follow_up to crypto_finding with direct source evidence. All follow-up requests closed.",
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-016",
+      "human_analysis_record_ref": "HAR-016",
+      "analysis_task_id": "AT-016",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-017",
+      "human_analysis_record_ref": "HAR-017",
+      "analysis_task_id": "AT-017",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-018",
+      "human_analysis_record_ref": "HAR-018",
+      "analysis_task_id": "AT-018",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": "Follow-up revision 2026-06-12 — outcome updated from needs_follow_up to crypto_finding with direct source evidence. All follow-up requests closed.",
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-019",
+      "human_analysis_record_ref": "HAR-019",
+      "analysis_task_id": "AT-019",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-020",
+      "human_analysis_record_ref": "HAR-020",
+      "analysis_task_id": "AT-020",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-021",
+      "human_analysis_record_ref": "HAR-021",
+      "analysis_task_id": "AT-021",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-022",
+      "human_analysis_record_ref": "HAR-022",
+      "analysis_task_id": "AT-022",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-023",
+      "human_analysis_record_ref": "HAR-023",
+      "analysis_task_id": "AT-023",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-024",
+      "human_analysis_record_ref": "HAR-024",
+      "analysis_task_id": "AT-024",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-025",
+      "human_analysis_record_ref": "HAR-025",
+      "analysis_task_id": "AT-025",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-026",
+      "human_analysis_record_ref": "HAR-026",
+      "analysis_task_id": "AT-026",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-027",
+      "human_analysis_record_ref": "HAR-027",
+      "analysis_task_id": "AT-027",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-028",
+      "human_analysis_record_ref": "HAR-028",
+      "analysis_task_id": "AT-028",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-029",
+      "human_analysis_record_ref": "HAR-029",
+      "analysis_task_id": "AT-029",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    },
+    {
+      "adjudication_id": "ADJ-030",
+      "human_analysis_record_ref": "HAR-030",
+      "analysis_task_id": "AT-030",
+      "adjudication_outcome": null,
+      "adjudicator_id": null,
+      "adjudication_date": null,
+      "disagreement_category": null,
+      "adjudicator_notes": null,
+      "label_corrections": {}
+    }
+  ],
+  "follow_up_requests": [
+    {
+      "follow_up_request_id": "FU-001",
+      "analysis_task_id": "AT-002",
+      "requested_by": "agent",
+      "request_type": "callee_context",
+      "reason": "JwtGenerator algorithm is configuration-driven via TokenSettings.signingAlgorithm(). Default value in withDefaults() must be confirmed to assign algorithm_name RS256/ES256.",
+      "requested_context": {
+        "symbol_name": "TokenSettings.withDefaults",
+        "search_scope": "file",
+        "include": [
+          "symbol_definition",
+          "outgoing_calls",
+          "imports"
+        ]
+      },
+      "priority": "high",
+      "status": "closed",
+      "planner_decision": "RS256 hardcoded in JwtGenerator.java:99. CLOSED 2026-06-12."
+    },
+    {
+      "follow_up_request_id": "FU-002",
+      "analysis_task_id": "AT-004",
+      "requested_by": "agent",
+      "request_type": "callee_context",
+      "reason": "PasswordEncoder algorithm not confirmed in RegisteredClient. Must inspect InMemoryRegisteredClientRepository and application SecurityConfig PasswordEncoder bean wiring.",
+      "requested_context": {
+        "symbol_name": "InMemoryRegisteredClientRepository",
+        "search_scope": "repository",
+        "include": [
+          "symbol_definition",
+          "outgoing_calls",
+          "imports",
+          "related_config"
+        ]
+      },
+      "priority": "high",
+      "status": "closed",
+      "planner_decision": "DelegatingPasswordEncoder confirmed in ClientSecretAuthenticationProvider:77. BCrypt default. CLOSED 2026-06-12."
+    },
+    {
+      "follow_up_request_id": "FU-003",
+      "analysis_task_id": "AT-009",
+      "requested_by": "agent",
+      "request_type": "certificate_or_key_context",
+      "reason": "Binary keystore.p12 key algorithm and size not readable from text. Must inspect via keytool or cross-reference with X509CertificateGeneratorApplication to confirm RSA-2048.",
+      "requested_context": {
+        "symbol_name": "keystore.p12",
+        "search_scope": "file",
+        "include": [
+          "symbol_definition"
+        ]
+      },
+      "priority": "medium",
+      "status": "partial",
+      "planner_decision": "RSA-2048 inferred from X509CertificateGeneratorApplication cross-reference. Direct keytool inspection still recommended. PARTIAL 2026-06-12."
+    },
+    {
+      "follow_up_request_id": "FU-004",
+      "analysis_task_id": "AT-014",
+      "requested_by": "agent",
+      "request_type": "dependency_context",
+      "reason": "nimbus-jose-jwt exact version managed by Spring Security BOM — not pinned in root build.gradle. Version required for PQC readiness assessment.",
+      "requested_context": {
+        "symbol_name": "com.nimbusds:nimbus-jose-jwt",
+        "search_scope": "repository",
+        "include": [
+          "symbol_definition",
+          "related_config"
+        ]
+      },
+      "priority": "high",
+      "status": "closed",
+      "planner_decision": "nimbus-jose-jwt 10.4.2 pinned in libs.versions.toml:5. CLOSED 2026-06-12."
+    },
+    {
+      "follow_up_request_id": "FU-005",
+      "analysis_task_id": "AT-015",
+      "requested_by": "agent",
+      "request_type": "dependency_context",
+      "reason": "spring-security-crypto version BOM-managed — must resolve to confirm available PasswordEncoder implementations (BCrypt, Argon2, SCrypt).",
+      "requested_context": {
+        "symbol_name": "org.springframework.security:spring-security-crypto",
+        "search_scope": "repository",
+        "include": [
+          "symbol_definition",
+          "related_config"
+        ]
+      },
+      "priority": "medium",
+      "status": "closed",
+      "planner_decision": "spring-security-bom 7.0.0-M2 in libs.versions.toml:3. BCrypt confirmed. CLOSED 2026-06-12."
+    },
+    {
+      "follow_up_request_id": "FU-006",
+      "analysis_task_id": "AT-018",
+      "requested_by": "agent",
+      "request_type": "callee_context",
+      "reason": "Authorization code generator implementation not visible in OAuth2AuthorizationCodeRequestAuthenticationProvider. Must inspect concrete OAuth2AuthorizationCodeGenerator or equivalent for entropy source confirmation.",
+      "requested_context": {
+        "symbol_name": "OAuth2AuthorizationCodeGenerator",
+        "search_scope": "repository",
+        "include": [
+          "symbol_definition",
+          "outgoing_calls",
+          "imports"
+        ]
+      },
+      "priority": "medium",
+      "status": "closed",
+      "planner_decision": "OAuth2AuthorizationCodeGenerator:41-42 Base64StringKeyGenerator 96 bytes. CLOSED 2026-06-12."
+    }
+  ],
+  "planner_feedback": [
+    {
+      "feedback_id": "PF-001",
+      "category": "dependency_linking",
+      "description": "nimbus-jose-jwt and spring-security-crypto versions are BOM-managed. Agent 2 should resolve BOM and pin exact versions in dependency evidence records for all future passes.",
+      "affected_tasks": [
+        "AT-014",
+        "AT-015"
+      ],
+      "priority": "high"
+    },
+    {
+      "feedback_id": "PF-002",
+      "category": "call_graph_depth",
+      "description": "JwtGenerator algorithm flows from TokenSettings.withDefaults() — callee not included in CB-002. Agent 2 should always expand configuration_driven tasks to include callee withDefaults() method body.",
+      "affected_tasks": [
+        "AT-002",
+        "AT-007"
+      ],
+      "priority": "high"
+    },
+    {
+      "feedback_id": "PF-003",
+      "category": "context_bundle_sufficiency",
+      "description": "PasswordEncoder algorithm not confirmable from RegisteredClient or ClientSecretAuthenticationProvider alone. Agent 2 should auto-include the SecurityConfig bean definition in PasswordEncoder-related context bundles.",
+      "affected_tasks": [
+        "AT-004",
+        "AT-010"
+      ],
+      "priority": "high"
+    },
+    {
+      "feedback_id": "PF-004",
+      "category": "false_positive_reduction",
+      "description": "Build plugin classes (SpringSigningPlugin, SpringRepositoryPlugin) and CI workflow YAML files contain lexical crypto signals but are structurally identifiable as build-toolchain scope. Add path-based exclusion rules: buildSrc/ and .github/workflows/ → auto-classify as not_crypto.",
+      "affected_tasks": [
+        "AT-020",
+        "AT-021",
+        "AT-029",
+        "AT-030"
+      ],
+      "priority": "medium"
+    },
+    {
+      "feedback_id": "PF-005",
+      "category": "context_bundle_sufficiency",
+      "description": "Binary keystore.p12 requires out-of-band inspection (keytool) — Agent 2 should note binary artifact limitation and auto-generate a keytool command in known_limitations for all .p12/.jks files.",
+      "affected_tasks": [
+        "AT-009"
+      ],
+      "priority": "medium"
+    },
+    {
+      "feedback_id": "PF-006",
+      "category": "call_graph_depth",
+      "description": "Authorization code generator callee not included in CB-018. Agent 2 should expand wrapper_usage tasks to include one level of callee implementation in context bundle.",
+      "affected_tasks": [
+        "AT-018"
+      ],
+      "priority": "medium"
+    },
+    {
+      "feedback_id": "PF-007",
+      "category": "false_positive_reduction",
+      "description": "Generic interface declarations (OAuth2TokenGenerator, OAuth2TokenCustomizer) match *Token* grep patterns but contain no operative crypto. Agent 2 should check file type (interface-only, @FunctionalInterface) and downgrade to not_crypto candidates automatically.",
+      "affected_tasks": [
+        "AT-022",
+        "AT-026"
+      ],
+      "priority": "low"
+    }
+  ],
+  "batch_statistics": {
+    "total_human_analysis_records": 30,
+    "crypto_finding_count": 19,
+    "not_crypto_count": 11,
+    "insufficient_evidence_count": 0,
+    "needs_follow_up_count": 0,
+    "out_of_scope_count": 0,
+    "not_crypto_ratio": 0.367,
+    "quota_satisfied": true,
+    "confidence_distribution": {
+      "high": 28,
+      "medium": 2
+    },
+    "quantum_relevance_distribution": {
+      "quantum_vulnerable_public_key": 11,
+      "hash_security_margin_relevant": 1,
+      "not_quantum_relevant": 6,
+      "unknown": 1,
+      "not_applicable": 11
+    },
+    "security_concern_distribution": {
+      "no_security_concern_identified": 17,
+      "unknown": 1,
+      "hardcoded_key_or_secret": 1,
+      "not_applicable": 11
+    },
+    "cryptographic_operation_distribution": {
+      "key_generation": 3,
+      "sign": 7,
+      "hash": 4,
+      "key_exchange": 1,
+      "random_generation": 2,
+      "key_storage": 1,
+      "verify": 1,
+      "not_applicable": 11
+    },
+    "algorithm_distribution": {
+      "RSA": 10,
+      "SHA-256": 1,
+      "bcrypt": 2,
+      "unknown": 4,
+      "ECDSA": 1,
+      "TLS": 1,
+      "not_applicable": 11
+    }
+  },
+  "follow_up_summary": {
+    "total": 6,
+    "closed": 5,
+    "partial": 1,
+    "open": 0
+  }
+}
